@@ -1,0 +1,23 @@
+{
+  "thing": "Lamp",
+  "collectionName": "Crypto Lamps",
+  "blockchain": "Ethereum",
+  "description": "A collection of 10,000 unique, crypto-themed lamps.",
+  "colors": [
+    { "name": "Dusty Brass", "rarity": "common", "weight": 25 },
+    { "name": "Basic Beige", "rarity": "common", "weight": 25 },
+    { "name": "Copper Glow", "rarity": "uncommon", "weight": 15 },
+    { "name": "Emerald Glass", "rarity": "uncommon", "weight": 15 },
+    { "name": "Plasma Filament", "rarity": "rare", "weight": 15 },
+    { "name": "Quantum Light Stream", "rarity": "veryRare", "weight": 5 }
+  ],
+  "props": [
+    { "name": "None", "rarity": "notPresent", "weight": 30, "verb": null },
+    { "name": "Pull Chain", "rarity": "common", "weight": 15, "verb": "wearing" },
+    { "name": "Standard Shade", "rarity": "common", "weight": 15, "verb": "wearing" },
+    { "name": "Dimmer Switch", "rarity": "uncommon", "weight": 10, "verb": "holding" },
+    { "name": "Tasseled Trim", "rarity": "uncommon", "weight": 10, "verb": "wearing" },
+    { "name": "Crystal Finial", "rarity": "rare", "weight": 10, "verb": "wearing" },
+    { "name": "Genie Wish Orb", "rarity": "veryRare", "weight": 5, "verb": "holding" }
+  ]
+} 

@@ -1,0 +1,23 @@
+{
+  "thing": "Potato",
+  "collectionName": "Crypto Potatoes",
+  "blockchain": "Ethereum",
+  "description": "A collection of 10,000 unique, crypto-themed potatoes.",
+  "colors": [
+    { "name": "Muddy Brown", "rarity": "common", "weight": 40 },
+    { "name": "Dusty Tan", "rarity": "common", "weight": 40 },
+    { "name": "Golden Crisp", "rarity": "uncommon", "weight": 25 },
+    { "name": "Saffron Spud", "rarity": "uncommon", "weight": 25 },
+    { "name": "Radioactive Green", "rarity": "rare", "weight": 10 },
+    { "name": "Cosmic Spud Glow", "rarity": "veryRare", "weight": 2 }
+  ],
+  "props": [
+    { "name": "None", "rarity": "notPresent", "weight": 50, "verb": null },
+    { "name": "Spud Cap", "rarity": "common", "weight": 20, "verb": "wearing" },
+    { "name": "Tater Bandana", "rarity": "common", "weight": 20, "verb": "wearing" },
+    { "name": "Tater Tinted Shades", "rarity": "uncommon", "weight": 15, "verb": "wearing" },
+    { "name": "Spud Monocle", "rarity": "uncommon", "weight": 15, "verb": "wearing" },
+    { "name": "Mash Lord Tiara", "rarity": "rare", "weight": 5, "verb": "wearing" },
+    { "name": "Golden Fry Scepter", "rarity": "veryRare", "weight": 1, "verb": "holding" }
+  ]
+} 

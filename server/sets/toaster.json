@@ -1,0 +1,23 @@
+{
+  "thing": "Toaster",
+  "collectionName": "Crypto Toasters",
+  "blockchain": "Ethereum",
+  "description": "A collection of 10,000 unique, crypto-themed toasters.",
+  "colors": [
+    { "name": "Rusty Chrome", "rarity": "common", "weight": 25 },
+    { "name": "Burnt Beige", "rarity": "common", "weight": 25 },
+    { "name": "Shiny Stainless", "rarity": "uncommon", "weight": 15 },
+    { "name": "Retro Red", "rarity": "uncommon", "weight": 15 },
+    { "name": "Neon Toast Glow", "rarity": "rare", "weight": 15 },
+    { "name": "Quantum Crumb Spark", "rarity": "veryRare", "weight": 5 }
+  ],
+  "props": [
+    { "name": "None", "rarity": "notPresent", "weight": 30, "verb": null },
+    { "name": "Toast Tong", "rarity": "common", "weight": 15, "verb": "holding" },
+    { "name": "Crumb Catcher", "rarity": "common", "weight": 15, "verb": "wearing" },
+    { "name": "Butter Knife", "rarity": "uncommon", "weight": 10, "verb": "holding" },
+    { "name": "Pop-Up Crown", "rarity": "uncommon", "weight": 10, "verb": "wearing" },
+    { "name": "Golden Bagel Slicer", "rarity": "rare", "weight": 10, "verb": "holding" },
+    { "name": "Holo-Bread Tiara", "rarity": "veryRare", "weight": 5, "verb": "wearing" }
+  ]
+} 

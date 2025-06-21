@@ -1,0 +1,23 @@
+{
+  "thing": "Mug",
+  "collectionName": "Crypto Mugs",
+  "blockchain": "Solana",
+  "description": "A collection of 10,000 unique, crypto-themed mugs.",
+  "colors": [
+    { "name": "Stained White", "rarity": "common", "weight": 25 },
+    { "name": "Chipped Brown", "rarity": "common", "weight": 25 },
+    { "name": "Espresso Black", "rarity": "uncommon", "weight": 15 },
+    { "name": "Mocha Swirl", "rarity": "uncommon", "weight": 15 },
+    { "name": "Cappuccino Foam", "rarity": "rare", "weight": 15 },
+    { "name": "Latte Art Glow", "rarity": "veryRare", "weight": 5 }
+  ],
+  "props": [
+    { "name": "None", "rarity": "notPresent", "weight": 30, "verb": null },
+    { "name": "Coffee Spoon", "rarity": "common", "weight": 15, "verb": "holding" },
+    { "name": "Mug Cozy", "rarity": "common", "weight": 15, "verb": "wearing" },
+    { "name": "Stir Stick", "rarity": "uncommon", "weight": 10, "verb": "holding" },
+    { "name": "Logo Sticker", "rarity": "uncommon", "weight": 10, "verb": "wearing" },
+    { "name": "Gold Rim", "rarity": "rare", "weight": 10, "verb": "wearing" },
+    { "name": "Diamond Stirrer", "rarity": "veryRare", "weight": 5, "verb": "holding" }
+  ]
+} 

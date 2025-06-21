@@ -6,9 +6,20 @@ import cors from 'cors';
 import { connectToDatabase } from './config/database';
 import authRoutes from './routes/auth';
 import userRoutes from './routes/user';
+import nftRoutes from './routes/nft';
+import { syncNftSetsWithFiles } from './services/nftSetService';
+import mongoose from 'mongoose';
 
 async function startServer() {
   await connectToDatabase();
+
+  // Ensure DB indexes match the models, which will fix the duplicate key error
+  console.log('Synchronizing database indexes...');
+  await mongoose.connection.syncIndexes();
+  console.log('Database indexes synchronized.');
+
+  // Sync NFT sets from files to the database on startup
+  await syncNftSetsWithFiles();
 
   const app = express();
   const port = process.env.PORT || 3000;
@@ -45,6 +56,7 @@ async function startServer() {
   // API Routes - All prefixed with /api
   app.use('/api/auth', authRoutes);
   app.use('/api/user', userRoutes);
+  app.use('/api/nft', nftRoutes);
 
   /**
    * @openapi

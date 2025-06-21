@@ -77,11 +77,11 @@ The game includes various market events that affect NFT prices and market dynami
    - [x] Set up JWT for session management  
    - [x] Create user profiles to store player data (username, balance, NFTs)  
 
-3. **NFT Creation System**  
-   - Design NFT schema with attributes and rarity system  
-   - Build a system for generating unique NFTs with random combinations  
-   - Implement price calculation based on rarity and events  
-   - Add unit tests to validate NFT generation and pricing  
+3. **NFT Creation System (Completed)**  
+   - [x] Design NFT schema with attributes and rarity system  
+   - [x] Build a system for generating unique NFTs with random combinations  
+   - [x] Implement price calculation based on rarity and events  
+   - [x] Add unit tests to validate NFT generation and pricing  
 
 4. **Marketplace Development**  
    - Create listing and purchase functionality  

@@ -1,0 +1,23 @@
+{
+  "thing": "Banana",
+  "collectionName": "Crypto Bananas",
+  "blockchain": "Polygon",
+  "description": "A collection of 10,000 unique, crypto-themed bananas.",
+  "colors": [
+    { "name": "Unripe Green", "rarity": "common", "weight": 25 },
+    { "name": "Standard Yellow", "rarity": "common", "weight": 25 },
+    { "name": "Spotted Brown", "rarity": "uncommon", "weight": 15 },
+    { "name": "Neon Peel", "rarity": "uncommon", "weight": 15 },
+    { "name": "Royal Purple", "rarity": "rare", "weight": 15 },
+    { "name": "Diamond-Infused Shimmer", "rarity": "veryRare", "weight": 5 }
+  ],
+  "props": [
+    { "name": "None", "rarity": "notPresent", "weight": 30, "verb": null },
+    { "name": "Peel Band", "rarity": "common", "weight": 15, "verb": "wearing" },
+    { "name": "Fruit Sticker", "rarity": "common", "weight": 15, "verb": "wearing" },
+    { "name": "Digital Sunglasses", "rarity": "uncommon", "weight": 10, "verb": "wearing" },
+    { "name": "Blockchain Bowtie", "rarity": "uncommon", "weight": 10, "verb": "wearing" },
+    { "name": "Gold Bruise Pattern", "rarity": "rare", "weight": 10, "verb": "wearing" },
+    { "name": "Crypto Slip Halo", "rarity": "veryRare", "weight": 5, "verb": "wearing" }
+  ]
+} 

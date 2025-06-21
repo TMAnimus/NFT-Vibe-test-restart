@@ -1,0 +1,23 @@
+{
+  "thing": "Toast",
+  "collectionName": "Crypto Toast",
+  "blockchain": "Ethereum",
+  "description": "A collection of 10,000 unique, crypto-themed pieces of toast.",
+  "colors": [
+    { "name": "Pale Bread", "rarity": "common", "weight": 25 },
+    { "name": "Burnt Edge", "rarity": "common", "weight": 25 },
+    { "name": "Golden Brown", "rarity": "uncommon", "weight": 15 },
+    { "name": "Marbled Swirl", "rarity": "uncommon", "weight": 15 },
+    { "name": "Perfectly Toasted Gold", "rarity": "rare", "weight": 15 },
+    { "name": "Multidimensional Crunch", "rarity": "veryRare", "weight": 5 }
+  ],
+  "props": [
+    { "name": "None", "rarity": "notPresent", "weight": 30, "verb": null },
+    { "name": "Butter Pat", "rarity": "common", "weight": 15, "verb": "wearing" },
+    { "name": "Jam Smear", "rarity": "common", "weight": 15, "verb": "wearing" },
+    { "name": "Avocado Spread", "rarity": "uncommon", "weight": 10, "verb": "wearing" },
+    { "name": "Sprinkles", "rarity": "uncommon", "weight": 10, "verb": "wearing" },
+    { "name": "Gold Leaf Crust", "rarity": "rare", "weight": 10, "verb": "wearing" },
+    { "name": "Crypto Crumb Crown", "rarity": "veryRare", "weight": 5, "verb": "wearing" }
+  ]
+} 

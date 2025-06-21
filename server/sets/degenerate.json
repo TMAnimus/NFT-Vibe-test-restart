@@ -1,0 +1,41 @@
+{
+  "thing": "Trader",
+  "collectionName": "Distracted Degenerates",
+  "blockchain": "Polygon",
+  "description": "A collection of 10,000 unique, attention-deficient degenerates.",
+  "colors": [
+    { "name": "Human", "rarity": "common", "weight": 25 },
+    { "name": "Zombie", "rarity": "common", "weight": 25 },
+    { "name": "Alien", "rarity": "uncommon", "weight": 15 },
+    { "name": "Robot", "rarity": "uncommon", "weight": 15 },
+    { "name": "Mutant", "rarity": "rare", "weight": 15 },
+    { "name": "Interdimensional Being", "rarity": "veryRare", "weight": 5 }
+  ],
+  "props": [
+    { "name": "None", "rarity": "notPresent", "weight": 20, "verb": null },
+    { "name": "Ramen Cup", "rarity": "common", "weight": 10, "verb": "holding" },
+    { "name": "Energy Drink", "rarity": "common", "weight": 10, "verb": "holding" },
+    { "name": "Beanie Hat", "rarity": "common", "weight": 10, "verb": "wearing" },
+    { "name": "Gaming Headset", "rarity": "uncommon", "weight": 10, "verb": "wearing" },
+    { "name": "Multiple Monitors", "rarity": "uncommon", "weight": 10, "verb": "using" },
+    { "name": "Designer Hoodie", "rarity": "rare", "weight": 10, "verb": "wearing" },
+    { "name": "Hardware Wallet Necklace", "rarity": "rare", "weight": 5, "verb": "wearing" },
+    { "name": "Leverage Trading App", "rarity": "rare", "weight": 5, "verb": "using" },
+    { "name": "Burning Money Hat", "rarity": "veryRare", "weight": 5, "verb": "wearing" },
+    { "name": "Lambo Keys", "rarity": "veryRare", "weight": 5, "verb": "holding" }
+  ],
+  "backgrounds": [
+    { "name": "Mom's Basement", "rarity": "common", "weight": 30 },
+    { "name": "Crypto Twitter", "rarity": "uncommon", "weight": 20 },
+    { "name": "Red Candle Chart", "rarity": "rare", "weight": 20 },
+    { "name": "Liquidation Notice", "rarity": "rare", "weight": 20 },
+    { "name": "Yacht With Models", "rarity": "veryRare", "weight": 10 }
+  ],
+  "expressions": [
+    { "name": "Sleep Deprived", "rarity": "common", "weight": 30 },
+    { "name": "Panic Selling", "rarity": "common", "weight": 30 },
+    { "name": "FOMO Face", "rarity": "uncommon", "weight": 20 },
+    { "name": "Degen Smile", "rarity": "rare", "weight": 15 },
+    { "name": "Full Euphoria", "rarity": "veryRare", "weight": 5 }
+  ]
+} 

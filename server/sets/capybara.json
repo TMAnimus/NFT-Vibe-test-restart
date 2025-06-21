@@ -1,0 +1,41 @@
+{
+  "thing": "Capybara",
+  "collectionName": "Cynical Capybaras",
+  "blockchain": "Ethereum",
+  "description": "A collection of 10,000 unique, world-weary capybaras.",
+  "colors": [
+    { "name": "Standard Brown", "rarity": "common", "weight": 25 },
+    { "name": "Caramel Tan", "rarity": "common", "weight": 25 },
+    { "name": "Neon Pink", "rarity": "uncommon", "weight": 15 },
+    { "name": "Digital Camo", "rarity": "uncommon", "weight": 15 },
+    { "name": "Platinum Fur", "rarity": "rare", "weight": 15 },
+    { "name": "Blockchain Binary", "rarity": "veryRare", "weight": 5 }
+  ],
+  "props": [
+    { "name": "None", "rarity": "notPresent", "weight": 20, "verb": null },
+    { "name": "Business Suit", "rarity": "common", "weight": 10, "verb": "wearing" },
+    { "name": "Crypto Podcast Mic", "rarity": "common", "weight": 10, "verb": "holding" },
+    { "name": "Pool Floatie", "rarity": "common", "weight": 10, "verb": "wearing" },
+    { "name": "Fedora Hat", "rarity": "uncommon", "weight": 10, "verb": "wearing" },
+    { "name": "Cigar", "rarity": "uncommon", "weight": 10, "verb": "holding" },
+    { "name": "Diamond Encrusted Watch", "rarity": "rare", "weight": 10, "verb": "wearing" },
+    { "name": "Cold Wallet", "rarity": "rare", "weight": 5, "verb": "holding" },
+    { "name": "Trader Headset", "rarity": "rare", "weight": 5, "verb": "wearing" },
+    { "name": "Web3 Cape", "rarity": "veryRare", "weight": 5, "verb": "wearing" },
+    { "name": "NFT Trophy", "rarity": "veryRare", "weight": 5, "verb": "holding" }
+  ],
+  "backgrounds": [
+    { "name": "Hot Tub", "rarity": "common", "weight": 30 },
+    { "name": "Crypto Chart Wall", "rarity": "uncommon", "weight": 20 },
+    { "name": "DAO Meeting", "rarity": "rare", "weight": 20 },
+    { "name": "Telegram Group", "rarity": "rare", "weight": 20 },
+    { "name": "Burning Ethereum", "rarity": "veryRare", "weight": 10 }
+  ],
+  "expressions": [
+    { "name": "Judgmental Stare", "rarity": "common", "weight": 30 },
+    { "name": "Seen-It-All", "rarity": "common", "weight": 30 },
+    { "name": "Floor Price Checking", "rarity": "uncommon", "weight": 20 },
+    { "name": "Smug Hodler", "rarity": "rare", "weight": 15 },
+    { "name": "Crypto Enlightenment", "rarity": "veryRare", "weight": 5 }
+  ]
+} 

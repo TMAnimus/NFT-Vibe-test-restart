@@ -1,0 +1,41 @@
+{
+  "thing": "Duck",
+  "collectionName": "Disinterested Ducks",
+  "blockchain": "Ethereum",
+  "description": "A collection of 10,000 unique, unimpressed ducks.",
+  "colors": [
+    { "name": "Standard Yellow", "rarity": "common", "weight": 25 },
+    { "name": "Muddy Brown", "rarity": "common", "weight": 25 },
+    { "name": "Teal Feather", "rarity": "uncommon", "weight": 15 },
+    { "name": "Gradient Orange", "rarity": "uncommon", "weight": 15 },
+    { "name": "Metallic Gold", "rarity": "rare", "weight": 15 },
+    { "name": "Holographic Plumage", "rarity": "veryRare", "weight": 5 }
+  ],
+  "props": [
+    { "name": "None", "rarity": "notPresent", "weight": 20, "verb": null },
+    { "name": "Sailor Hat", "rarity": "common", "weight": 10, "verb": "wearing" },
+    { "name": "Aviator Sunglasses", "rarity": "common", "weight": 10, "verb": "wearing" },
+    { "name": "Rubber Floatie", "rarity": "common", "weight": 10, "verb": "wearing" },
+    { "name": "Smoking Pipe", "rarity": "uncommon", "weight": 10, "verb": "holding" },
+    { "name": "Bow Tie", "rarity": "uncommon", "weight": 10, "verb": "wearing" },
+    { "name": "Monocle", "rarity": "rare", "weight": 10, "verb": "wearing" },
+    { "name": "Blockchain Medallion", "rarity": "rare", "weight": 5, "verb": "wearing" },
+    { "name": "Laser Eyes", "rarity": "rare", "weight": 5, "verb": "wearing" },
+    { "name": "Digital Crown", "rarity": "veryRare", "weight": 5, "verb": "wearing" },
+    { "name": "NFT Wizard Staff", "rarity": "veryRare", "weight": 5, "verb": "holding" }
+  ],
+  "backgrounds": [
+    { "name": "Pond Blue", "rarity": "common", "weight": 30 },
+    { "name": "Neon Grid", "rarity": "uncommon", "weight": 20 },
+    { "name": "Yacht Club", "rarity": "rare", "weight": 20 },
+    { "name": "Crypto Exchange", "rarity": "rare", "weight": 20 },
+    { "name": "Moon Surface", "rarity": "veryRare", "weight": 10 }
+  ],
+  "expressions": [
+    { "name": "Totally Bored", "rarity": "common", "weight": 30 },
+    { "name": "Mildly Annoyed", "rarity": "common", "weight": 30 },
+    { "name": "Disinterested Stare", "rarity": "uncommon", "weight": 20 },
+    { "name": "Rolling Eyes", "rarity": "rare", "weight": 15 },
+    { "name": "Web3 Enlightenment", "rarity": "veryRare", "weight": 5 }
+  ]
+} 

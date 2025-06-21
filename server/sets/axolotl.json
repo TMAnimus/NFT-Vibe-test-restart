@@ -1,0 +1,41 @@
+{
+  "thing": "Axolotl",
+  "collectionName": "Apathetic Axolotls",
+  "blockchain": "Polygon",
+  "description": "A collection of 10,000 unique, indifferent axolotls.",
+  "colors": [
+    { "name": "Pale Pink", "rarity": "common", "weight": 25 },
+    { "name": "Albino White", "rarity": "common", "weight": 25 },
+    { "name": "Electric Blue", "rarity": "uncommon", "weight": 15 },
+    { "name": "Toxic Green", "rarity": "uncommon", "weight": 15 },
+    { "name": "Galaxy Purple", "rarity": "rare", "weight": 15 },
+    { "name": "Cryptographic Pattern", "rarity": "veryRare", "weight": 5 }
+  ],
+  "props": [
+    { "name": "None", "rarity": "notPresent", "weight": 20, "verb": null },
+    { "name": "Lab Coat", "rarity": "common", "weight": 10, "verb": "wearing" },
+    { "name": "Bubble Helmet", "rarity": "common", "weight": 10, "verb": "wearing" },
+    { "name": "Wallet Device", "rarity": "common", "weight": 10, "verb": "holding" },
+    { "name": "3D Glasses", "rarity": "uncommon", "weight": 10, "verb": "wearing" },
+    { "name": "Punk Mohawk", "rarity": "uncommon", "weight": 10, "verb": "wearing" },
+    { "name": "NFT Collector Badge", "rarity": "rare", "weight": 10, "verb": "wearing" },
+    { "name": "Laser Gills", "rarity": "rare", "weight": 5, "verb": "having" },
+    { "name": "Smart Contract Scroll", "rarity": "rare", "weight": 5, "verb": "holding" },
+    { "name": "Holographic Aura", "rarity": "veryRare", "weight": 5, "verb": "having" },
+    { "name": "Whale Wallet", "rarity": "veryRare", "weight": 5, "verb": "holding" }
+  ],
+  "backgrounds": [
+    { "name": "Aquarium Tank", "rarity": "common", "weight": 30 },
+    { "name": "Token Exchange", "rarity": "uncommon", "weight": 20 },
+    { "name": "OpenSea Parody", "rarity": "rare", "weight": 20 },
+    { "name": "Gas Fee Chart", "rarity": "rare", "weight": 20 },
+    { "name": "Rare Pepe Collection", "rarity": "veryRare", "weight": 10 }
+  ],
+  "expressions": [
+    { "name": "Dead Inside", "rarity": "common", "weight": 30 },
+    { "name": "Unimpressed", "rarity": "common", "weight": 30 },
+    { "name": "Floor Price Anxiety", "rarity": "uncommon", "weight": 20 },
+    { "name": "Airdrop Excitement", "rarity": "rare", "weight": 15 },
+    { "name": "Enlightened HODLer", "rarity": "veryRare", "weight": 5 }
+  ]
+} 

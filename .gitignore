@@ -3,6 +3,8 @@
 Thumbs.db
 .vscode/
 *.log
+/old_sets/
+/ChatLogs/
 
 # Server
 /server/node_modules/

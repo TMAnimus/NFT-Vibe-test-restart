@@ -1,0 +1,23 @@
+{
+  "thing": "Paperclip",
+  "collectionName": "Crypto Clips",
+  "blockchain": "Solana",
+  "description": "A collection of 10,000 unique, crypto-themed paperclips.",
+  "colors": [
+    { "name": "Standard Silver", "rarity": "common", "weight": 25 },
+    { "name": "Rusty Steel", "rarity": "common", "weight": 25 },
+    { "name": "Copper Finish", "rarity": "uncommon", "weight": 15 },
+    { "name": "Neon Coated", "rarity": "uncommon", "weight": 15 },
+    { "name": "Liquid Metal", "rarity": "rare", "weight": 15 },
+    { "name": "Quantum Entangled", "rarity": "veryRare", "weight": 5 }
+  ],
+  "props": [
+    { "name": "None", "rarity": "notPresent", "weight": 30, "verb": null },
+    { "name": "Paper Tag", "rarity": "common", "weight": 15, "verb": "wearing" },
+    { "name": "Basic Bend", "rarity": "common", "weight": 15, "verb": "wearing" },
+    { "name": "Rubber Grip", "rarity": "uncommon", "weight": 10, "verb": "wearing" },
+    { "name": "Magnetic Tip", "rarity": "uncommon", "weight": 10, "verb": "wearing" },
+    { "name": "Diamond Point", "rarity": "rare", "weight": 10, "verb": "wearing" },
+    { "name": "Universal Binding Staff", "rarity": "veryRare", "weight": 5, "verb": "holding" }
+  ]
+} 

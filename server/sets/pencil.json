@@ -1,0 +1,23 @@
+{
+  "thing": "pencil",
+  "collectionName": "Crypto Pencils",
+  "blockchain": "FLO",
+  "description": "A collection of 10,000 unique, crypto-themed pencils.",
+  "colors": [
+    { "name": "Standard Yellow", "rarity": "common", "weight": 25 },
+    { "name": "Chewed Grey", "rarity": "common", "weight": 25 },
+    { "name": "Metallic Silver", "rarity": "uncommon", "weight": 15 },
+    { "name": "Rainbow Gradient", "rarity": "uncommon", "weight": 15 },
+    { "name": "Ethereal Blue", "rarity": "rare", "weight": 15 },
+    { "name": "Interdimensional Ink", "rarity": "veryRare", "weight": 5 }
+  ],
+  "props": [
+    { "name": "None", "rarity": "notPresent", "weight": 30, "verb": null },
+    { "name": "Basic Eraser", "rarity": "common", "weight": 15, "verb": "wearing" },
+    { "name": "No.2 Badge", "rarity": "common", "weight": 15, "verb": "wearing" },
+    { "name": "Mechanical Clip", "rarity": "uncommon", "weight": 10, "verb": "wearing" },
+    { "name": "Decorative Grip", "rarity": "uncommon", "weight": 10, "verb": "wearing" },
+    { "name": "Jeweled Cap", "rarity": "rare", "weight": 10, "verb": "wearing" },
+    { "name": "Quantum Correction Wand", "rarity": "veryRare", "weight": 5, "verb": "holding" }
+  ]
+} 

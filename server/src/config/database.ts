@@ -1,4 +1,4 @@
-import { MongoClient, Db } from 'mongodb';
+import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -9,28 +9,19 @@ if (!uri) {
   throw new Error('MONGO_URI is not defined in the .env file');
 }
 
-let db: Db;
-
-const client = new MongoClient(uri);
-
 export async function connectToDatabase() {
   try {
-    await client.connect();
-    console.log('Connected successfully to MongoDB');
-    db = client.db();
+    await mongoose.connect(uri);
+    console.log('Connected successfully to MongoDB via Mongoose');
 
-    // Ensure a unique index on the username field for the users collection
-    await db.collection('users').createIndex({ username: 1 }, { unique: true });
+    // Mongoose handles connection management and model indexing automatically.
+    // If specific index creation is needed outside of schema definitions,
+    // it can be done here, but typically it's defined in the model schema.
 
   } catch (error) {
-    console.error('Could not connect to MongoDB', error);
+    console.error('Could not connect to MongoDB via Mongoose', error);
     process.exit(1);
   }
 }
 
-export function getDb() {
-  if (!db) {
-    throw new Error('Database not initialized. Make sure connectToDatabase is called first.');
-  }
-  return db;
-} 
+// We no longer need getDb as Mongoose provides a global connection state. 

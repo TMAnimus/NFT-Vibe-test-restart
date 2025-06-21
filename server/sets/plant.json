@@ -1,0 +1,23 @@
+{
+  "thing": "plant",
+  "collectionName": "Crypto Plants",
+  "blockchain": "FLO",
+  "description": "A collection of 10,000 unique, crypto-themed plants.",
+  "colors": [
+    { "name": "Basic Green", "rarity": "common", "weight": 25 },
+    { "name": "Wilted Brown", "rarity": "common", "weight": 25 },
+    { "name": "Vibrant Purple", "rarity": "uncommon", "weight": 15 },
+    { "name": "Bioluminescent", "rarity": "uncommon", "weight": 15 },
+    { "name": "Crystal Leaf", "rarity": "rare", "weight": 15 },
+    { "name": "TokenBloom Aura", "rarity": "veryRare", "weight": 5 }
+  ],
+  "props": [
+    { "name": "None", "rarity": "notPresent", "weight": 30, "verb": null },
+    { "name": "Terra Cotta Pot", "rarity": "common", "weight": 15, "verb": "wearing" },
+    { "name": "Plant Stake", "rarity": "common", "weight": 15, "verb": "holding" },
+    { "name": "LED Grow Light", "rarity": "uncommon", "weight": 10, "verb": "wearing" },
+    { "name": "Decorative Pebbles", "rarity": "uncommon", "weight": 10, "verb": "wearing" },
+    { "name": "Singing Pot", "rarity": "rare", "weight": 10, "verb": "wearing" },
+    { "name": "NFTree Orb", "rarity": "veryRare", "weight": 5, "verb": "holding" }
+  ]
+} 

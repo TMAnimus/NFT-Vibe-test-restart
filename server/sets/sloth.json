@@ -1,0 +1,41 @@
+{
+  "thing": "Sloth",
+  "collectionName": "Sleepy Sloths",
+  "blockchain": "Solana",
+  "description": "A collection of 10,000 unique, perpetually tired sloths.",
+  "colors": [
+    { "name": "Mossy Brown", "rarity": "common", "weight": 25 },
+    { "name": "Jungle Green", "rarity": "common", "weight": 25 },
+    { "name": "Sunset Orange", "rarity": "uncommon", "weight": 15 },
+    { "name": "Lavender Fur", "rarity": "uncommon", "weight": 15 },
+    { "name": "Diamond Dust", "rarity": "rare", "weight": 15 },
+    { "name": "Astral Projection", "rarity": "veryRare", "weight": 5 }
+  ],
+  "props": [
+    { "name": "None", "rarity": "notPresent", "weight": 20, "verb": null },
+    { "name": "Coffee Mug", "rarity": "common", "weight": 10, "verb": "holding" },
+    { "name": "Sleep Mask", "rarity": "common", "weight": 10, "verb": "wearing" },
+    { "name": "Hawaiian Shirt", "rarity": "common", "weight": 10, "verb": "wearing" },
+    { "name": "Gold Chain", "rarity": "uncommon", "weight": 10, "verb": "wearing" },
+    { "name": "VR Headset", "rarity": "uncommon", "weight": 10, "verb": "wearing" },
+    { "name": "Discord Moderator Badge", "rarity": "rare", "weight": 10, "verb": "wearing" },
+    { "name": "Diamond Hands", "rarity": "rare", "weight": 5, "verb": "having" },
+    { "name": "NFT Phone", "rarity": "rare", "weight": 5, "verb": "holding" },
+    { "name": "Rocket Jetpack", "rarity": "veryRare", "weight": 5, "verb": "wearing" },
+    { "name": "Metaverse Key", "rarity": "veryRare", "weight": 5, "verb": "holding" }
+  ],
+  "backgrounds": [
+    { "name": "Rainforest", "rarity": "common", "weight": 30 },
+    { "name": "Web3 Conference", "rarity": "uncommon", "weight": 20 },
+    { "name": "Trading Floor", "rarity": "rare", "weight": 20 },
+    { "name": "Discord Server", "rarity": "rare", "weight": 20 },
+    { "name": "Metaverse Mansion", "rarity": "veryRare", "weight": 10 }
+  ],
+  "expressions": [
+    { "name": "Half Asleep", "rarity": "common", "weight": 30 },
+    { "name": "FOMO Panic", "rarity": "common", "weight": 30 },
+    { "name": "Crypto Hangover", "rarity": "uncommon", "weight": 20 },
+    { "name": "To The Moon", "rarity": "rare", "weight": 15 },
+    { "name": "Diamond Vision", "rarity": "veryRare", "weight": 5 }
+  ]
+} 

@@ -1,0 +1,23 @@
+{
+  "thing": "Sock",
+  "collectionName": "Crypto Socks",
+  "blockchain": "Solana",
+  "description": "A collection of 10,000 unique, crypto-themed socks.",
+  "colors": [
+    { "name": "Faded Grey", "rarity": "common", "weight": 25 },
+    { "name": "Stained White", "rarity": "common", "weight": 25 },
+    { "name": "Neon Blue", "rarity": "uncommon", "weight": 15 },
+    { "name": "Velvet Purple", "rarity": "uncommon", "weight": 15 },
+    { "name": "Crimson Flame", "rarity": "rare", "weight": 15 },
+    { "name": "Iridescent Thread", "rarity": "veryRare", "weight": 5 }
+  ],
+  "props": [
+    { "name": "None", "rarity": "notPresent", "weight": 30, "verb": null },
+    { "name": "Ankle Band", "rarity": "common", "weight": 15, "verb": "wearing" },
+    { "name": "Toe Ring", "rarity": "common", "weight": 15, "verb": "wearing" },
+    { "name": "Glitter Patch", "rarity": "uncommon", "weight": 10, "verb": "wearing" },
+    { "name": "Silk Ribbon", "rarity": "uncommon", "weight": 10, "verb": "wearing" },
+    { "name": "Gemstone Clasp", "rarity": "rare", "weight": 10, "verb": "wearing" },
+    { "name": "Quantum Fiber Wand", "rarity": "veryRare", "weight": 5, "verb": "holding" }
+  ]
+} 
