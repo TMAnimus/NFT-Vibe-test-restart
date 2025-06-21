@@ -1,0 +1,22 @@
+# OS/Editor
+.DS_Store
+Thumbs.db
+.vscode/
+*.log
+
+# Server
+/server/node_modules/
+/server/dist/
+/server/.env
+/server/npm-debug.log*
+/server/yarn-debug.log*
+/server/coverage/
+
+# Client (if using npm/yarn/build tools)
+/client/node_modules/
+/client/dist/
+/client/build/
+/client/.env
+
+# Misc
+.env 

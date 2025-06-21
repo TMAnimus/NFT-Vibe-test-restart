@@ -109,4 +109,37 @@ Want to add a "Quantum Blockchain Hamster" NFT or code a market crash triggered 
 3. Commit your changes: `git commit -m "Add epic feature"`
 4. Submit a pull request with a clear description
 
+**All AI agents and contributors must follow the [AI Contribution Rules](AI_RULES.md).**
+
 Check GitHub Issues for open tasks or propose new ideas. Please ensure code follows the project's satirical vibe!
+
+## Project Structure
+
+```
+NFT_test_3/
+├── client/
+│   └── index.html (front-end placeholder)
+├── server/
+│   ├── src/
+│   ├── tsconfig.json
+│   ├── package.json
+│   └── (other server files)
+├── README.md
+└── ...
+```
+
+## Running the Server
+
+1. Open a terminal and navigate to the `server` directory:
+   ```bash
+   cd server
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+4. Access the API docs at [http://localhost:3000/api-docs](http://localhost:3000/api-docs)

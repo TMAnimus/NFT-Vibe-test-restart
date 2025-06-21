@@ -1,0 +1,15 @@
+# Code Guidelines for AI Agents and Contributors
+
+- Write clear, maintainable, and well-documented code.
+- Prefer modular and reusable components/functions.
+- Follow established naming conventions for files, variables, and functions.
+- Avoid code duplication; reuse existing solutions when possible.
+- Write concise and meaningful commit messages.
+- Add comments where logic is non-obvious or complex.
+- Ensure all code passes linting and automated tests before submission.
+- Use consistent formatting (indentation, spacing, etc.) throughout the codebase.
+- Handle errors gracefully and provide informative error messages.
+- Write unit tests for new features and bug fixes.
+- Keep functions and files focused; avoid large, monolithic code blocks.
+- Remove unused code, variables, and imports.
+- Document public APIs and modules with clear usage examples if appropriate. 
