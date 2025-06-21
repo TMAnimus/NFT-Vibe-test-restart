@@ -72,10 +72,10 @@ The game includes various market events that affect NFT prices and market dynami
    - [x] Install dependencies (libraries from Tech Stack)  
    - [x] Build a basic front-end page to verify server connection  
 
-2. **User Authentication**  
-   - Implement registration and login with username and 4-digit PIN authentication  
-   - Set up JWT for session management  
-   - Create user profiles to store player data (username, balance, NFTs)  
+2. **User Authentication (Completed)**  
+   - [x] Implement registration and login with username and 4-digit PIN authentication  
+   - [x] Set up JWT for session management  
+   - [x] Create user profiles to store player data (username, balance, NFTs)  
 
 3. **NFT Creation System**  
    - Design NFT schema with attributes and rarity system  

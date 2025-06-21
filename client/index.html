@@ -7,7 +7,7 @@
   <h1>Client Placeholder</h1>
   <div id="api-message">Loading...</div>
   <script>
-    fetch('http://localhost:3000/')
+    fetch('/api')
       .then(response => response.json())
       .then(data => {
         document.getElementById('api-message').textContent = data.message;
