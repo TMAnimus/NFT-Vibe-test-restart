@@ -67,10 +67,10 @@ The game includes various market events that affect NFT prices and market dynami
 
 ## Milestones
 
-1. **Project Setup**  
-   - Create project repository and folder structure  
-   - Install dependencies (libraries from Tech Stack)  
-   - Build a basic front-end page to verify server connection  
+1. **Project Setup (Completed)**  
+   - [x] Create project repository and folder structure  
+   - [x] Install dependencies (libraries from Tech Stack)  
+   - [x] Build a basic front-end page to verify server connection  
 
 2. **User Authentication**  
    - Implement registration and login with username and 4-digit PIN authentication  

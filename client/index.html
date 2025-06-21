@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>NFT Trading Game Client</title>
+</head>
+<body>
+  <h1>Client Placeholder</h1>
+  <div id="api-message">Loading...</div>
+  <script>
+    fetch('http://localhost:3000/')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('api-message').textContent = data.message;
+      })
+      .catch(error => {
+        document.getElementById('api-message').textContent = 'Error connecting to server.';
+        console.error(error);
+      });
+  </script>
+</body>
+</html> 
