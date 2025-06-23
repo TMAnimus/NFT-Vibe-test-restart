@@ -7,6 +7,7 @@ import { connectToDatabase } from './config/database';
 import authRoutes from './routes/auth';
 import userRoutes from './routes/user';
 import nftRoutes from './routes/nft';
+import marketplaceRoutes from './routes/marketplace';
 import { syncNftSetsWithFiles } from './services/nftSetService';
 import mongoose from 'mongoose';
 
@@ -57,6 +58,7 @@ async function startServer() {
   app.use('/api/auth', authRoutes);
   app.use('/api/user', userRoutes);
   app.use('/api/nft', nftRoutes);
+  app.use('/api/marketplace', marketplaceRoutes);
 
   /**
    * @openapi

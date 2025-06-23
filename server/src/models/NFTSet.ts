@@ -41,8 +41,8 @@ const propSchema = new Schema<IProp>({
 
 const NFTSetSchema = new Schema<INFTSet>({
     thing: { type: String, required: true },
-    collectionName: { type: String, required: true, unique: true },
-    blockchain: { type: String, required: true },
+    collectionName: { type: String, required: true, unique: true, sparse: true },
+    blockchain: { type: String, enum: ['ETH', 'SOL', 'BTC'], required: true },
     colors: [attributeSchema],
     props: [propSchema],
     backgrounds: [attributeSchema],
