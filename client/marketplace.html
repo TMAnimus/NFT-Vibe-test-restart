@@ -10,10 +10,82 @@
   <header>
     <h1>NFT Marketplace</h1>
   </header>
+  <section id="login-section">
+    <form id="login-form">
+      <label>
+        Username:
+        <input type="text" id="login-username" required autocomplete="username">
+      </label>
+      <label>
+        4-digit PIN:
+        <input type="password" id="login-pin" pattern="\\d{4}" maxlength="4" required autocomplete="current-password">
+      </label>
+      <button type="submit">Login</button>
+      <span id="login-error" class="error"></span>
+    </form>
+    <div id="login-state" style="display:none;">
+      <span id="login-user"></span>
+      <button id="logout-btn">Logout</button>
+    </div>
+  </section>
+  <section id="list-nft-section" style="display:none;">
+    <form id="list-nft-form">
+      <label>
+        NFT:
+        <select id="list-nft-select" required></select>
+      </label>
+      <label>
+        Price ($):
+        <input type="number" id="list-nft-price" min="1" step="1" required>
+      </label>
+      <button type="submit">List NFT</button>
+      <span id="list-nft-feedback" class="feedback"></span>
+      <span id="list-nft-none" class="info" style="display:none;"></span>
+    </form>
+  </section>
   <main>
     <aside id="filters">
       <h2>Filters</h2>
-      <!-- Filtering controls will go here -->
+      <form id="filters-form">
+        <label>
+          Color Rarity:
+          <select id="filter-colorRarity">
+            <option value="">Any</option>
+            <option value="common">Common</option>
+            <option value="uncommon">Uncommon</option>
+            <option value="rare">Rare</option>
+            <option value="veryRare">Very Rare</option>
+          </select>
+        </label>
+        <label>
+          Prop Rarity:
+          <select id="filter-propRarity">
+            <option value="">Any</option>
+            <option value="notPresent">Not Present</option>
+            <option value="common">Common</option>
+            <option value="uncommon">Uncommon</option>
+            <option value="rare">Rare</option>
+            <option value="veryRare">Very Rare</option>
+          </select>
+        </label>
+        <label>
+          Blockchain:
+          <select id="filter-blockchain">
+            <option value="">Any</option>
+            <option value="Ethereum">Ethereum</option>
+            <option value="Polygon">Polygon</option>
+            <option value="Solana">Solana</option>
+          </select>
+        </label>
+        <label>
+          Min Price:
+          <input type="number" id="filter-minPrice" min="0" step="1">
+        </label>
+        <label>
+          Max Price:
+          <input type="number" id="filter-maxPrice" min="0" step="1">
+        </label>
+      </form>
     </aside>
     <section id="nft-listings">
       <h2>Available NFTs</h2>

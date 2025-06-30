@@ -5,6 +5,7 @@ Thumbs.db
 *.log
 /old_sets/
 /ChatLogs/
+/node_modules/
 
 # Server
 /server/node_modules/

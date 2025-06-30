@@ -6,6 +6,19 @@ const router = express.Router();
 
 /**
  * @openapi
+ * components:
+ *   schemas:
+ *     ErrorResponse:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *         error:
+ *           type: string
+ */
+
+/**
+ * @openapi
  * /api/nft/generate:
  *   post:
  *     summary: Generate a new NFT from a specific collection
@@ -30,12 +43,42 @@ const router = express.Router();
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/NFT'
+ *             example:
+ *               value:
+ *                 _id: "nftid123"
+ *                 displayName: "Crypto Toaster #1"
+ *                 collectionName: "Crypto Toasters"
+ *                 colorRarity: "rare"
+ *                 propRarity: "common"
+ *                 blockchain: "Ethereum"
+ *                 currentPrice: 100
  *       400:
  *         description: Bad request (e.g., missing collectionName).
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               value:
+ *                 message: "collectionName is required and must be a string."
  *       404:
  *         description: NFT Set collection not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               value:
+ *                 message: "NFT Set collection not found."
  *       500:
  *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               value:
+ *                 message: "Internal Server Error"
  */
 router.post(
   '/generate',
