@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import { generateNft } from '../services/nftGenerationService';
 import { body, validationResult } from 'express-validator';
+import { Rarity } from '../models/enums';
 
 const router = express.Router();
 

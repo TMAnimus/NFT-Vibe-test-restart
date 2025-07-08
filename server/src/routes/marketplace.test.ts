@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import marketplaceRoutes from './marketplace';
 import * as marketplaceService from '../services/marketplaceService';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
+import { Rarity } from '../models/enums';
 
 // Mock the entire marketplaceService
 jest.mock('../services/marketplaceService');
@@ -12,8 +13,8 @@ jest.mock('../services/marketplaceService');
 const validObjectId = '507f1f77bcf86cd799439011';
 const mockNft = {
   _id: validObjectId,
-  colorRarity: 'rare',
-  propRarity: 'veryRare',
+  colorRarity: Rarity.Rare,
+  propRarity: Rarity.VeryRare,
   blockchain: 'Ethereum',
   firstOfSet: true
 };
@@ -26,18 +27,28 @@ jest.mock('../models/NFT', () => ({
   }
 }));
 
-// Mock the auth middleware
-jest.mock('../middleware/auth', () => ({
-  authMiddleware: (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
-    // Simulate an authenticated user for all tests in this suite
+// Mock the named export 'authMiddleware' for all requests in these tests
+jest.mock('../../src/middleware/auth', () => ({
+  authMiddleware: (req: any, res: any, next: any) => {
     req.user = { userId: 'mockUserId', username: 'mockUser' };
     next();
-  },
+  }
 }));
 
 const app = express();
 app.use(express.json());
 app.use('/api/marketplace', marketplaceRoutes);
+
+// Ensure mock authentication sets req.user for batch endpoints
+beforeEach(() => {
+  jest.clearAllMocks();
+  // Mock req.user for all requests
+  // This block is no longer needed as authMiddleware is mocked globally
+  // jest.spyOn(require('../../src/middleware/auth'), 'default').mockImplementation((req: any, res: any, next: any) => {
+  //   req.user = { id: 'mockUserId' };
+  //   next();
+  // });
+});
 
 describe('Marketplace Routes', () => {
   afterEach(() => {
@@ -72,13 +83,13 @@ describe('Marketplace Routes', () => {
 
   describe('GET /api/marketplace/listed with filters', () => {
     it('should filter by colorRarity', async () => {
-      const mockNfts = [{ _id: '1', colorRarity: 'Rare' }];
+      const mockNfts = [{ _id: '1', colorRarity: Rarity.Rare }];
       (marketplaceService.getListedNfts as jest.Mock).mockResolvedValue(mockNfts);
-      const response = await request(app).get('/api/marketplace/listed?colorRarity=Rare');
+      const response = await request(app).get('/api/marketplace/listed?colorRarity=rare');
       expect(response.status).toBe(200);
       expect(response.body).toEqual(mockNfts);
       expect(marketplaceService.getListedNfts).toHaveBeenCalledWith({
-        colorRarity: 'Rare',
+        colorRarity: Rarity.Rare,
         propRarity: undefined,
         blockchain: undefined,
         minPrice: undefined,
@@ -86,14 +97,14 @@ describe('Marketplace Routes', () => {
       });
     });
     it('should filter by propRarity', async () => {
-      const mockNfts = [{ _id: '2', propRarity: 'VeryRare' }];
+      const mockNfts = [{ _id: '2', propRarity: Rarity.VeryRare }];
       (marketplaceService.getListedNfts as jest.Mock).mockResolvedValue(mockNfts);
-      const response = await request(app).get('/api/marketplace/listed?propRarity=VeryRare');
+      const response = await request(app).get('/api/marketplace/listed?propRarity=veryrare');
       expect(response.status).toBe(200);
       expect(response.body).toEqual(mockNfts);
       expect(marketplaceService.getListedNfts).toHaveBeenCalledWith({
         colorRarity: undefined,
-        propRarity: 'VeryRare',
+        propRarity: Rarity.VeryRare,
         blockchain: undefined,
         minPrice: undefined,
         maxPrice: undefined,
@@ -128,14 +139,14 @@ describe('Marketplace Routes', () => {
       });
     });
     it('should filter by a combination of filters', async () => {
-      const mockNfts = [{ _id: '5', colorRarity: 'Rare', propRarity: 'Common', blockchain: 'Polygon', currentPrice: 120 }];
+      const mockNfts = [{ _id: '5', colorRarity: Rarity.Rare, propRarity: Rarity.Common, blockchain: 'Polygon', currentPrice: 120 }];
       (marketplaceService.getListedNfts as jest.Mock).mockResolvedValue(mockNfts);
-      const response = await request(app).get('/api/marketplace/listed?colorRarity=Rare&propRarity=Common&blockchain=Polygon&minPrice=100&maxPrice=150');
+      const response = await request(app).get('/api/marketplace/listed?colorRarity=rare&propRarity=common&blockchain=Polygon&minPrice=100&maxPrice=150');
       expect(response.status).toBe(200);
       expect(response.body).toEqual(mockNfts);
       expect(marketplaceService.getListedNfts).toHaveBeenCalledWith({
-        colorRarity: 'Rare',
-        propRarity: 'Common',
+        colorRarity: Rarity.Rare,
+        propRarity: Rarity.Common,
         blockchain: 'Polygon',
         minPrice: 100,
         maxPrice: 150,
@@ -143,14 +154,14 @@ describe('Marketplace Routes', () => {
     });
     it('should return an empty array if no NFTs match the filters', async () => {
       (marketplaceService.getListedNfts as jest.Mock).mockResolvedValue([]);
-      const response = await request(app).get('/api/marketplace/listed?colorRarity=Nonexistent');
+      const response = await request(app).get('/api/marketplace/listed?colorRarity=nonexistent');
       expect(response.status).toBe(200);
       expect(response.body).toEqual([]);
     });
     it('should return all listed NFTs if no filters are provided', async () => {
       const mockNfts = [
-        { _id: '1', colorRarity: 'Rare' },
-        { _id: '2', colorRarity: 'Common' },
+        { _id: '1', colorRarity: Rarity.Rare },
+        { _id: '2', colorRarity: Rarity.Common },
       ];
       (marketplaceService.getListedNfts as jest.Mock).mockResolvedValue(mockNfts);
       const response = await request(app).get('/api/marketplace/listed');
@@ -292,8 +303,8 @@ describe('Marketplace Routes', () => {
     const validObjectId = '507f1f77bcf86cd799439011';
     const mockNft = {
       _id: validObjectId,
-      colorRarity: 'rare',
-      propRarity: 'veryRare',
+      colorRarity: Rarity.Rare,
+      propRarity: Rarity.VeryRare,
       blockchain: 'Ethereum',
       firstOfSet: true
     };
@@ -326,5 +337,75 @@ describe('Marketplace Routes', () => {
       expect(response.body).toHaveProperty('message', 'Error suggesting price');
       expect(response.body).toHaveProperty('error', 'Calculation error');
     });
+  });
+});
+
+describe('POST /api/marketplace/batch-buy', () => {
+  it('should buy from a batch NFT and return 200', async () => {
+    (marketplaceService.buyFromBatch as jest.Mock).mockResolvedValue({ message: 'Successfully purchased 2 from batch NFT Potato' });
+    const response = await request(app)
+      .post('/api/marketplace/batch-buy')
+      .send({ nftId: validObjectId, quantity: 2 });
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ message: 'Successfully purchased 2 from batch NFT Potato' });
+    expect(marketplaceService.buyFromBatch).toHaveBeenCalledWith({ nftId: validObjectId, buyerId: 'mockUserId', quantity: 2 });
+  });
+  it('should return 400 for invalid input', async () => {
+    const response = await request(app)
+      .post('/api/marketplace/batch-buy')
+      .send({ nftId: '', quantity: 0 });
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe('Validation error');
+  });
+  it('should return 404 if batch NFT not found', async () => {
+    (marketplaceService.buyFromBatch as jest.Mock).mockRejectedValue(new Error('Batch NFT not found.'));
+    const response = await request(app)
+      .post('/api/marketplace/batch-buy')
+      .send({ nftId: validObjectId, quantity: 2 });
+    expect(response.status).toBe(404);
+    expect(response.body.message).toMatch(/not found/i);
+  });
+  it('should return 400 for service errors', async () => {
+    (marketplaceService.buyFromBatch as jest.Mock).mockRejectedValue(new Error('Insufficient funds.'));
+    const response = await request(app)
+      .post('/api/marketplace/batch-buy')
+      .send({ nftId: validObjectId, quantity: 2 });
+    expect(response.status).toBe(400);
+    expect(response.body.message).toMatch(/insufficient funds/i);
+  });
+});
+
+describe('POST /api/marketplace/batch-sell', () => {
+  it('should sell to a batch NFT and return 200', async () => {
+    (marketplaceService.sellToBatch as jest.Mock).mockResolvedValue({ message: 'Successfully sold 2 to batch NFT Potato' });
+    const response = await request(app)
+      .post('/api/marketplace/batch-sell')
+      .send({ nftId: validObjectId, quantity: 2 });
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ message: 'Successfully sold 2 to batch NFT Potato' });
+    expect(marketplaceService.sellToBatch).toHaveBeenCalledWith({ nftId: validObjectId, sellerId: 'mockUserId', quantity: 2 });
+  });
+  it('should return 400 for invalid input', async () => {
+    const response = await request(app)
+      .post('/api/marketplace/batch-sell')
+      .send({ nftId: '', quantity: 0 });
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe('Validation error');
+  });
+  it('should return 404 if batch NFT not found', async () => {
+    (marketplaceService.sellToBatch as jest.Mock).mockRejectedValue(new Error('Batch NFT not found.'));
+    const response = await request(app)
+      .post('/api/marketplace/batch-sell')
+      .send({ nftId: validObjectId, quantity: 2 });
+    expect(response.status).toBe(404);
+    expect(response.body.message).toMatch(/not found/i);
+  });
+  it('should return 400 for service errors', async () => {
+    (marketplaceService.sellToBatch as jest.Mock).mockRejectedValue(new Error('Seller not found.'));
+    const response = await request(app)
+      .post('/api/marketplace/batch-sell')
+      .send({ nftId: validObjectId, quantity: 2 });
+    expect(response.status).toBe(400);
+    expect(response.body.message).toMatch(/seller not found/i);
   });
 }); 

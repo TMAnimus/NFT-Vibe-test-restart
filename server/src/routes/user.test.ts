@@ -1,9 +1,13 @@
+import dotenv from 'dotenv';
+import path from 'path';
+dotenv.config({ path: 'K:/Projects/NFT_test_3/server/.env' });
 import request from 'supertest';
 import express from 'express';
 import userRoutes from './user';
 import { authMiddleware } from '../middleware/auth';
 import mongoose from 'mongoose';
 import authRoutes from './auth';
+import { UserModel } from '../models/User';
 
 const app = express();
 app.use(express.json());
@@ -67,19 +71,23 @@ describe('User Routes', () => {
     });
 
     it('should return 404 if user is not found', async () => {
+      const findByIdSpy = jest.spyOn(UserModel, 'findById').mockResolvedValueOnce(null);
       const response = await request(app)
         .get('/api/user/profile')
         .set('Authorization', `Bearer ${jwtToken}`);
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('message', 'User not found');
+      findByIdSpy.mockRestore();
     });
 
     it('should return 500 on server error', async () => {
+      const findByIdSpy = jest.spyOn(UserModel, 'findById').mockImplementationOnce(() => { throw new Error('DB error'); });
       const response = await request(app)
         .get('/api/user/profile')
         .set('Authorization', `Bearer ${jwtToken}`);
       expect(response.status).toBe(500);
       expect(response.body).toHaveProperty('message', 'Server error');
+      findByIdSpy.mockRestore();
     });
   });
 }); 

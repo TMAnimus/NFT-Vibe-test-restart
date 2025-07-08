@@ -4,6 +4,7 @@ import NFTSetModel from '../models/NFTSet';
 import mongoose from 'mongoose';
 import fs from 'fs';
 import path from 'path';
+import { TransactionModel } from '../models/Transaction';
 
 /**
  * Lists an NFT for sale on the marketplace.
@@ -99,6 +100,105 @@ export const buyNft = async (nftId: string, buyerId: string) => {
   } catch (error: any) {
     await session.abortTransaction();
     throw error; // Re-throw the error to be caught by the route handler
+  } finally {
+    session.endSession();
+  }
+};
+
+/**
+ * Buys quantity from a batch NFT (common/no-prop).
+ * @param nftId - The ID of the batch NFT.
+ * @param buyerId - The ID of the user buying from the batch.
+ * @param quantity - The number of NFTs to buy from the batch.
+ */
+export const buyFromBatch = async ({ nftId, buyerId, quantity }: { nftId: string, buyerId: string, quantity: number }) => {
+  if (quantity < 1) throw new Error('Quantity must be at least 1.');
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const nft = await NFTModel.findById(nftId).session(session);
+    console.debug('[buyFromBatch] fetched nft:', nft);
+    if (!nft || typeof nft.batchCount !== 'number' || nft.batchCount < 1) {
+      throw new Error('Batch NFT not found or not available.');
+    }
+    if (nft.batchCount < quantity) {
+      throw new Error('Not enough NFTs in batch.');
+    }
+    const buyer = await UserModel.findById(buyerId).session(session);
+    console.debug('[buyFromBatch] fetched buyer:', buyer);
+    if (!buyer) throw new Error('Buyer not found.');
+    const totalPrice = (nft.batchPrice || nft.currentPrice) * quantity;
+    if (buyer.balance < totalPrice) throw new Error('Insufficient funds.');
+    // Deduct funds and add NFT references (could be a virtual reference for batch)
+    buyer.balance -= totalPrice;
+    // Optionally, track batch NFT ownership as a count in buyer.ownedNFTs
+    // For now, just log the transaction
+    nft.batchCount -= quantity;
+    if (nft.batchCount === 0) {
+      // Remove the batch listing
+      await NFTModel.deleteOne({ _id: nft._id }).session(session);
+    } else {
+      await nft.save({ session });
+    }
+    await buyer.save({ session });
+    // Log transaction (implement TransactionModel as needed)
+    await TransactionModel.create([{
+      nftId: nft._id,
+      batchCount: quantity,
+      buyerId: buyer._id,
+      sellerId: 'system',
+      price: totalPrice,
+      timestamp: new Date()
+    }], { session });
+    await session.commitTransaction();
+    return { message: `Successfully purchased ${quantity} from batch NFT ${nft.collectionName}` };
+  } catch (error: any) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
+};
+
+/**
+ * Sells quantity to a batch NFT (common/no-prop).
+ * @param nftId - The ID of the batch NFT.
+ * @param sellerId - The ID of the user selling to the batch.
+ * @param quantity - The number of NFTs to sell to the batch.
+ */
+export const sellToBatch = async ({ nftId, sellerId, quantity }: { nftId: string, sellerId: string, quantity: number }) => {
+  if (quantity < 1) throw new Error('Quantity must be at least 1.');
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const nft = await NFTModel.findById(nftId).session(session);
+    console.debug('[sellToBatch] fetched nft:', nft);
+    if (!nft || typeof nft.batchCount !== 'number') {
+      throw new Error('Batch NFT not found.');
+    }
+    const seller = await UserModel.findById(sellerId).session(session);
+    console.debug('[sellToBatch] fetched seller:', seller);
+    if (!seller) throw new Error('Seller not found.');
+    // Optionally, check that seller owns enough of this NFT type (if tracked)
+    const totalPrice = (nft.batchPrice || nft.currentPrice) * quantity;
+    seller.balance += totalPrice;
+    nft.batchCount += quantity;
+    await nft.save({ session });
+    await seller.save({ session });
+    // Log transaction (implement TransactionModel as needed)
+    await TransactionModel.create([{
+      nftId: nft._id,
+      batchCount: quantity,
+      buyerId: 'system',
+      sellerId: seller._id,
+      price: totalPrice,
+      timestamp: new Date()
+    }], { session });
+    await session.commitTransaction();
+    return { message: `Successfully sold ${quantity} to batch NFT ${nft.collectionName}` };
+  } catch (error: any) {
+    await session.abortTransaction();
+    throw error;
   } finally {
     session.endSession();
   }

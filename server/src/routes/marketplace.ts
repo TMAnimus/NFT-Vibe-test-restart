@@ -3,6 +3,7 @@ import { body, validationResult } from 'express-validator';
 import * as marketplaceService from '../services/marketplaceService';
 import { authMiddleware } from '../middleware/auth'; 
 import NFTModel from '../models/NFT';
+import { Rarity } from '../models/enums';
 
 const router = express.Router();
 
@@ -37,14 +38,14 @@ const router = express.Router();
  *         name: colorRarity
  *         schema:
  *           type: string
- *           enum: [common, uncommon, rare, veryRare]
- *         description: Filter by color rarity. Allowed values are common, uncommon, rare, veryRare.
+ *           enum: [common, uncommon, rare, veryrare]
+ *         description: Filter by color rarity. Allowed values are common, uncommon, rare, veryrare.
  *       - in: query
  *         name: propRarity
  *         schema:
  *           type: string
- *           enum: [notPresent, common, uncommon, rare, veryRare]
- *         description: Filter by prop rarity. Allowed values are notPresent, common, uncommon, rare, veryRare.
+ *           enum: [notPresent, common, uncommon, rare, veryrare]
+ *         description: Filter by prop rarity. Allowed values are notPresent, common, uncommon, rare, veryrare.
  *       - in: query
  *         name: blockchain
  *         schema:
@@ -372,6 +373,178 @@ router.get('/suggest-price/:nftId', async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Error suggesting price', error: error.message });
     }
 });
+
+/**
+ * @openapi
+ * /api/marketplace/batch-buy:
+ *   post:
+ *     summary: Buy quantity from a batch NFT (common/no-prop)
+ *     tags: [Marketplace]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nftId
+ *               - quantity
+ *             properties:
+ *               nftId:
+ *                 type: string
+ *                 description: The ID of the batch NFT to buy from.
+ *               quantity:
+ *                 type: integer
+ *                 description: Number of NFTs to buy from the batch.
+ *                 minimum: 1
+ *           example:
+ *             nftId: "abc123"
+ *             quantity: 3
+ *     responses:
+ *       200:
+ *         description: Successfully purchased from batch NFT.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Bad request (validation error, insufficient funds, etc.)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Batch NFT not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.post(
+  '/batch-buy',
+  authMiddleware,
+  [
+    body('nftId').isMongoId().withMessage('A valid nftId is required.'),
+    body('quantity').isInt({ gt: 0 }).withMessage('Quantity must be a positive integer.'),
+  ],
+  async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ message: 'Validation error', error: errors.array() });
+    }
+    try {
+      const { nftId, quantity } = req.body;
+      // @ts-ignore
+      const buyerId = req.user.userId;
+      const result = await marketplaceService.buyFromBatch({ nftId, buyerId, quantity });
+      res.status(200).json(result);
+    } catch (error: any) {
+      if (error.message.includes('not found')) {
+        res.status(404).json({ message: error.message });
+      } else {
+        res.status(400).json({ message: error.message });
+      }
+    }
+  }
+);
+
+/**
+ * @openapi
+ * /api/marketplace/batch-sell:
+ *   post:
+ *     summary: Sell quantity to a batch NFT (common/no-prop)
+ *     tags: [Marketplace]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nftId
+ *               - quantity
+ *             properties:
+ *               nftId:
+ *                 type: string
+ *                 description: The ID of the batch NFT to sell to.
+ *               quantity:
+ *                 type: integer
+ *                 description: Number of NFTs to sell to the batch.
+ *                 minimum: 1
+ *           example:
+ *             nftId: "abc123"
+ *             quantity: 2
+ *     responses:
+ *       200:
+ *         description: Successfully sold to batch NFT.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Bad request (validation error, etc.)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Batch NFT not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.post(
+  '/batch-sell',
+  authMiddleware,
+  [
+    body('nftId').isMongoId().withMessage('A valid nftId is required.'),
+    body('quantity').isInt({ gt: 0 }).withMessage('Quantity must be a positive integer.'),
+  ],
+  async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ message: 'Validation error', error: errors.array() });
+    }
+    try {
+      const { nftId, quantity } = req.body;
+      // @ts-ignore
+      const sellerId = req.user.userId;
+      const result = await marketplaceService.sellToBatch({ nftId, sellerId, quantity });
+      res.status(200).json(result);
+    } catch (error: any) {
+      if (error.message.includes('not found') && error.message.toLowerCase().includes('seller')) {
+        res.status(400).json({ message: error.message });
+      } else if (error.message.includes('not found')) {
+        res.status(404).json({ message: error.message });
+      } else {
+        res.status(400).json({ message: error.message });
+      }
+    }
+  }
+);
 
 // We will add routes for listing, buying, and viewing NFTs here.
 

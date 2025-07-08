@@ -1,8 +1,5 @@
 import { Schema, model, Document } from 'mongoose';
-
-export type Rarity = 'common' | 'uncommon' | 'rare' | 'veryRare' | 'notPresent';
-
-export type CollectionStatus = 'active' | 'inactive' | 'archived';
+import { Rarity, CollectionStatus } from './enums';
 
 interface IAttribute {
     name: string;
@@ -28,13 +25,13 @@ export interface INFTSet extends Document {
 
 const attributeSchema = new Schema<IAttribute>({
     name: { type: String, required: true },
-    rarity: { type: String, required: true },
+    rarity: { type: String, enum: Object.values(Rarity), required: true },
     weight: { type: Number, required: true }
 }, { _id: false });
 
 const propSchema = new Schema<IProp>({
     name: { type: String, required: true },
-    rarity: { type: String, required: true },
+    rarity: { type: String, enum: Object.values(Rarity), required: true },
     weight: { type: Number, required: true },
     verb: { type: String, default: null }
 }, { _id: false });
@@ -47,7 +44,7 @@ const NFTSetSchema = new Schema<INFTSet>({
     props: [propSchema],
     backgrounds: [attributeSchema],
     expressions: [attributeSchema],
-    collectionStatus: { type: String, enum: ['active', 'inactive', 'archived'], default: 'active' },
+    collectionStatus: { type: String, enum: Object.values(CollectionStatus), default: CollectionStatus.New },
     basePrice: { type: Number, default: 100 }
 });
 

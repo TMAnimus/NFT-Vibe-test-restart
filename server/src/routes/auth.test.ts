@@ -4,6 +4,9 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import authRoutes from './auth';
 import { UserModel } from '../models/User';
+import dotenv from 'dotenv';
+import path from 'path';
+dotenv.config({ path: 'K:/Projects/NFT_test_3/server/.env' });
 
 jest.mock('../models/User');
 jest.mock('bcrypt');

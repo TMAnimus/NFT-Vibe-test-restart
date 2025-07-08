@@ -84,14 +84,16 @@ router.get('/profile', authMiddleware, async (req: AuthRequest, res: Response) =
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
-
-    const user = await UserModel.findById(userId).select('-pin');
-
+    const user = await UserModel.findById(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-
-    res.status(200).json(user);
+    res.status(200).json({
+      _id: user._id,
+      username: user.username,
+      balance: user.balance,
+      nfts: user.nfts,
+    });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }
