@@ -1,4 +1,5 @@
-import NFTSetModel, { INFTSet, Rarity } from '../models/NFTSet';
+import NFTSetModel, { INFTSet } from '../models/NFTSet';
+import { Rarity } from '../models/enums';
 import NFTModel from '../models/NFT';
 
 interface IAttribute {
@@ -7,11 +8,11 @@ interface IAttribute {
   weight: number;
 }
 
-const rarityPriceMultipliers: { [key in Rarity]: number } = {
+const rarityMultipliers = {
   common: 1,
   uncommon: 1.5,
   rare: 2.5,
-  veryRare: 5,
+  veryrare: 5,
   notPresent: 1, // No price impact
 };
 
@@ -76,7 +77,7 @@ export async function generateNft(collectionName: string): Promise<any> {
 
   // Calculate the current price based on rarities
   const priceMultiplier = selectedAttributes.reduce(
-    (total, attr) => total * (rarityPriceMultipliers[attr.rarity] || 1),
+    (total, attr) => total * (rarityMultipliers[attr.rarity] || 1),
     1
   );
   const calculatedPrice = nftSet.basePrice * priceMultiplier;

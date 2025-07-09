@@ -1,16 +1,29 @@
 import { Router, Response } from 'express';
 import { ObjectId } from 'mongodb';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
-import { getDb } from '../config/database';
-import { User } from '../models/User';
+import { UserModel, IUser } from '../models/User';
 
 const router = Router();
+
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     ErrorResponse:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *         error:
+ *           type: string
+ */
 
 /**
  * @openapi
  * /api/user/profile:
  *   get:
  *     summary: Get the profile of the currently logged-in user
+ *     tags: [User]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -31,10 +44,39 @@ const router = Router();
  *                   type: array
  *                   items:
  *                     type: string
+ *             example:
+ *               value:
+ *                 _id: "60f7c2b8e1d2c8a1b8e1d2c8"
+ *                 username: "testuser"
+ *                 balance: 10000
+ *                 nfts: ["nftid1", "nftid2"]
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               value:
+ *                 message: "Unauthorized"
  *       404:
  *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               value:
+ *                 message: "User not found"
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               value:
+ *                 message: "Server error"
  */
 router.get('/profile', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
@@ -42,18 +84,16 @@ router.get('/profile', authMiddleware, async (req: AuthRequest, res: Response) =
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
-
-    const db = getDb();
-    const user = await db.collection<User>('users').findOne(
-      { _id: new ObjectId(userId) },
-      { projection: { pin: 0 } } // Exclude the pin from the result
-    );
-
+    const user = await UserModel.findById(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-
-    res.status(200).json(user);
+    res.status(200).json({
+      _id: user._id,
+      username: user.username,
+      balance: user.balance,
+      nfts: user.nfts,
+    });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }

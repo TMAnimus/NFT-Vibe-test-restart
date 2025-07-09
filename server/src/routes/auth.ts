@@ -1,17 +1,30 @@
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { getDb } from '../config/database';
-import { User } from '../models/User';
+import { UserModel, IUser } from '../models/User';
 
 const router = Router();
 const SALT_ROUNDS = 10;
 
 /**
  * @openapi
+ * components:
+ *   schemas:
+ *     ErrorResponse:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *         error:
+ *           type: string
+ */
+
+/**
+ * @openapi
  * /api/auth/register:
  *   post:
  *     summary: Register a new user
+ *     tags: [Auth]
  *     requestBody:
  *       required: true
  *       content:
@@ -24,19 +37,49 @@ const SALT_ROUNDS = 10;
  *             properties:
  *               username:
  *                 type: string
+ *                 description: Unique username for the user
  *                 example: testuser
  *               pin:
  *                 type: string
+ *                 description: 4-digit PIN for authentication
  *                 example: "1234"
  *                 minLength: 4
  *                 maxLength: 4
  *     responses:
  *       201:
  *         description: User created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               value:
+ *                 message: "User created successfully."
  *       400:
- *         description: Invalid input
+ *         description: Invalid input or username already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               missingFields:
+ *                 value:
+ *                   message: "Username and a 4-digit PIN are required."
+ *               duplicate:
+ *                 value:
+ *                   message: "Username already exists."
  *       500:
  *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               value:
+ *                 message: "Server error during registration."
  */
 router.post('/register', async (req: Request, res: Response) => {
   try {
@@ -46,8 +89,7 @@ router.post('/register', async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Username and a 4-digit PIN are required.' });
     }
 
-    const db = getDb();
-    const existingUser = await db.collection<User>('users').findOne({ username });
+    const existingUser = await UserModel.findOne({ username });
 
     if (existingUser) {
       return res.status(400).json({ message: 'Username already exists.' });
@@ -55,14 +97,13 @@ router.post('/register', async (req: Request, res: Response) => {
 
     const hashedPin = await bcrypt.hash(pin, SALT_ROUNDS);
 
-    const newUser: User = {
+    const newUser: Partial<IUser> = {
       username,
       pin: hashedPin,
       balance: 10000, // Starting balance
       nfts: [],
     };
-
-    await db.collection('users').insertOne(newUser);
+    await UserModel.create(newUser);
 
     res.status(201).json({ message: 'User created successfully.' });
   } catch (error) {
@@ -76,6 +117,7 @@ router.post('/register', async (req: Request, res: Response) => {
  * /api/auth/login:
  *   post:
  *     summary: Log in a user
+ *     tags: [Auth]
  *     requestBody:
  *       required: true
  *       content:
@@ -88,9 +130,11 @@ router.post('/register', async (req: Request, res: Response) => {
  *             properties:
  *               username:
  *                 type: string
+ *                 description: The user's username
  *                 example: testuser
  *               pin:
  *                 type: string
+ *                 description: The user's 4-digit PIN
  *                 example: "1234"
  *                 minLength: 4
  *                 maxLength: 4
@@ -104,10 +148,27 @@ router.post('/register', async (req: Request, res: Response) => {
  *               properties:
  *                 token:
  *                   type: string
+ *             example:
+ *               value:
+ *                 token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
  *       400:
  *         description: Invalid username or PIN
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               value:
+ *                 message: "Invalid username or PIN."
  *       500:
  *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               value:
+ *                 message: "Server error during login."
  */
 router.post('/login', async (req: Request, res: Response) => {
   try {
@@ -117,8 +178,7 @@ router.post('/login', async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Username and PIN are required.' });
     }
 
-    const db = getDb();
-    const user = await db.collection<User>('users').findOne({ username });
+    const user = await UserModel.findOne({ username });
 
     if (!user) {
       return res.status(400).json({ message: 'Invalid username or PIN.' });

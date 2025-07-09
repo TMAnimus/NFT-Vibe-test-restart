@@ -1,6 +1,7 @@
 import { generateNft } from './nftGenerationService';
 import NFTSetModel from '../models/NFTSet';
 import NFTModel from '../models/NFT';
+import { Rarity } from '../models/enums';
 
 // Mock the Mongoose models
 jest.mock('../models/NFTSet');
@@ -29,10 +30,10 @@ describe('NFT Generation Service', () => {
       blockchain: 'ETH',
       collectionStatus: 'active',
       basePrice: 100,
-      colors: [{ name: 'red', weight: 1, rarity: 'uncommon' }],
-      props: [{ name: 'hat', weight: 1, rarity: 'rare', verb: 'with' }],
-      backgrounds: [{ name: 'blue', weight: 1, rarity: 'common' }],
-      expressions: [{ name: 'happy', weight: 1, rarity: 'veryRare' }],
+      colors: [{ name: 'red', weight: 1, rarity: Rarity.Uncommon }],
+      props: [{ name: 'hat', weight: 1, rarity: Rarity.Rare, verb: 'with' }],
+      backgrounds: [{ name: 'blue', weight: 1, rarity: Rarity.Common }],
+      expressions: [{ name: 'happy', weight: 1, rarity: Rarity.VeryRare }],
     };
     (NFTSetModel.findOne as jest.Mock).mockResolvedValue(mockSet);
     

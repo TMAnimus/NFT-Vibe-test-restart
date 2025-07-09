@@ -2,15 +2,8 @@ import request from 'supertest';
 import express from 'express';
 import nftRoutes from './nft';
 import * as nftGenerationService from '../services/nftGenerationService';
-import { body, validationResult } from 'express-validator';
 
-// Mock the service
 jest.mock('../services/nftGenerationService');
-// Mock express-validator's validationResult function
-jest.mock('express-validator', () => ({
-  ...jest.requireActual('express-validator'),
-  validationResult: jest.fn(),
-}));
 
 const app = express();
 app.use(express.json());
@@ -22,59 +15,49 @@ describe('NFT Routes', () => {
   });
 
   describe('POST /api/nft/generate', () => {
-    it('should call generateNft and return 201 on success', async () => {
-      const mockGeneratedNft = { _id: 'some-nft-id', name: 'Generated NFT' };
-      (nftGenerationService.generateNft as jest.Mock).mockResolvedValue(mockGeneratedNft);
-      (validationResult as unknown as jest.Mock).mockReturnValue({ isEmpty: () => true });
-
+    it('should generate a new NFT and return 201', async () => {
+      const mockNft = { _id: 'nftid123', displayName: 'Crypto Toaster #1', collectionName: 'Crypto Toasters' };
+      (nftGenerationService.generateNft as jest.Mock).mockResolvedValue(mockNft);
       const response = await request(app)
         .post('/api/nft/generate')
-        .send({ collectionName: 'Test Collection' });
-
+        .send({ collectionName: 'Crypto Toasters' });
       expect(response.status).toBe(201);
-      expect(response.body).toEqual(mockGeneratedNft);
-      expect(nftGenerationService.generateNft).toHaveBeenCalledWith('Test Collection');
+      expect(response.body).toEqual(mockNft);
+      expect(nftGenerationService.generateNft).toHaveBeenCalledWith('Crypto Toasters');
     });
 
-    it('should return 400 if validation fails', async () => {
-        (validationResult as unknown as jest.Mock).mockReturnValue({
-            isEmpty: () => false,
-            array: () => [{ msg: 'Invalid collectionName' }],
-          });
-
+    it('should return 400 if collectionName is missing', async () => {
       const response = await request(app)
         .post('/api/nft/generate')
-        .send({ collectionName: '' });
-
+        .send({});
       expect(response.status).toBe(400);
-      expect(response.body).toEqual({ errors: [{ msg: 'Invalid collectionName' }] });
-      expect(nftGenerationService.generateNft).not.toHaveBeenCalled();
+      expect(response.body).toHaveProperty('errors');
     });
 
-    it('should return 404 if the NFT set is not found', async () => {
-        (validationResult as unknown as jest.Mock).mockReturnValue({ isEmpty: () => true });
-        const errorMessage = 'NFT Set with collection name "Test Collection" not found.';
-        (nftGenerationService.generateNft as jest.Mock).mockRejectedValue(new Error(errorMessage));
-  
-        const response = await request(app)
-          .post('/api/nft/generate')
-          .send({ collectionName: 'Test Collection' });
-  
-        expect(response.status).toBe(404);
-        expect(response.body).toEqual({ message: errorMessage });
-      });
-
-    it('should return 500 on other errors', async () => {
-      (validationResult as unknown as jest.Mock).mockReturnValue({ isEmpty: () => true });
-      const errorMessage = 'Internal Server Error';
-      (nftGenerationService.generateNft as jest.Mock).mockRejectedValue(new Error(errorMessage));
-
+    it('should return 400 if collectionName is not a string', async () => {
       const response = await request(app)
         .post('/api/nft/generate')
-        .send({ collectionName: 'Test Collection' });
+        .send({ collectionName: 123 });
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('errors');
+    });
 
+    it('should return 404 if the collection does not exist', async () => {
+      (nftGenerationService.generateNft as jest.Mock).mockRejectedValue(new Error('NFT Set collection not found.'));
+      const response = await request(app)
+        .post('/api/nft/generate')
+        .send({ collectionName: 'Nonexistent Collection' });
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual({ message: 'NFT Set collection not found.' });
+    });
+
+    it('should return 500 on server error', async () => {
+      (nftGenerationService.generateNft as jest.Mock).mockRejectedValue(new Error('Unexpected error'));
+      const response = await request(app)
+        .post('/api/nft/generate')
+        .send({ collectionName: 'Crypto Toasters' });
       expect(response.status).toBe(500);
-      expect(response.body).toEqual({ message: 'Internal Server Error' });
+      expect(response.body).toHaveProperty('message', 'Internal Server Error');
     });
   });
 }); 
