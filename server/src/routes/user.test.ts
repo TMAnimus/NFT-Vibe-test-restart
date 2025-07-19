@@ -8,6 +8,7 @@ import { authMiddleware } from '../middleware/auth';
 import mongoose from 'mongoose';
 import authRoutes from './auth';
 import { UserModel } from '../models/User';
+import NFTModel from '../models/NFT';
 
 const app = express();
 app.use(express.json());
@@ -18,44 +19,97 @@ let jwtToken: string = '';
 let testUsername = `testuser_${Date.now()}`;
 const testPin = '1234';
 
+// Increase timeout for this test suite
+jest.setTimeout(30000);
+
 beforeAll(async () => {
-  // Connect to the test database if not already connected
-  if (mongoose.connection.readyState === 0) {
-    await mongoose.connect(process.env.MONGO_URL || 'mongodb://localhost:27017/nft_test', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    } as any);
+  try {
+    // Connect to the test database if not already connected
+    if (mongoose.connection.readyState === 0) {
+      await mongoose.connect(process.env.MONGO_URL || 'mongodb://localhost:27017/nft_test', {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
+      } as any);
+    }
+    
+    // Register test user
+    await request(app)
+      .post('/api/auth/register')
+      .send({ username: testUsername, pin: testPin });
+    
+    // Login to get JWT
+    const loginRes = await request(app)
+      .post('/api/auth/login')
+      .send({ username: testUsername, pin: testPin });
+    jwtToken = loginRes.body.token;
+  } catch (error) {
+    console.error('Setup failed:', error);
+    throw error;
   }
-  // Register test user
-  await request(app)
-    .post('/api/auth/register')
-    .send({ username: testUsername, pin: testPin });
-  // Login to get JWT
-  const loginRes = await request(app)
-    .post('/api/auth/login')
-    .send({ username: testUsername, pin: testPin });
-  jwtToken = loginRes.body.token;
 });
 
 afterAll(async () => {
-  // Clean up test user
-  if (mongoose.connection.db) {
-    await mongoose.connection.db.collection('users').deleteMany({ username: testUsername });
+  try {
+    // Clean up test user
+    if (mongoose.connection.db) {
+      await mongoose.connection.db.collection('users').deleteMany({ username: testUsername });
+    }
+    await mongoose.disconnect();
+  } catch (error) {
+    console.error('Cleanup failed:', error);
   }
-  await mongoose.disconnect();
 });
 
 describe('User Routes', () => {
   describe('GET /api/user/profile', () => {
     it('should return the user profile for a valid user', async () => {
+      // Mock NFTModel.find to return empty array (user has no NFTs)
+      const findSpy = jest.spyOn(NFTModel, 'find').mockResolvedValueOnce([]);
+      
       const response = await request(app)
         .get('/api/user/profile')
         .set('Authorization', `Bearer ${jwtToken}`);
+      
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('_id');
       expect(response.body).toHaveProperty('username', testUsername);
       expect(response.body).toHaveProperty('balance');
       expect(response.body).toHaveProperty('nfts');
+      expect(Array.isArray(response.body.nfts)).toBe(true);
+      
+      findSpy.mockRestore();
+    });
+
+    it('should return user profile with NFT objects when user has NFTs', async () => {
+      // Mock NFTModel.find to return some NFT objects
+      const mockNfts = [
+        {
+          _id: 'nft1',
+          color: 'red',
+          thing: 'toaster',
+          colorRarity: 'rare',
+          propRarity: 'common',
+          blockchain: '',
+          currentPrice: 100,
+          isFirstOfSet: true
+        }
+      ];
+      const findSpy = jest.spyOn(NFTModel, 'find').mockResolvedValueOnce(mockNfts);
+      
+      const response = await request(app)
+        .get('/api/user/profile')
+        .set('Authorization', `Bearer ${jwtToken}`);
+      
+      expect(response.status).toBe(200);
+      expect(response.body.nfts).toEqual(mockNfts);
+      expect(response.body.nfts[0]).toHaveProperty('colorRarity');
+      expect(response.body.nfts[0]).toHaveProperty('propRarity');
+      expect(response.body.nfts[0]).toHaveProperty('blockchain');
+      expect(response.body.nfts[0]).toHaveProperty('isFirstOfSet');
+      
+      findSpy.mockRestore();
     });
 
     it('should return 401 if user is not authenticated', async () => {

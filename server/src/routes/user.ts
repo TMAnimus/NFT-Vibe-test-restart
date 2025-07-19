@@ -2,6 +2,7 @@ import { Router, Response } from 'express';
 import { ObjectId } from 'mongodb';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { UserModel, IUser } from '../models/User';
+import NFTModel from '../models/NFT';
 
 const router = Router();
 
@@ -88,11 +89,13 @@ router.get('/profile', authMiddleware, async (req: AuthRequest, res: Response) =
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
+    // Populate full NFT objects
+    const nfts = await NFTModel.find({ ownerId: user._id }).lean();
     res.status(200).json({
       _id: user._id,
       username: user.username,
       balance: user.balance,
-      nfts: user.nfts,
+      nfts: nfts,
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });

@@ -9,6 +9,9 @@
 <body>
   <header>
     <h1>NFT Marketplace</h1>
+    <div id="tick-status" style="font-size: 0.9em; color: #666; margin-top: 5px;">
+      Tick System: <span id="tick-status-text">Loading...</span>
+    </div>
   </header>
   <section id="login-section">
     <form id="login-form">
@@ -18,7 +21,7 @@
       </label>
       <label>
         4-digit PIN:
-        <input type="password" id="login-pin" pattern="\\d{4}" maxlength="4" required autocomplete="current-password">
+        <input type="password" id="login-pin" pattern="\d{4}" maxlength="4" required autocomplete="current-password">
       </label>
       <button type="submit">Login</button>
       <span id="login-error" class="error"></span>
@@ -28,6 +31,7 @@
       <button id="logout-btn">Logout</button>
     </div>
   </section>
+  <div id="generate-nft-test-btn-container"></div>
   <section id="list-nft-section" style="display:none;">
     <form id="list-nft-form">
       <label>
@@ -94,6 +98,7 @@
       </div>
     </section>
   </main>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script src="js/marketplace.js"></script>
 </body>
 </html> 

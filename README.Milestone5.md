@@ -1,40 +1,136 @@
 # Milestone 5: Real-time Multiplayer Features
 
-This milestone adds real-time updates to the NFT marketplace using Socket.IO, ensuring that all players see new listings and sales instantly. It also covers optional real-time notifications and chat features. All new features must be fully tested.
+**Status**: Not Started - Ready to begin after Milestone 4 completion
 
-## Goals
-- Integrate Socket.IO for real-time communication. **(Done)**
-- Broadcast new listings and completed sales to all connected clients. **(Done)**
-- Ensure the marketplace UI updates instantly for all players. **(Done)**
-- (Optional) Add real-time notifications or chat features. *(Basic notifications done)*
-- Add comprehensive tests for real-time features. **(Done)**
+This milestone adds real-time updates to the NFT marketplace using Socket.IO, ensuring that all players see new listings and sales instantly when they happen. Real-time updates will be synchronized with the tick-based simulation system.
 
-## Steps & Status
+## Tick System Implementation Details
 
-### 1. Socket.IO Integration
-- [ ] Install Socket.IO on both server and client.
-- [ ] Set up a Socket.IO server in your Express app (`server/app.js` or `server/index.js`).
-- [ ] Connect the client to the Socket.IO server (see `client/js/marketplace.js`).
+### Architecture
+- **Location**: `server/src/services/tickService.ts`
+- **Integration**: Started from `server/src/index.ts` after database and app initialization
+- **Responsibilities**: Manage game loop, trigger market updates, emit real-time events
 
-### 2. Real-time Marketplace Updates
-- [ ] Emit a `listingCreated` event from the server when a new NFT is listed.
-- [ ] Emit a `listingSold`/`listingPurchased` event when a purchase is completed.
-- [ ] On the client, listen for these events and update the marketplace UI accordingly.
-- [ ] Ensure that all connected clients receive updates instantly.
+### Tick Service Structure
+```typescript
+// server/src/services/tickService.ts
+export class TickService {
+  private tickInterval: NodeJS.Timeout | null = null;
+  private lastTickTime: Date = new Date();
+  
+  startTickSystem(intervalMs: number = 10000): void {
+    // Start tick loop with configurable interval (default 10 seconds for dev)
+    // Emit marketUpdate events via socketService
+    // Trigger game logic: price updates, NPC actions, events
+  }
+  
+  stopTickSystem(): void {
+    // Clean shutdown of tick system
+  }
+  
+  private processTick(): void {
+    // Core tick logic: market updates, events, real-time emissions
+  }
+}
+```
 
-### 3. (Optional) Real-time Notifications/Chat
-- [ ] Implement a notification system to alert users of new listings, sales, or other market events. *(Basic notifications implemented in client)*
-- [ ] Optionally, add a simple chat feature for players. *(Not implemented)*
+### Integration Points
+- **Server Startup**: `startTickSystem()` called after DB connection and app setup
+- **Socket.IO**: Emit `marketUpdate` events on each tick via `socketService`
+- **Market Logic**: Trigger price updates, NPC actions, market events
+- **Configuration**: Tick interval configurable via environment variables
 
-### 4. Testing
-- [ ] Write Jest tests for new backend logic (e.g., event emission on listing creation/sale).
-- [ ] Use Socket.IO's testing utilities or mocks to verify that events are emitted and received as expected.
-- [ ] Add end-to-end tests to ensure the UI updates in real-time when listings are created or sold.
-- [ ] Test for race conditions and ensure data consistency across clients (see `purchaseConcurrency.test.js`).
+### Real-time Event Flow
+1. Tick occurs → `tickService.processTick()`
+2. Market updates calculated → `marketplaceService.updatePrices()`
+3. Real-time event emitted → `socketService.emitMarketUpdate()`
+4. All connected clients receive update → UI refreshes automatically
 
-### 5. Documentation
-- [ ] Update API and developer documentation to describe new real-time events and client integration steps. *(See below)*
-- [ ] Document any new environment variables or configuration options for Socket.IO.
+## Milestone 5A: Real-time Marketplace Updates
+
+### Goals
+- Integrate Socket.IO for real-time communication between server and clients
+- Broadcast new listings and completed sales to all connected clients instantly
+- Ensure the marketplace UI updates in real-time for all players
+- Synchronize real-time updates with the tick-based simulation system
+
+### Backend Features
+- [ ] Install and configure Socket.IO server in Express app
+- [ ] Create Socket.IO event handlers for marketplace events
+- [ ] Emit `listingCreated` event when new NFTs are listed
+- [ ] Emit `listingSold` event when purchases are completed
+- [ ] Emit `marketUpdate` event for tick-based market changes
+- [ ] Implement user authentication for Socket.IO connections
+- [ ] Add room management for different marketplace channels
+
+### Frontend Features
+- [ ] Install Socket.IO client library
+- [ ] Connect client to Socket.IO server
+- [ ] Listen for real-time marketplace events
+- [ ] Update marketplace UI instantly when events are received
+- [ ] Handle connection/disconnection gracefully
+- [ ] Add visual indicators for real-time updates
+
+### Testing
+- [ ] Unit tests for Socket.IO event emission
+- [ ] Integration tests for real-time marketplace updates
+- [ ] End-to-end tests for UI updates
+- [ ] Test race conditions and data consistency
+- [ ] Test connection handling and error scenarios
+
+## Milestone 5B: Real-time Notifications
+
+### Goals
+- Implement a notification system to alert users of marketplace events
+- Provide real-time notifications for listings, sales, and market events
+- Add optional notification preferences for users
+
+### Backend Features
+- [ ] Create notification service for marketplace events
+- [ ] Implement user notification preferences
+- [ ] Emit notification events through Socket.IO
+- [ ] Add notification storage in database
+- [ ] Create notification management endpoints
+
+### Frontend Features
+- [ ] Add notification UI component
+- [ ] Implement notification preferences settings
+- [ ] Show real-time notification badges
+- [ ] Add notification history view
+- [ ] Implement notification dismissal functionality
+
+### Testing
+- [ ] Unit tests for notification service
+- [ ] Integration tests for notification delivery
+- [ ] End-to-end tests for notification UI
+- [ ] Test notification preferences and settings
+
+## Implementation Details
+
+### Socket.IO Integration
+- **Server Setup**: Add Socket.IO to Express server with authentication
+- **Client Setup**: Connect marketplace.js to Socket.IO server
+- **Event Types**: `listingCreated`, `listingSold`, `marketUpdate`, `notification`
+- **Authentication**: Use JWT tokens for Socket.IO authentication
+- **Rooms**: Organize connections by marketplace channels
+
+### Real-time Updates
+- **Instant Updates**: UI updates immediately when events are received
+- **Tick Synchronization**: Market updates tied to simulation ticks
+- **Error Handling**: Graceful fallback to polling if real-time fails
+- **Performance**: Optimize for multiple concurrent users
+
+### Notification System
+- **Event Types**: New listings, sales, price changes, market events
+- **User Preferences**: Configurable notification settings
+- **Delivery Methods**: In-app notifications, optional email/webhook
+- **History**: Store and display notification history
+
+## Documentation
+- [ ] Update API documentation to include Socket.IO events
+- [ ] Document notification system and preferences
+- [ ] Add client integration examples
+- [ ] Document environment variables for Socket.IO configuration
 
 ---
-See the main [README.md](README.md) for project context and previous milestones.
+See [README.Milestone4.md](README.Milestone4.md) for completed marketplace features and [README.v2.md](README.v2.md) for project overview.

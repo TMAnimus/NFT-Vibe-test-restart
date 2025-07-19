@@ -16,7 +16,7 @@ const mockNft = {
   colorRarity: Rarity.Rare,
   propRarity: Rarity.VeryRare,
   blockchain: 'Ethereum',
-  firstOfSet: true
+  isFirstOfSet: true
 };
 jest.mock('../models/NFT', () => ({
   __esModule: true,
@@ -302,12 +302,12 @@ describe('Marketplace Routes', () => {
   describe('GET /api/marketplace/suggest-price/:nftId', () => {
     const validObjectId = '507f1f77bcf86cd799439011';
     const mockNft = {
-      _id: validObjectId,
-      colorRarity: Rarity.Rare,
-      propRarity: Rarity.VeryRare,
-      blockchain: 'Ethereum',
-      firstOfSet: true
-    };
+  _id: validObjectId,
+  colorRarity: Rarity.Rare,
+  propRarity: Rarity.VeryRare,
+  blockchain: 'Ethereum',
+  isFirstOfSet: true
+};
     let findByIdSpy: any;
     beforeAll(() => {
       const NFTModel = require('../models/NFT').default;

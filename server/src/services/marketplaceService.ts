@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import fs from 'fs';
 import path from 'path';
 import { TransactionModel } from '../models/Transaction';
+import { emitListingCreated, emitListingSold } from './socketService';
 
 /**
  * Lists an NFT for sale on the marketplace.
@@ -27,6 +28,9 @@ export const listNft = async (nftId: string, sellerId: string, price: number) =>
   nft.currentPrice = price;
 
   await nft.save();
+
+  // Emit real-time event for new listing
+  emitListingCreated(nft);
 
   return { message: `NFT ${nft.collectionName} #${nft._id} listed for sale.` };
 };
@@ -95,6 +99,10 @@ export const buyNft = async (nftId: string, buyerId: string) => {
     await nft.save({ session });
 
     await session.commitTransaction();
+
+    // Emit real-time event for sale
+    emitListingSold(nft, buyer.username);
+
     return { message: `Successfully purchased NFT ${nft.collectionName} #${nft._id}` };
 
   } catch (error: any) {
@@ -205,6 +213,38 @@ export const sellToBatch = async ({ nftId, sellerId, quantity }: { nftId: string
 };
 
 /**
+ * Updates prices for all listed NFTs using a random walk (-10% to +10%).
+ * Returns the updated NFTs.
+ */
+export const updateAllListedNftPrices = async () => {
+  const listedNfts = await NFTModel.find({ marketStatus: 'Listed' });
+  const updatedNfts = [];
+  for (const nft of listedNfts) {
+    const oldPrice = nft.currentPrice || 1;
+    // Random walk: -10% to +10%
+    const changePercent = (Math.random() * 0.2) - 0.1; // -0.1 to +0.1
+    let newPrice = Math.max(1, Math.round(oldPrice * (1 + changePercent)));
+    // Add a little satirical chaos: 1% chance of a wild swing
+    if (Math.random() < 0.01) {
+      const swing = (Math.random() * 2) + 1; // 1x to 3x
+      newPrice = Math.round(oldPrice * swing);
+    }
+    nft.currentPrice = newPrice;
+    await nft.save();
+    updatedNfts.push({
+      _id: nft._id,
+      collectionName: nft.collectionName,
+      color: nft.color,
+      rarity: nft.rarity,
+      props: nft.props,
+      currentPrice: nft.currentPrice,
+      marketStatus: nft.marketStatus
+    });
+  }
+  return updatedNfts;
+};
+
+/**
  * Gets all NFTs currently listed for sale, with optional filtering.
  * @param filters - Optional filters for colorRarity, propRarity, blockchain, minPrice, maxPrice
  */
@@ -258,7 +298,7 @@ export const suggestPriceForNft = async (nft: any, activeEvents: string[] = []) 
   }
 
   // Apply first of set bonus
-  if (nft.firstOfSet && config.firstOfSetBonus) {
+  if (nft.isFirstOfSet && config.firstOfSetBonus) {
     price *= config.firstOfSetBonus;
   }
 

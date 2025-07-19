@@ -15,6 +15,9 @@ export interface INFT extends Document {
   thing: string;
   props: Prop[];
   rarity: Rarity;
+  colorRarity: Rarity; // New field for color rarity
+  propRarity: Rarity; // New field for prop rarity
+  blockchain: string; // New field for blockchain, defaults to blank
   currentPrice: number;
   batchCount?: number;
   batchPrice?: number;
@@ -40,6 +43,9 @@ const NFTSchema = new Schema<INFT>({
   thing: { type: String, required: true },
   props: { type: [PropSchema], default: [] },
   rarity: { type: String, enum: Object.values(Rarity), required: true },
+  colorRarity: { type: String, enum: Object.values(Rarity), required: true },
+  propRarity: { type: String, enum: Object.values(Rarity), required: true },
+  blockchain: { type: String, default: '' }, // Defaults to blank string
   currentPrice: { type: Number, required: true },
   batchCount: { type: Number },
   batchPrice: { type: Number },
