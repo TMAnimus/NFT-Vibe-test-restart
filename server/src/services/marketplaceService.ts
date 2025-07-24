@@ -8,6 +8,17 @@ import { TransactionModel } from '../models/Transaction';
 import { emitListingCreated, emitListingSold } from './socketService';
 
 /**
+ * Custom error for HTTP status codes
+ */
+export class HttpError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+  }
+}
+
+/**
  * Lists an NFT for sale on the marketplace.
  * @param nftId - The ID of the NFT to list.
  * @param sellerId - The ID of the user selling the NFT.
@@ -17,11 +28,10 @@ export const listNft = async (nftId: string, sellerId: string, price: number) =>
   const nft = await NFTModel.findById(nftId);
 
   if (!nft) {
-    throw new Error('NFT not found.');
+    throw new HttpError('NFT not found.', 404);
   }
-
   if (nft.ownerId?.toString() !== sellerId) {
-    throw new Error('User is not the owner of this NFT.');
+    throw new HttpError('User is not the owner of this NFT.', 401);
   }
 
   nft.marketStatus = 'Listed';
@@ -32,7 +42,7 @@ export const listNft = async (nftId: string, sellerId: string, price: number) =>
   // Emit real-time event for new listing
   emitListingCreated(nft);
 
-  return { message: `NFT ${nft.collectionName} #${nft._id} listed for sale.` };
+  return { message: 'NFT listed successfully' };
 };
 
 /**
@@ -47,32 +57,31 @@ export const buyNft = async (nftId: string, buyerId: string) => {
   try {
     const nft = await NFTModel.findById(nftId).session(session);
     if (!nft) {
-      throw new Error('NFT not found.');
+      throw new HttpError('NFT not found.', 404);
     }
     if (nft.marketStatus !== 'Listed') {
-      throw new Error('This NFT is not for sale.');
+      throw new HttpError('This NFT is not for sale.', 400);
     }
 
     const buyer = await UserModel.findById(buyerId).session(session);
     if (!buyer) {
-      throw new Error('Buyer not found.');
+      throw new HttpError('Buyer not found.', 404);
     }
 
     if (nft.ownerId && nft.ownerId.toString() === buyerId) {
-      throw new Error('Cannot buy your own NFT.');
+      throw new HttpError('Cannot buy your own NFT.', 400);
     }
-    
     if (buyer.balance < nft.currentPrice) {
-      throw new Error('Insufficient funds.');
+      throw new HttpError('Insufficient funds.', 400);
     }
-    
+
     const sellerId = nft.ownerId;
     let seller = null;
     if (sellerId) {
         seller = await UserModel.findById(sellerId).session(session);
         if (!seller) {
             // This case might happen if the owner user was deleted, but the NFT remains
-            throw new Error('Seller not found.');
+            throw new HttpError('Seller not found.', 404);
         }
     }
 
@@ -120,23 +129,23 @@ export const buyNft = async (nftId: string, buyerId: string) => {
  * @param quantity - The number of NFTs to buy from the batch.
  */
 export const buyFromBatch = async ({ nftId, buyerId, quantity }: { nftId: string, buyerId: string, quantity: number }) => {
-  if (quantity < 1) throw new Error('Quantity must be at least 1.');
+  if (quantity < 1) throw new HttpError('Quantity must be at least 1.', 400);
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
     const nft = await NFTModel.findById(nftId).session(session);
     console.debug('[buyFromBatch] fetched nft:', nft);
     if (!nft || typeof nft.batchCount !== 'number' || nft.batchCount < 1) {
-      throw new Error('Batch NFT not found or not available.');
+      throw new HttpError('Batch NFT not found or not available.', 404);
     }
     if (nft.batchCount < quantity) {
-      throw new Error('Not enough NFTs in batch.');
+      throw new HttpError('Not enough NFTs in batch.', 400);
     }
     const buyer = await UserModel.findById(buyerId).session(session);
     console.debug('[buyFromBatch] fetched buyer:', buyer);
-    if (!buyer) throw new Error('Buyer not found.');
+    if (!buyer) throw new HttpError('Buyer not found.', 404);
     const totalPrice = (nft.batchPrice || nft.currentPrice) * quantity;
-    if (buyer.balance < totalPrice) throw new Error('Insufficient funds.');
+    if (buyer.balance < totalPrice) throw new HttpError('Insufficient funds.', 400);
     // Deduct funds and add NFT references (could be a virtual reference for batch)
     buyer.balance -= totalPrice;
     // Optionally, track batch NFT ownership as a count in buyer.ownedNFTs
@@ -175,18 +184,18 @@ export const buyFromBatch = async ({ nftId, buyerId, quantity }: { nftId: string
  * @param quantity - The number of NFTs to sell to the batch.
  */
 export const sellToBatch = async ({ nftId, sellerId, quantity }: { nftId: string, sellerId: string, quantity: number }) => {
-  if (quantity < 1) throw new Error('Quantity must be at least 1.');
+  if (quantity < 1) throw new HttpError('Quantity must be at least 1.', 400);
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
     const nft = await NFTModel.findById(nftId).session(session);
     console.debug('[sellToBatch] fetched nft:', nft);
     if (!nft || typeof nft.batchCount !== 'number') {
-      throw new Error('Batch NFT not found.');
+      throw new HttpError('Batch NFT not found.', 404);
     }
     const seller = await UserModel.findById(sellerId).session(session);
     console.debug('[sellToBatch] fetched seller:', seller);
-    if (!seller) throw new Error('Seller not found.');
+    if (!seller) throw new HttpError('Seller not found.', 404);
     // Optionally, check that seller owns enough of this NFT type (if tracked)
     const totalPrice = (nft.batchPrice || nft.currentPrice) * quantity;
     seller.balance += totalPrice;
@@ -217,31 +226,37 @@ export const sellToBatch = async ({ nftId, sellerId, quantity }: { nftId: string
  * Returns the updated NFTs.
  */
 export const updateAllListedNftPrices = async () => {
-  const listedNfts = await NFTModel.find({ marketStatus: 'Listed' });
-  const updatedNfts = [];
-  for (const nft of listedNfts) {
-    const oldPrice = nft.currentPrice || 1;
-    // Random walk: -10% to +10%
-    const changePercent = (Math.random() * 0.2) - 0.1; // -0.1 to +0.1
-    let newPrice = Math.max(1, Math.round(oldPrice * (1 + changePercent)));
-    // Add a little satirical chaos: 1% chance of a wild swing
-    if (Math.random() < 0.01) {
-      const swing = (Math.random() * 2) + 1; // 1x to 3x
-      newPrice = Math.round(oldPrice * swing);
+  try {
+    const listedNfts = await NFTModel.find({ marketStatus: 'Listed' }).lean();
+    const updatedNfts: any[] = [];
+    for (const nft of listedNfts || []) {
+      const oldPrice = nft.currentPrice || 1;
+      // Random walk: -10% to +10%
+      const changePercent = (Math.random() * 0.2) - 0.1; // -0.1 to +0.1
+      let newPrice = Math.max(1, Math.round(oldPrice * (1 + changePercent)));
+      // Add a little satirical chaos: 1% chance of a wild swing
+      if (Math.random() < 0.01) {
+        const swing = (Math.random() * 2) + 1; // 1x to 3x
+        newPrice = Math.round(oldPrice * swing);
+      }
+      // Update the document in the database
+      await NFTModel.findByIdAndUpdate(nft._id, { currentPrice: newPrice });
+      // Add to updated list
+      updatedNfts.push({
+        _id: nft._id,
+        collectionName: nft.collectionName,
+        color: nft.color,
+        rarity: nft.rarity,
+        props: nft.props,
+        currentPrice: newPrice,
+        marketStatus: nft.marketStatus
+      });
     }
-    nft.currentPrice = newPrice;
-    await nft.save();
-    updatedNfts.push({
-      _id: nft._id,
-      collectionName: nft.collectionName,
-      color: nft.color,
-      rarity: nft.rarity,
-      props: nft.props,
-      currentPrice: nft.currentPrice,
-      marketStatus: nft.marketStatus
-    });
+    return updatedNfts;
+  } catch (error) {
+    console.error('Error updating NFT prices:', error);
+    return [];
   }
-  return updatedNfts;
 };
 
 /**
@@ -336,4 +351,4 @@ export const suggestPriceForNft = async (nft: any, activeEvents: string[] = []) 
   }
 
   return price;
-}; 
+};

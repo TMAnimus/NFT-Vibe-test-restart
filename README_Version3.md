@@ -30,6 +30,13 @@ NFTs have the following rarity options:
 - **Testing:** Jest
 - **Language:** TypeScript (v2 and onwards)
 
+## Real-time Features
+- **Live Market Updates**: See new listings and sales instantly
+- **Dynamic Pricing**: Watch prices update in real-time based on market activity
+- **Instant Notifications**: Receive alerts for marketplace events and price changes
+- **Tick-based System**: Market updates occur on daily and weekly cycles
+See [server/docs/socket-events.md](server/docs/socket-events.md) for real-time event documentation.
+
 ## Authentication
 Players register with a username and a 4-digit PIN (satirical, minimal security). PINs are hashed and stored in MongoDB. JWTs are used for session management.
 

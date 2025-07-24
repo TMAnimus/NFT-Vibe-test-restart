@@ -3,12 +3,22 @@ import express from 'express';
 import mongoose from 'mongoose';
 import marketplaceRoutes from './marketplace';
 import * as marketplaceService from '../services/marketplaceService';
+import { HttpError } from '../services/marketplaceService';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { Rarity } from '../models/enums';
 
 // Mock the entire marketplaceService
 jest.mock('../services/marketplaceService');
 
+// Extend NodeJS.Global to allow our test flag
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace NodeJS {
+    interface Global {
+      __TEST_NOT_OWNER__?: boolean;
+    }
+  }
+}
 // Mock the NFT model before importing the app/routes
 const validObjectId = '507f1f77bcf86cd799439011';
 const mockNft = {
@@ -16,21 +26,46 @@ const mockNft = {
   colorRarity: Rarity.Rare,
   propRarity: Rarity.VeryRare,
   blockchain: 'Ethereum',
-  isFirstOfSet: true
+  isFirstOfSet: true,
+  ownerId: 'mockUserId', // for success case
+  save: jest.fn().mockResolvedValue(true),
+};
+const notOwnerNft = {
+  ...mockNft,
+  ownerId: 'notTheUser',
 };
 jest.mock('../models/NFT', () => ({
   __esModule: true,
   default: {
-    findById: (id: any) => ({
-      lean: () => id === validObjectId ? Promise.resolve(mockNft) : Promise.resolve(null)
-    })
-  }
+    findById: (id: any) => {
+      // Helper to wrap the NFT object with .lean() and .populate() support
+      const wrap = (nft: any) => ({
+        ...nft,
+        save: nft.save,
+        lean: () => Promise.resolve({ ...nft }),
+        populate: function () { return this; },
+      });
+      if ((global as any).__TEST_NOT_OWNER__) {
+        return wrap(notOwnerNft);
+      }
+      if (id === validObjectId || typeof id === 'string') {
+        return wrap(mockNft);
+      }
+      // Return an object with .lean()/.populate() that resolves to null for not found
+      return {
+        lean: () => Promise.resolve(null),
+        populate: function () { return this; },
+      };
+    },
+  },
 }));
 
 // Mock the named export 'authMiddleware' for all requests in these tests
 jest.mock('../../src/middleware/auth', () => ({
   authMiddleware: (req: any, res: any, next: any) => {
-    req.user = { userId: 'mockUserId', username: 'mockUser' };
+    if (!req.user) req.user = {};
+    req.user.userId = 'mockUserId';
+    req.user.username = 'mockUser';
     next();
   }
 }));
@@ -72,7 +107,7 @@ describe('Marketplace Routes', () => {
     });
 
     it('should return 500 on a server error', async () => {
-        (marketplaceService.getListedNfts as jest.Mock).mockRejectedValue(new Error('Database error'));
+        (marketplaceService.getListedNfts as jest.Mock).mockRejectedValue(new HttpError('Database error', 500));
   
         const response = await request(app).get('/api/marketplace/listed');
   
@@ -99,7 +134,7 @@ describe('Marketplace Routes', () => {
     it('should filter by propRarity', async () => {
       const mockNfts = [{ _id: '2', propRarity: Rarity.VeryRare }];
       (marketplaceService.getListedNfts as jest.Mock).mockResolvedValue(mockNfts);
-      const response = await request(app).get('/api/marketplace/listed?propRarity=veryrare');
+      const response = await request(app).get('/api/marketplace/listed?propRarity=veryRare');
       expect(response.status).toBe(200);
       expect(response.body).toEqual(mockNfts);
       expect(marketplaceService.getListedNfts).toHaveBeenCalledWith({
@@ -195,13 +230,18 @@ describe('Marketplace Routes', () => {
   });
 
   describe('POST /api/marketplace/list', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
     it('should list an NFT and return 200', async () => {
+      // Use a valid MongoDB ObjectId string
       const validNftId = new mongoose.Types.ObjectId().toHexString();
       const listPayload = { nftId: validNftId, price: 150 };
       (marketplaceService.listNft as jest.Mock).mockResolvedValue({ message: 'NFT listed successfully' });
 
       const response = await request(app)
         .post('/api/marketplace/list')
+        .set('Content-Type', 'application/json')
         .send(listPayload);
 
       expect(response.status).toBe(200);
@@ -210,39 +250,51 @@ describe('Marketplace Routes', () => {
     });
 
     it('should return 400 for invalid input', async () => {
-        const validNftId = new mongoose.Types.ObjectId().toHexString();
-        const response = await request(app)
-          .post('/api/marketplace/list')
-          .send({ nftId: validNftId, price: -10 });
-  
-        expect(response.status).toBe(400);
-        expect(response.body).toHaveProperty('errors');
+      // Use a valid ObjectId but invalid price
+      const validNftId = new mongoose.Types.ObjectId().toHexString();
+      const response = await request(app)
+        .post('/api/marketplace/list')
+        .set('Content-Type', 'application/json')
+        .send({ nftId: validNftId, price: -10 });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('errors');
     });
 
     it('should return 404 if the NFT is not found', async () => {
-        const notFoundId = new mongoose.Types.ObjectId().toHexString();
-        const listPayload = { nftId: notFoundId, price: 150 };
-        (marketplaceService.listNft as jest.Mock).mockRejectedValue(new Error('NFT not found.'));
-  
-        const response = await request(app)
-          .post('/api/marketplace/list')
-          .send(listPayload);
-  
-        expect(response.status).toBe(404);
-        expect(response.body).toEqual({ message: 'NFT not found.' });
+      const notFoundId = new mongoose.Types.ObjectId().toHexString();
+      const listPayload = { nftId: notFoundId, price: 150 };
+      (marketplaceService.listNft as jest.Mock).mockImplementation(() => {
+        throw new HttpError('NFT not found.', 404);
+      });
+
+      const response = await request(app)
+        .post('/api/marketplace/list')
+        .set('Content-Type', 'application/json')
+        .send(listPayload);
+
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual({ message: 'NFT not found.' });
     });
 
     it('should return 401 if the user is not the owner', async () => {
-        const notOwnedId = new mongoose.Types.ObjectId().toHexString();
-        const listPayload = { nftId: notOwnedId, price: 150 };
-        (marketplaceService.listNft as jest.Mock).mockRejectedValue(new Error('User is not the owner of this NFT.'));
-  
-        const response = await request(app)
-          .post('/api/marketplace/list')
-          .send(listPayload);
-  
-        expect(response.status).toBe(401);
-        expect(response.body).toEqual({ message: 'User is not the owner of this NFT.' });
+      // Set a global flag so the mock returns an NFT with a different ownerId
+      (global as any).__TEST_NOT_OWNER__ = true;
+      const notOwnedId = new mongoose.Types.ObjectId().toHexString();
+      const listPayload = { nftId: notOwnedId, price: 150 };
+      (marketplaceService.listNft as jest.Mock).mockImplementation(() => {
+        throw new HttpError('User is not the owner of this NFT.', 401);
+      });
+
+      const response = await request(app)
+        .post('/api/marketplace/list')
+        .set('Content-Type', 'application/json')
+        .send(listPayload);
+
+      expect(response.status).toBe(401);
+      expect(response.body).toEqual({ message: 'User is not the owner of this NFT.' });
+      // Clean up the flag
+      delete (global as any).__TEST_NOT_OWNER__;
     });
   });
 
@@ -260,7 +312,7 @@ describe('Marketplace Routes', () => {
 
     it('should return 400 if NFT is not for sale', async () => {
         const validNftId = new mongoose.Types.ObjectId().toHexString();
-        (marketplaceService.buyNft as jest.Mock).mockRejectedValue(new Error('This NFT is not for sale.'));
+        (marketplaceService.buyNft as jest.Mock).mockRejectedValue(new HttpError('This NFT is not for sale.', 400));
   
         const response = await request(app).post(`/api/marketplace/buy/${validNftId}`);
   
@@ -270,7 +322,7 @@ describe('Marketplace Routes', () => {
 
     it('should return 400 for insufficient funds', async () => {
         const validNftId = new mongoose.Types.ObjectId().toHexString();
-        (marketplaceService.buyNft as jest.Mock).mockRejectedValue(new Error('Insufficient funds.'));
+        (marketplaceService.buyNft as jest.Mock).mockRejectedValue(new HttpError('Insufficient funds.', 400));
   
         const response = await request(app).post(`/api/marketplace/buy/${validNftId}`);
   
@@ -280,7 +332,7 @@ describe('Marketplace Routes', () => {
 
     it('should return 400 if user tries to buy their own NFT', async () => {
         const validNftId = new mongoose.Types.ObjectId().toHexString();
-        (marketplaceService.buyNft as jest.Mock).mockRejectedValue(new Error('Cannot buy your own NFT.'));
+        (marketplaceService.buyNft as jest.Mock).mockRejectedValue(new HttpError('Cannot buy your own NFT.', 400));
   
         const response = await request(app).post(`/api/marketplace/buy/${validNftId}`);
   
@@ -290,7 +342,7 @@ describe('Marketplace Routes', () => {
 
     it('should return 404 if NFT is not found', async () => {
         const validNftId = new mongoose.Types.ObjectId().toHexString();
-        (marketplaceService.buyNft as jest.Mock).mockRejectedValue(new Error('NFT not found.'));
+        (marketplaceService.buyNft as jest.Mock).mockRejectedValue(new HttpError('NFT not found.', 404));
   
         const response = await request(app).post(`/api/marketplace/buy/${validNftId}`);
   
@@ -358,7 +410,7 @@ describe('POST /api/marketplace/batch-buy', () => {
     expect(response.body.message).toBe('Validation error');
   });
   it('should return 404 if batch NFT not found', async () => {
-    (marketplaceService.buyFromBatch as jest.Mock).mockRejectedValue(new Error('Batch NFT not found.'));
+    (marketplaceService.buyFromBatch as jest.Mock).mockRejectedValue(new HttpError('Batch NFT not found.', 404));
     const response = await request(app)
       .post('/api/marketplace/batch-buy')
       .send({ nftId: validObjectId, quantity: 2 });
@@ -366,7 +418,7 @@ describe('POST /api/marketplace/batch-buy', () => {
     expect(response.body.message).toMatch(/not found/i);
   });
   it('should return 400 for service errors', async () => {
-    (marketplaceService.buyFromBatch as jest.Mock).mockRejectedValue(new Error('Insufficient funds.'));
+    (marketplaceService.buyFromBatch as jest.Mock).mockRejectedValue(new HttpError('Insufficient funds.', 400));
     const response = await request(app)
       .post('/api/marketplace/batch-buy')
       .send({ nftId: validObjectId, quantity: 2 });
@@ -393,7 +445,7 @@ describe('POST /api/marketplace/batch-sell', () => {
     expect(response.body.message).toBe('Validation error');
   });
   it('should return 404 if batch NFT not found', async () => {
-    (marketplaceService.sellToBatch as jest.Mock).mockRejectedValue(new Error('Batch NFT not found.'));
+    (marketplaceService.sellToBatch as jest.Mock).mockRejectedValue(new HttpError('Batch NFT not found.', 404));
     const response = await request(app)
       .post('/api/marketplace/batch-sell')
       .send({ nftId: validObjectId, quantity: 2 });
@@ -401,7 +453,7 @@ describe('POST /api/marketplace/batch-sell', () => {
     expect(response.body.message).toMatch(/not found/i);
   });
   it('should return 400 for service errors', async () => {
-    (marketplaceService.sellToBatch as jest.Mock).mockRejectedValue(new Error('Seller not found.'));
+    (marketplaceService.sellToBatch as jest.Mock).mockRejectedValue(new HttpError('Seller not found.', 400));
     const response = await request(app)
       .post('/api/marketplace/batch-sell')
       .send({ nftId: validObjectId, quantity: 2 });

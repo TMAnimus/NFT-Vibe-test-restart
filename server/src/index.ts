@@ -122,6 +122,16 @@ async function startServer() {
   app.use('/api/marketplace', marketplaceRoutes);
   app.use('/api/tick', tickRoutes);
 
+  // Error-handling middleware (must be after all routes)
+  app.use((err: any, req: Request, res: Response, next: any) => {
+    const status = err.status && typeof err.status === 'number' ? err.status : 500;
+    const message = status === 500
+      ? (process.env.NODE_ENV === 'production' ? 'Internal server error.' : err.message)
+      : err.message;
+    // Provide both message and error for better test and debug alignment
+    res.status(status).json({ message, error: err.message });
+  });
+
   /**
    * @openapi
    * /api:
@@ -155,4 +165,4 @@ async function startServer() {
   });
 }
 
-startServer(); 
+startServer();

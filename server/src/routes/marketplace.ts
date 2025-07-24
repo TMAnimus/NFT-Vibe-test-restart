@@ -91,7 +91,7 @@ const router = express.Router();
  *                 message: "Error fetching listed NFTs"
  *                 error: "Database error"
  */
-router.get('/listed', async (req: Request, res: Response) => {
+router.get('/listed', async (req: Request, res: Response, next: any) => {
     try {
         let minPrice = req.query.minPrice ? Number(req.query.minPrice) : undefined;
         let maxPrice = req.query.maxPrice ? Number(req.query.maxPrice) : undefined;
@@ -107,7 +107,7 @@ router.get('/listed', async (req: Request, res: Response) => {
         const nfts = await marketplaceService.getListedNfts(filters);
         res.status(200).json(nfts);
     } catch (error: any) {
-        res.status(500).json({ message: 'Error fetching listed NFTs', error: error.message });
+        next(error);
     }
 });
 
@@ -199,27 +199,27 @@ router.post(
         body('nftId').isMongoId().withMessage('A valid nftId is required.'),
         body('price').isFloat({ gt: 0 }).withMessage('Price must be a positive number.'),
     ],
-    async (req: Request, res: Response) => {
+    async (req: Request, res: Response, next: any) => {
         const errors = validationResult(req);
+        // Debug log for troubleshooting test failures
+        // eslint-disable-next-line no-console
+        console.log('[DEBUG] /api/marketplace/list req.body:', req.body);
+        // eslint-disable-next-line no-console
+        console.log('[DEBUG] /api/marketplace/list validation errors:', errors.array());
         if (!errors.isEmpty()) {
+            // Only validation errors return 400
             return res.status(400).json({ errors: errors.array() });
         }
 
         try {
             const { nftId, price } = req.body;
             // @ts-ignore
-            const sellerId = req.user.userId; // Corrected from req.user.id
-
+            const sellerId = req.user.userId;
             const result = await marketplaceService.listNft(nftId, sellerId, price);
             res.status(200).json(result);
-        } catch (error: any) {
-            if (error.message.includes('not found')) {
-                return res.status(404).json({ message: error.message });
-            }
-            if (error.message.includes('not the owner')) {
-                return res.status(401).json({ message: error.message });
-            }
-            res.status(500).json({ message: 'Error listing NFT', error: error.message });
+        } catch (err) {
+            // Pass all non-validation errors to the global error handler
+            next(err);
         }
     }
 );
@@ -293,7 +293,7 @@ router.post(
  *                 message: "Error buying NFT"
  *                 error: "Database error"
  */
-router.post('/buy/:nftId', authMiddleware, async (req: Request, res: Response) => {
+router.post('/buy/:nftId', authMiddleware, async (req: Request, res: Response, next: any) => {
     try {
         const { nftId } = req.params;
         // @ts-ignore
@@ -302,13 +302,7 @@ router.post('/buy/:nftId', authMiddleware, async (req: Request, res: Response) =
         const result = await marketplaceService.buyNft(nftId, buyerId);
         res.status(200).json(result);
     } catch (error: any) {
-        if (error.message.includes('not found')) {
-            return res.status(404).json({ message: error.message });
-        }
-        if (error.message.includes('not for sale') || error.message.includes('Insufficient funds') || error.message.includes('Cannot buy your own NFT')) {
-            return res.status(400).json({ message: error.message });
-        }
-        res.status(500).json({ message: 'Error buying NFT', error: error.message });
+        next(error);
     }
 });
 
@@ -359,18 +353,19 @@ router.post('/buy/:nftId', authMiddleware, async (req: Request, res: Response) =
  *                 message: "Error suggesting price"
  *                 error: "Calculation error"
  */
-router.get('/suggest-price/:nftId', async (req: Request, res: Response) => {
+router.get('/suggest-price/:nftId', async (req: Request, res: Response, next: any) => {
     try {
         const { nftId } = req.params;
         const nft = await require('../models/NFT').default.findById(nftId).lean();
         if (!nft) {
-            return res.status(404).json({ message: 'NFT not found' });
+            const { HttpError } = require('../services/marketplaceService');
+            throw new HttpError('NFT not found', 404);
         }
         // For now, assume no active events
         const suggestedPrice = await marketplaceService.suggestPriceForNft(nft, []);
         res.status(200).json({ suggestedPrice });
     } catch (error: any) {
-        res.status(500).json({ message: 'Error suggesting price', error: error.message });
+        next(error);
     }
 });
 

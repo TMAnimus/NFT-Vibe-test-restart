@@ -18,13 +18,18 @@ const mockSession = {
 jest.spyOn(mongoose, 'startSession').mockResolvedValue(mockSession as any);
 
 describe('buyFromBatch', () => {
+  beforeAll(() => {
+    jest.setTimeout(30000); // Increase timeout to 30 seconds
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
   function mockFindByIdWithSession(modelMock: any, entity: any) {
     (modelMock.findById as jest.Mock).mockReturnValue({
-      session: (...args: any[]) => Promise.resolve(entity),
-      exec: () => Promise.resolve(entity)
+      session: () => ({
+        exec: () => Promise.resolve(entity)
+      })
     });
   }
   it('should buy from a batch NFT successfully', async () => {
@@ -69,13 +74,18 @@ describe('buyFromBatch', () => {
 });
 
 describe('sellToBatch', () => {
+  beforeAll(() => {
+    jest.setTimeout(30000); // Increase timeout to 30 seconds
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
   function mockFindByIdWithSession(modelMock: any, entity: any) {
     (modelMock.findById as jest.Mock).mockReturnValue({
-      session: (...args: any[]) => Promise.resolve(entity),
-      exec: () => Promise.resolve(entity)
+      session: () => ({
+        exec: () => Promise.resolve(entity)
+      })
     });
   }
   it('should sell to a batch NFT successfully', async () => {

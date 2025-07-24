@@ -12,7 +12,7 @@ const rarityMultipliers = {
   common: 1,
   uncommon: 1.5,
   rare: 2.5,
-  veryrare: 5,
+  veryRare: 5,
   notPresent: 1, // No price impact
 };
 

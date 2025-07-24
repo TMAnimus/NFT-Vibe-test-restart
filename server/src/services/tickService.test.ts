@@ -1,10 +1,12 @@
 import { TickService } from './tickService';
 import { emitMarketUpdate } from './socketService';
 
-// Mock the socket service
+// Mock the socket service and MongoDB
 jest.mock('./socketService', () => ({
   emitMarketUpdate: jest.fn()
 }));
+
+jest.mock('mongoose');
 
 describe('TickService', () => {
   let tickService: TickService;
@@ -48,10 +50,13 @@ describe('TickService', () => {
       expect(consoleSpy).toHaveBeenCalledWith('Tick system is already running');
     });
 
-    it('should process initial tick immediately', () => {
+    it('should process initial tick immediately', async () => {
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
       
       tickService.startTickSystem();
+      
+      // Wait for the next tick to allow async operations to complete
+      await Promise.resolve();
       
       expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Processing tick'));
       expect(emitMarketUpdate).toHaveBeenCalledWith(expect.objectContaining({
@@ -101,13 +106,19 @@ describe('TickService', () => {
   });
 
   describe('tick processing', () => {
-    it('should emit market update on each tick', () => {
+    it('should emit market update on each tick', async () => {
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
       
       tickService.startTickSystem(1000); // 1 second interval for testing
       
+      // Wait for the next tick to allow async operations to complete
+      await Promise.resolve();
+      
       // Fast-forward time to trigger next tick
       jest.advanceTimersByTime(1000);
+      
+      // Wait for async operations again
+      await Promise.resolve();
       
       expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Processing tick'));
       expect(emitMarketUpdate).toHaveBeenCalledWith(expect.objectContaining({
@@ -119,7 +130,7 @@ describe('TickService', () => {
       }));
     });
 
-    it('should handle errors gracefully without stopping the tick system', () => {
+    it('should handle errors gracefully without stopping the tick system', async () => {
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
       const errorSpy = jest.spyOn(console, 'error').mockImplementation();
       
@@ -129,7 +140,15 @@ describe('TickService', () => {
       });
       
       tickService.startTickSystem(1000);
+      
+      // Wait for the next tick to allow async operations to complete
+      await Promise.resolve();
+      
+      // Fast-forward time to trigger next tick
       jest.advanceTimersByTime(1000);
+      
+      // Wait for async operations again
+      await Promise.resolve();
       
       expect(errorSpy).toHaveBeenCalledWith('Error processing tick:', expect.any(Error));
       expect(tickService.getStatus().isRunning).toBe(true); // Should still be running
