@@ -41,4 +41,4 @@ NFT Trading Game is a satirical, multiplayer NFT marketplace simulation. Players
 
 ## Future Features
 
-See [README.Future.v2.md](README.Future.v2.md) for planned features (GUI, player-triggered events, etc.)
+See [README.Future.md](README.Future.md) for planned features (GUI, player-triggered events, etc.)
