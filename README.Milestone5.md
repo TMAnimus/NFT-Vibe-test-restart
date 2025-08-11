@@ -1,6 +1,6 @@
 # Milestone 5: Real-time Multiplayer Features
 
-**Status**: In Progress — core real-time features implemented and all unit tests passing; integration tests for real-time features need refinement
+**Status**: In Progress — core real-time features implemented; all unit and integration tests passing; notification preferences/history not started
 
 This milestone adds real-time updates to the NFT marketplace using Socket.IO, ensuring that all players see new listings and sales instantly when they happen. Real-time updates are synchronized with the tick-based simulation system.
 
@@ -74,10 +74,10 @@ export class TickService {
 ### Testing
 - [x] Unit tests for Socket.IO event emission (backend)
 - [x] Unit tests for TickService (emit on tick, error handling, intervals)
-- [x] Integration tests for real-time marketplace updates (basic structure implemented)
+- [x] Integration tests for real-time marketplace updates (auth, tick event)
 - [ ] End-to-end tests for UI updates (not present)
 - [ ] Test race conditions and data consistency (not present)
-- [ ] Test connection handling and error scenarios (not present)
+- [x] Test connection handling and error scenarios (invalid server, reconnection, network interruptions)
 
 ## Milestone 5B: Real-time Notifications
 
@@ -101,7 +101,7 @@ export class TickService {
 - [x] Implement notification dismissal functionality (auto-dismiss after 5s)
 
 ### Testing
-- [ ] Unit tests for notification service (not present)
+- [x] Unit tests for notification service (emission + logging)
 - [ ] Integration tests for notification delivery (not present)
 - [ ] End-to-end tests for notification UI (not present)
 - [ ] Test notification preferences and settings (not present)
@@ -130,25 +130,23 @@ export class TickService {
 ## Testing Status
 
 ### Unit Tests ✅
-- **All unit tests passing**: 82/82 tests pass
+- **All tests passing**: 92/92
 - **TickService tests**: Complete with proper mocking and error handling
 - **MarketplaceService tests**: Complete with session handling and batch operations
-- **SocketService tests**: Complete with io availability checks
+- **SocketService tests**: Complete (io availability + notification emissions)
 - **User route tests**: Complete with proper model mocking
 - **Auth route tests**: Complete with registration/login flows
 - **NFT route tests**: Complete with generation and error handling
 - **NFT Generation Service tests**: Complete with collection validation
 
 ### Integration Tests 🔄
-- **Real-time integration tests**: Basic structure implemented, needs refinement
-- **HTTP + Socket.IO combined tests**: Framework in place, requires authentication improvements
+- **Real-time integration tests**: Authenticated Socket.IO connection, marketplace room join, tick-driven `marketUpdate`
+- **Connection handling**: Invalid server connection, reconnection attempts, network interruptions
 - **Database integration**: Proper test database setup and cleanup
 
 ### Missing Tests ❌
 - **End-to-end tests**: UI interaction tests not implemented
-- **Notification service tests**: Unit tests for notification logic
 - **Race condition tests**: Concurrent operation testing
-- **Connection error tests**: Network failure scenarios
 
 ## Documentation
 - [ ] Update API documentation to include Socket.IO events

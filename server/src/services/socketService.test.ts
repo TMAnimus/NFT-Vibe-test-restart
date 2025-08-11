@@ -1,4 +1,4 @@
-import { emitMarketplaceEvent, emitListingCreated, emitListingSold, emitMarketUpdate } from './socketService';
+import { emitMarketplaceEvent, emitListingCreated, emitListingSold, emitMarketUpdate, emitNotification, emitGlobalNotification } from './socketService';
 
 // Mock console.log to avoid noise in tests
 const originalConsoleLog = console.log;
@@ -119,6 +119,97 @@ describe('Socket Service', () => {
         ...mockUpdate,
         timestamp: expect.any(String)
       });
+    });
+  });
+
+  describe('emitNotification', () => {
+    it('should handle missing io gracefully', () => {
+      expect(() => emitNotification('user123', { message: 'test' })).not.toThrow();
+    });
+
+    it('should emit notification to specific user', () => {
+      const mockEmit = jest.fn();
+      const mockTo = jest.fn(() => ({
+        emit: mockEmit
+      }));
+      
+      (global as any).io = {
+        to: mockTo
+      };
+
+      const userId = 'user123';
+      const notification = {
+        type: 'info',
+        message: 'Test notification',
+        title: 'Test Title'
+      };
+
+      emitNotification(userId, notification);
+
+      expect(mockTo).toHaveBeenCalledWith(userId);
+      expect(mockEmit).toHaveBeenCalledWith('notification', {
+        ...notification,
+        timestamp: expect.any(String)
+      });
+    });
+
+    it('should log notification emission', () => {
+      const mockEmit = jest.fn();
+      const mockTo = jest.fn(() => ({
+        emit: mockEmit
+      }));
+      
+      (global as any).io = {
+        to: mockTo
+      };
+
+      const userId = 'user123';
+      const notification = { message: 'test' };
+
+      emitNotification(userId, notification);
+
+      expect(console.log).toHaveBeenCalledWith(`Emitted notification to user ${userId}`);
+    });
+  });
+
+  describe('emitGlobalNotification', () => {
+    it('should handle missing io gracefully', () => {
+      expect(() => emitGlobalNotification({ message: 'test' })).not.toThrow();
+    });
+
+    it('should emit global notification to all users', () => {
+      const mockEmit = jest.fn();
+      
+      (global as any).io = {
+        emit: mockEmit
+      };
+
+      const notification = {
+        type: 'warning',
+        message: 'Global test notification',
+        title: 'Global Test Title'
+      };
+
+      emitGlobalNotification(notification);
+
+      expect(mockEmit).toHaveBeenCalledWith('globalNotification', {
+        ...notification,
+        timestamp: expect.any(String)
+      });
+    });
+
+    it('should log global notification emission', () => {
+      const mockEmit = jest.fn();
+      
+      (global as any).io = {
+        emit: mockEmit
+      };
+
+      const notification = { message: 'test' };
+
+      emitGlobalNotification(notification);
+
+      expect(console.log).toHaveBeenCalledWith('Emitted global notification');
     });
   });
 }); 
