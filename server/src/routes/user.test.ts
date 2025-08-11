@@ -1,6 +1,22 @@
 import dotenv from 'dotenv';
-import path from 'path';
-dotenv.config({ path: 'K:/Projects/NFT_test_3/server/.env' });
+dotenv.config();
+
+// Mock the models before importing the route
+jest.mock('../models/User', () => ({
+  UserModel: {
+    findById: jest.fn()
+  }
+}));
+
+jest.mock('../models/NFT', () => ({
+  __esModule: true,
+  default: {
+    find: jest.fn().mockReturnValue({
+      lean: jest.fn()
+    })
+  }
+}));
+
 import request from 'supertest';
 import express from 'express';
 import userRoutes from './user';
@@ -9,6 +25,7 @@ import mongoose from 'mongoose';
 import authRoutes from './auth';
 import { UserModel } from '../models/User';
 import NFTModel from '../models/NFT';
+import { connectTestDB, clearTestDB, closeTestDB } from '../test/db';
 
 const app = express();
 app.use(express.json());
@@ -18,32 +35,27 @@ app.use('/api/user', authMiddleware, userRoutes);
 let jwtToken: string = '';
 let testUsername = `testuser_${Date.now()}`;
 const testPin = '1234';
+const testUserId = '507f1f77bcf86cd799439011'; // Mock user ID
 
 // Increase timeout for this test suite
 jest.setTimeout(30000);
 
 beforeAll(async () => {
   try {
-    // Connect to the test database if not already connected
-    if (mongoose.connection.readyState === 0) {
-      await mongoose.connect(process.env.MONGO_URL || 'mongodb://localhost:27017/nft_test', {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        serverSelectionTimeoutMS: 5000,
-        socketTimeoutMS: 45000,
-      } as any);
-    }
+    // Set JWT_SECRET for tests
+    process.env.JWT_SECRET = 'test-secret-key';
     
-    // Register test user
-    await request(app)
-      .post('/api/auth/register')
-      .send({ username: testUsername, pin: testPin });
+    // Connect to test database and clear it
+    await connectTestDB();
+    await clearTestDB();
     
-    // Login to get JWT
-    const loginRes = await request(app)
-      .post('/api/auth/login')
-      .send({ username: testUsername, pin: testPin });
-    jwtToken = loginRes.body.token;
+    // Create a mock JWT token for testing
+    const jwt = require('jsonwebtoken');
+    jwtToken = jwt.sign(
+      { userId: testUserId, username: testUsername },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
   } catch (error) {
     console.error('Setup failed:', error);
     throw error;
@@ -52,21 +64,32 @@ beforeAll(async () => {
 
 afterAll(async () => {
   try {
-    // Clean up test user
-    if (mongoose.connection.db) {
-      await mongoose.connection.db.collection('users').deleteMany({ username: testUsername });
-    }
-    await mongoose.disconnect();
+    await closeTestDB();
   } catch (error) {
     console.error('Cleanup failed:', error);
   }
 });
 
 describe('User Routes', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('GET /api/user/profile', () => {
     it('should return the user profile for a valid user', async () => {
+      // Mock UserModel.findById to return a user
+      const mockUser = {
+        _id: testUserId,
+        username: testUsername,
+        balance: 1000,
+        pin: 'hashedPin'
+      };
+      (UserModel.findById as jest.Mock).mockResolvedValueOnce(mockUser);
+      
       // Mock NFTModel.find to return empty array (user has no NFTs)
-      const findSpy = jest.spyOn(NFTModel, 'find').mockResolvedValueOnce([]);
+      (NFTModel.find as jest.Mock).mockReturnValueOnce({
+        lean: jest.fn().mockResolvedValueOnce([])
+      });
       
       const response = await request(app)
         .get('/api/user/profile')
@@ -78,11 +101,18 @@ describe('User Routes', () => {
       expect(response.body).toHaveProperty('balance');
       expect(response.body).toHaveProperty('nfts');
       expect(Array.isArray(response.body.nfts)).toBe(true);
-      
-      findSpy.mockRestore();
     });
 
     it('should return user profile with NFT objects when user has NFTs', async () => {
+      // Mock UserModel.findById to return a user
+      const mockUser = {
+        _id: testUserId,
+        username: testUsername,
+        balance: 1000,
+        pin: 'hashedPin'
+      };
+      (UserModel.findById as jest.Mock).mockResolvedValueOnce(mockUser);
+      
       // Mock NFTModel.find to return some NFT objects
       const mockNfts = [
         {
@@ -96,7 +126,9 @@ describe('User Routes', () => {
           isFirstOfSet: true
         }
       ];
-      const findSpy = jest.spyOn(NFTModel, 'find').mockResolvedValueOnce(mockNfts);
+      (NFTModel.find as jest.Mock).mockReturnValueOnce({
+        lean: jest.fn().mockResolvedValueOnce(mockNfts)
+      });
       
       const response = await request(app)
         .get('/api/user/profile')
@@ -108,8 +140,6 @@ describe('User Routes', () => {
       expect(response.body.nfts[0]).toHaveProperty('propRarity');
       expect(response.body.nfts[0]).toHaveProperty('blockchain');
       expect(response.body.nfts[0]).toHaveProperty('isFirstOfSet');
-      
-      findSpy.mockRestore();
     });
 
     it('should return 401 if user is not authenticated', async () => {
@@ -125,23 +155,21 @@ describe('User Routes', () => {
     });
 
     it('should return 404 if user is not found', async () => {
-      const findByIdSpy = jest.spyOn(UserModel, 'findById').mockResolvedValueOnce(null);
+      (UserModel.findById as jest.Mock).mockResolvedValueOnce(null);
       const response = await request(app)
         .get('/api/user/profile')
         .set('Authorization', `Bearer ${jwtToken}`);
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('message', 'User not found');
-      findByIdSpy.mockRestore();
     });
 
     it('should return 500 on server error', async () => {
-      const findByIdSpy = jest.spyOn(UserModel, 'findById').mockImplementationOnce(() => { throw new Error('DB error'); });
+      (UserModel.findById as jest.Mock).mockImplementationOnce(() => { throw new Error('DB error'); });
       const response = await request(app)
         .get('/api/user/profile')
         .set('Authorization', `Bearer ${jwtToken}`);
       expect(response.status).toBe(500);
       expect(response.body).toHaveProperty('message', 'Server error');
-      findByIdSpy.mockRestore();
     });
   });
 }); 

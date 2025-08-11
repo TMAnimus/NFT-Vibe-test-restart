@@ -179,11 +179,19 @@ const mockTypes = {
 Schema.Types = mockTypes;
 
 
+const mockConnection = {
+  readyState: 1, // 1 = connected
+  db: {
+    collections: jest.fn().mockResolvedValue([])
+  }
+};
+
 const mongoose = {
   Schema,
   model: modelFactory,
   connect: jest.fn().mockResolvedValue(undefined),
   disconnect: jest.fn().mockResolvedValue(undefined),
+  connection: mockConnection,
   startSession: jest.fn().mockResolvedValue({
     ...mockSession,
     // For chaining

@@ -31,10 +31,19 @@ export const connectTestDB = async (): Promise<typeof mongoose> => {
       maxPoolSize: 10
     });
 
+    console.log('Connection established, readyState:', mongoose.connection?.readyState);
+
+    // Wait a moment for connection to stabilize
+    await new Promise(resolve => setTimeout(resolve, 100));
+
     // Verify connection
     if (!mongoose.connection || mongoose.connection.readyState !== 1) {
-      throw new Error('Failed to establish MongoDB connection');
+      console.error('Connection verification failed. ReadyState:', mongoose.connection?.readyState);
+      console.error('Connection object exists:', !!mongoose.connection);
+      throw new Error(`Failed to establish MongoDB connection. ReadyState: ${mongoose.connection?.readyState}`);
     }
+
+    console.log('Connection verified successfully');
 
     return mongoose;
   } catch (error) {

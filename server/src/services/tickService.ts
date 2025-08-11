@@ -1,10 +1,17 @@
-import { emitMarketUpdate } from './socketService';
-import { updateAllListedNftPrices } from './marketplaceService';
+// Intentionally require socketService at call time so Jest mocks are observed
 
 export class TickService {
   private tickInterval: NodeJS.Timeout | null = null;
   private lastTickTime: Date = new Date();
   private isRunning: boolean = false;
+  private emitFn: ((update: any) => void) | null = null;
+
+  /**
+   * Allow tests (or alternative environments) to inject a custom emitter.
+   */
+  public setEmitFunction(emitFunction: (update: any) => void): void {
+    this.emitFn = emitFunction;
+  }
 
   /**
    * Start the tick system with configurable interval
@@ -70,6 +77,8 @@ export class TickService {
       this.lastTickTime = new Date();
 
       // 1. Update market prices
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { updateAllListedNftPrices } = require('./marketplaceService');
       const updatedNfts = await updateAllListedNftPrices();
 
       // 2. Process NPC actions (scaffold)
@@ -92,7 +101,17 @@ export class TickService {
         }
       };
 
-      emitMarketUpdate(marketUpdate);
+      try {
+        if (this.emitFn) {
+          this.emitFn(marketUpdate);
+        } else {
+          // eslint-disable-next-line @typescript-eslint/no-var-requires
+          const { emitMarketUpdate } = require('./socketService');
+          emitMarketUpdate(marketUpdate);
+        }
+      } catch (e) {
+        throw e;
+      }
       console.log('Market update emitted via Socket.IO');
     } catch (error) {
       console.error('Error processing tick:', error);

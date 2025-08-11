@@ -356,15 +356,21 @@ router.post('/buy/:nftId', authMiddleware, async (req: Request, res: Response, n
 router.get('/suggest-price/:nftId', async (req: Request, res: Response, next: any) => {
     try {
         const { nftId } = req.params;
+        // Query NFT; mocked model will not throw on invalid IDs in tests
         const nft = await require('../models/NFT').default.findById(nftId).lean();
         if (!nft) {
-            const { HttpError } = require('../services/marketplaceService');
-            throw new HttpError('NFT not found', 404);
+            return next({ status: 404, message: 'NFT not found' });
         }
         // For now, assume no active events
         const suggestedPrice = await marketplaceService.suggestPriceForNft(nft, []);
         res.status(200).json({ suggestedPrice });
     } catch (error: any) {
+        if (error?.name === 'CastError') {
+            return next({ status: 404, message: 'NFT not found' });
+        }
+        if (typeof error?.status !== 'number' && typeof error?.message === 'string' && /not found/i.test(error.message)) {
+            return next({ status: 404, message: error.message });
+        }
         next(error);
     }
 });
