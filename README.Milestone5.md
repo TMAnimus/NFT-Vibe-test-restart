@@ -1,6 +1,6 @@
 # Milestone 5: Real-time Multiplayer Features
 
-**Status**: In Progress — core real-time features implemented; all unit and integration tests passing; notification preferences/history not started
+**Status**: In Progress — core real-time features implemented; all unit and integration tests passing; notification preferences implemented, notification history not started
 
 This milestone adds real-time updates to the NFT marketplace using Socket.IO, ensuring that all players see new listings and sales instantly when they happen. Real-time updates are synchronized with the tick-based simulation system.
 
@@ -84,18 +84,18 @@ export class TickService {
 ### Goals
 - [x] Implement a notification system to alert users of marketplace events (pop-up notifications)
 - [x] Provide real-time notifications for listings, sales, and market events
-- [ ] Add optional notification preferences for users (not started)
+- [x] Add optional notification preferences for users
 
 ### Backend Features
 - [x] Create notification service for marketplace events (emit personal/global notifications)
-- [ ] Implement user notification preferences (not started)
+- [x] Implement user notification preferences
 - [x] Emit notification events through Socket.IO
 - [ ] Add notification storage in database (not started)
 - [ ] Create notification management endpoints (not started)
 
 ### Frontend Features
 - [x] Add notification UI component (pop-up notifications)
-- [ ] Implement notification preferences settings (not started)
+- [ ] Implement notification preferences settings (UI)
 - [ ] Show real-time notification badges (not started)
 - [ ] Add notification history view (not started)
 - [x] Implement notification dismissal functionality (auto-dismiss after 5s)
@@ -104,7 +104,7 @@ export class TickService {
 - [x] Unit tests for notification service (emission + logging)
 - [ ] Integration tests for notification delivery (not present)
 - [ ] End-to-end tests for notification UI (not present)
-- [ ] Test notification preferences and settings (not present)
+- [x] Test notification preferences routes (GET/PUT/DELETE + auth)
 
 ## Implementation Details
 
@@ -123,7 +123,7 @@ export class TickService {
 
 ### Notification System
 - **Event Types**: New listings, sales, price changes, market events
-- **User Preferences**: Not yet implemented
+- **User Preferences**: Implemented (REST endpoints, defaults, validation)
 - **Delivery Methods**: In-app notifications (pop-up), no email/webhook yet
 - **History**: Not yet implemented
 
@@ -149,10 +149,27 @@ export class TickService {
 - **Race condition tests**: Concurrent operation testing
 
 ## Documentation
-- [ ] Update API documentation to include Socket.IO events
-- [ ] Document notification system and preferences
-- [ ] Add client integration examples
-- [ ] Document environment variables for Socket.IO configuration
+- [x] Update API documentation to include Socket.IO events
+- [x] Document notification system and preferences (see `server/docs/socket-events.md`)
+- [x] Add client integration examples (`notification`, `globalNotification`)
+- [x] Document environment variables for Socket.IO configuration
+
+## Notification Preferences (Backend)
+
+- Model: `server/src/models/NotificationPreference.ts`
+  - `userId` (unique), `enabled` (default true)
+  - `types`: `marketUpdate`, `listingCreated`, `listingSold`, `system` (all default true)
+
+- Service: `server/src/services/notificationPreferenceService.ts`
+  - `getOrCreateDefault(userId)`, `updatePreferences(userId, payload)`, `resetPreferences(userId)`
+
+- Routes: `server/src/routes/notifications.ts` (mounted at `/api/notifications`)
+  - GET `/preferences`: returns current user's prefs (creates defaults if missing)
+  - PUT `/preferences`: update any subset of fields; validated via `express-validator`
+  - DELETE `/preferences`: reset to defaults
+  - All endpoints require `Authorization: Bearer <jwt>`
+
+See `server/docs/socket-events.md` for Socket.IO `notification` and `globalNotification` event schemas and client examples.
 
 ---
 See [README.Milestone4.md](README.Milestone4.md) for completed marketplace features and [README.v2.md](README.v2.md) for project overview.

@@ -14,6 +14,7 @@ import userRoutes from './routes/user';
 import nftRoutes from './routes/nft';
 import marketplaceRoutes from './routes/marketplace';
 import tickRoutes from './routes/tick';
+import notificationsRoutes from './routes/notifications';
 import { syncNftSetsWithFiles } from './services/nftSetService';
 import { tickService } from './services/tickService';
 import mongoose from 'mongoose';
@@ -55,6 +56,7 @@ app.use('/api/user', userRoutes);
 app.use('/api/nft', nftRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/tick', tickRoutes);
+app.use('/api/notifications', notificationsRoutes);
 
 // Error-handling middleware (must be after all routes)
 app.use((err: any, req: Request, res: Response, next: any) => {
