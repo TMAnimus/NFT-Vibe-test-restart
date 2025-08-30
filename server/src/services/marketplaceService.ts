@@ -229,8 +229,12 @@ export const updateAllListedNftPrices = async () => {
   try {
     const queryResult: any = (NFTModel as any)?.find?.({ marketStatus: 'Listed' });
     const listedNfts: any[] = typeof queryResult?.lean === 'function' ? await queryResult.lean() : [];
+    
+    // Ensure listedNfts is always an array
+    const safeListedNfts = Array.isArray(listedNfts) ? listedNfts : [];
+    
     const updatedNfts: any[] = [];
-    for (const nft of listedNfts || []) {
+    for (const nft of safeListedNfts) {
       const oldPrice = nft.currentPrice || 1;
       // Random walk: -10% to +10%
       const changePercent = (Math.random() * 0.2) - 0.1; // -0.1 to +0.1

@@ -22,8 +22,7 @@ describe('buyFromBatch', () => {
   });
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    // Add the spyOn here
+    jest.resetAllMocks(); // Reset instead of clear to preserve spies
     jest.spyOn(mongoose, 'startSession').mockResolvedValue(mockSession as any);
   });
   function mockFindByIdWithSession(modelMock: any, entity: any) {
@@ -97,8 +96,7 @@ describe('sellToBatch', () => {
   });
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    // Add the spyOn here
+    jest.resetAllMocks(); // Reset instead of clear to preserve spies
     jest.spyOn(mongoose, 'startSession').mockResolvedValue(mockSession as any);
   });
   function mockFindByIdWithSession(modelMock: any, entity: any) {

@@ -52,12 +52,18 @@ describe('NFT Routes', () => {
     });
 
     it('should return 500 on server error', async () => {
+      // Mock console.error to prevent Jest from treating it as an error
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      
       (nftGenerationService.generateNft as jest.Mock).mockRejectedValue(new Error('Unexpected error'));
       const response = await request(app)
         .post('/api/nft/generate')
         .send({ collectionName: 'Crypto Toasters' });
       expect(response.status).toBe(500);
       expect(response.body).toHaveProperty('message', 'Internal Server Error');
+      
+      // Restore console.error
+      consoleSpy.mockRestore();
     });
   });
 }); 

@@ -73,7 +73,7 @@ jest.mock('../models/NFT', () => ({
 }));
 
 // Mock the named export 'authMiddleware' for all requests in these tests
-jest.mock('../../src/middleware/auth', () => ({
+jest.mock('../middleware/auth', () => ({
   authMiddleware: (req: any, res: any, next: any) => {
     if (!req.user) req.user = {};
     req.user.userId = 'mockUserId';
@@ -81,8 +81,6 @@ jest.mock('../../src/middleware/auth', () => ({
     next();
   }
 }));
-
-// Ensure mock authentication sets req.user for batch endpoints
 beforeEach(() => {
   jest.clearAllMocks();
 });

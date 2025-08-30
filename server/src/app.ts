@@ -18,6 +18,7 @@ import notificationsRoutes from './routes/notifications';
 import { syncNftSetsWithFiles } from './services/nftSetService';
 import { tickService } from './services/tickService';
 import mongoose from 'mongoose';
+import auctionRoutes from './routes/auction';
 
 const app = express();
 
@@ -57,6 +58,7 @@ app.use('/api/nft', nftRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/tick', tickRoutes);
 app.use('/api/notifications', notificationsRoutes);
+app.use('/api/auctions', auctionRoutes);
 
 // Error-handling middleware (must be after all routes)
 app.use((err: any, req: Request, res: Response, next: any) => {

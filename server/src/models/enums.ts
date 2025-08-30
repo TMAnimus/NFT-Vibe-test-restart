@@ -16,3 +16,15 @@ export enum CollectionStatus {
   Declining = 'declining',
   Dead = 'dead',
 } 
+
+export enum AuctionType {
+  Standard = 'standard',     // English auction - bids increase over time
+  Dutch = 'dutch',          // Dutch auction - price decreases over time  
+  Reserve = 'reserve',       // Auction with hidden reserve price
+}
+
+export enum AuctionStatus {
+  Active = 'active',
+  Ended = 'ended',
+  Cancelled = 'cancelled',
+}

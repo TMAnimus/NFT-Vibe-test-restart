@@ -99,5 +99,74 @@
   "minPrice": 25,
   "minPriceAfterCrash": 1,
   "maxPriceChangePerCycle": 2.5,
-  "rounding": "nearestInteger"
-} 
+  "rounding": "nearestInteger",
+  "auctions": {
+    "_comment": "Auction system configuration",
+    
+    "enabled": true,
+    
+    "timing": {
+      "defaultDuration": 300,
+      "minDuration": 60,
+      "maxDuration": 3600,
+      "dutchTickInterval": 30,
+      "auctionTickInterval": 10
+    },
+    
+    "pricing": {
+      "minStartingBid": 1,
+      "maxStartingBid": 10000,
+      "bidIncrement": 1,
+      "reservePriceMin": 10,
+      "reservePriceMax": 50000
+    },
+    
+    "dutchAuctions": {
+      "_comment": "Dutch auction configuration - price decreases over time",
+      "defaultStartPriceMultiplier": 2.0,
+      "defaultDecrementPercent": 0.05,
+      "minDecrementPercent": 0.01,
+      "maxDecrementPercent": 0.20,
+      "priceFloorMultiplier": 0.5
+    },
+    
+    "autobid": {
+      "_comment": "Autobid configuration for automatic bidding",
+      "enabled": true,
+      "maxAutobidsPerUser": 5,
+      "defaultIncrement": 1,
+      "maxIncrement": 100,
+      "minIncrement": 0.1
+    },
+    
+    "batchAuctions": {
+      "_comment": "Batch auction settings for selling multiple NFTs",
+      "maxBatchSize": 100,
+      "minBatchSize": 2,
+      "defaultBatchPriceMultiplier": 0.9
+    },
+    
+    "limits": {
+      "_comment": "Auction limits and cooldowns",
+      "maxActiveAuctionsPerUser": 10,
+      "maxAuctionsPerNFT": 1,
+      "auctionCooldownHours": 1
+    },
+    
+    "fees": {
+      "_comment": "Auction fee structure",
+      "listingFee": 0,
+      "transactionFee": 0.05,
+      "cancelFee": 0.01
+    },
+    
+    "notifications": {
+      "_comment": "Real-time notification preferences",
+      "bidPlaced": true,
+      "auctionEnding": true,
+      "auctionEnded": true,
+      "outbid": true,
+      "auctionWon": true
+    }
+  }
+}
