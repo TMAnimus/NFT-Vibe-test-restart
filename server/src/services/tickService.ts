@@ -1,10 +1,25 @@
 // Intentionally require socketService at call time so Jest mocks are observed
 
+import { MarketSentiment } from './marketplaceService';
+import NFTModel from '../models/NFT';
+import { updateAllListedNftPrices } from './marketplaceService';
+
 export class TickService {
   private tickInterval: NodeJS.Timeout | null = null;
   private lastTickTime: Date = new Date();
   private isRunning: boolean = false;
   private emitFn: ((update: any) => void) | null = null;
+  
+  // Enhanced market sentiment tracking
+  private marketSentiment: MarketSentiment = {
+    globalSentiment: 0, // Start neutral
+    collectionSentiment: {},
+    npcActivityLevel: 0.5, // Medium activity
+    activeEvents: []
+  };
+
+  private tickCount: number = 0;
+  private eventCooldowns: { [event: string]: number } = {};
 
   /**
    * Allow tests (or alternative environments) to inject a custom emitter.
@@ -26,6 +41,7 @@ export class TickService {
     console.log(`Starting tick system with ${intervalMs}ms interval`);
     this.isRunning = true;
     this.lastTickTime = new Date();
+    this.tickCount = 0;
 
     this.tickInterval = setInterval(() => {
       this.processTick();
@@ -75,82 +91,189 @@ export class TickService {
     try {
       console.log(`Processing tick at ${new Date().toISOString()}`);
       this.lastTickTime = new Date();
+      this.tickCount++;
 
-      // 1. Update market prices
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { updateAllListedNftPrices } = require('./marketplaceService');
-      const updatedNfts = await updateAllListedNftPrices();
+      // Update market sentiment before price updates
+      await this.updateMarketSentiment();
 
-      // 2. Process NPC actions (scaffold)
-      const npcActions = await this.processNPCActions();
+      // 1. Update market prices with sentiment data
+      const updatedNfts = await updateAllListedNftPrices(this.marketSentiment);
 
-      // 3. Generate market events (scaffold)
-      const events = await this.generateMarketEvents();
-
-      // 4. Emit real-time market update
-      const marketUpdate = {
-        type: 'tick',
-        tickTime: this.lastTickTime.toISOString(),
-        message: 'Market tick processed',
-        marketData: {
-          tickNumber: this.getTickNumber(),
-          timestamp: this.lastTickTime.toISOString(),
-          updatedNfts,
-          npcActions,
-          events
-        }
-      };
-
-      try {
-        if (this.emitFn) {
-          this.emitFn(marketUpdate);
-        } else {
-          // eslint-disable-next-line @typescript-eslint/no-var-requires
-          const { emitMarketUpdate } = require('./socketService');
-          emitMarketUpdate(marketUpdate);
-        }
-      } catch (e) {
-        throw e;
+      // 2. Emit real-time market update
+      if (this.emitFn) {
+        const marketUpdate = {
+          type: 'tick',
+          message: 'Market tick processed',
+          marketData: {
+            tickNumber: this.tickCount,
+            timestamp: new Date().toISOString(),
+            marketSentiment: this.marketSentiment,
+            updatedNfts: updatedNfts,
+            activeEvents: this.marketSentiment.activeEvents
+          }
+        };
+        this.emitFn(marketUpdate);
+        console.log('Market update emitted via Socket.IO');
       }
-      console.log('Market update emitted via Socket.IO');
     } catch (error) {
       console.error('Error processing tick:', error);
     }
   }
 
   /**
-   * Get the current tick number (for tracking)
+   * Update market sentiment and generate events
    */
-  private getTickNumber(): number {
-    // Simple tick counter - in a real implementation, this would be persisted
-    return Math.floor((Date.now() - this.lastTickTime.getTime()) / 10000);
+  private async updateMarketSentiment(): Promise<void> {
+    try {
+      // Update global sentiment with momentum
+      this.updateGlobalSentiment();
+
+      // Update collection sentiment
+      await this.updateCollectionSentiment();
+
+      // Update active events
+      this.updateActiveEvents();
+
+      // Generate new events occasionally
+      if (Math.random() < 0.02) { // 2% chance per tick
+        const newEvent = this.generateMarketEvent();
+        if (newEvent) {
+          this.marketSentiment.activeEvents.push(newEvent.type);
+          this.eventCooldowns[newEvent.type] = newEvent.duration;
+          console.log(`New market event: ${newEvent.type} (duration: ${newEvent.duration} ticks)`);
+        }
+      }
+    } catch (error) {
+      console.warn('Error updating market sentiment:', error);
+    }
   }
 
   /**
-   * Update market prices (placeholder for future implementation)
+   * Update global market sentiment with momentum
    */
-  private async updateMarketPrices(): Promise<void> {
-    // TODO: Implement price update logic
-    // - Fetch all listed NFTs
-    // - Apply price fluctuations based on market conditions
-    // - Update NFT prices in database
-    console.log('Market prices updated');
+  private updateGlobalSentiment(): void {
+    // Add some momentum to prevent wild swings
+    const momentumFactor = 0.3; // Higher = more momentum, less volatility
+    const randomChange = (Math.random() - 0.5) * 0.1; // -0.05 to +0.05
+
+    const newSentiment = this.marketSentiment.globalSentiment * momentumFactor +
+                        randomChange * (1 - momentumFactor);
+
+    // Clamp between -1 and 1
+    this.marketSentiment.globalSentiment = Math.max(-1, Math.min(1, newSentiment));
+
+    // Update NPC activity level based on market conditions
+    const volatility = Math.abs(this.marketSentiment.globalSentiment);
+    this.marketSentiment.npcActivityLevel = 0.3 + (volatility * 0.7); // 0.3 to 1.0
   }
 
-  // Scaffold: NPC actions
-  private async processNPCActions(): Promise<any[]> {
-    // Placeholder for future NPC logic
-    console.log('Processing NPC actions (scaffold)');
-    return [];
+  /**
+   * Update collection-specific sentiment based on market activity
+   */
+  private async updateCollectionSentiment(): Promise<void> {
+    try {
+      // Get all collections with recent activity
+      const collections = await NFTModel.distinct('collectionName');
+
+      // Limit the number of collections to prevent memory issues
+      const maxCollections = 100;
+      if (collections.length > maxCollections) {
+        collections.splice(maxCollections);
+      }
+
+      for (const collection of collections) {
+        if (!this.marketSentiment.collectionSentiment[collection]) {
+          this.marketSentiment.collectionSentiment[collection] = (Math.random() - 0.5) * 0.2; // Initialize randomly
+        } else {
+          // Gradual evolution with global sentiment influence
+          const change = (Math.random() - 0.5) * 0.03;
+          const globalInfluence = this.marketSentiment.globalSentiment * 0.05;
+          this.marketSentiment.collectionSentiment[collection] = Math.max(-1, Math.min(1,
+            this.marketSentiment.collectionSentiment[collection] + change + globalInfluence));
+        }
+      }
+
+      // Clean up old collections (remove if not in recent activity)
+      const activeCollectionSet = new Set(collections);
+      const currentCollections = Object.keys(this.marketSentiment.collectionSentiment);
+
+      for (const collection of currentCollections) {
+        if (!activeCollectionSet.has(collection)) {
+          // Gradually fade out sentiment for inactive collections
+          this.marketSentiment.collectionSentiment[collection] *= 0.95;
+
+          // Remove if sentiment becomes negligible
+          if (Math.abs(this.marketSentiment.collectionSentiment[collection]) < 0.01) {
+            delete this.marketSentiment.collectionSentiment[collection];
+          }
+        }
+      }
+    } catch (error) {
+      console.warn('Error updating collection sentiment:', error);
+    }
   }
 
-  // Scaffold: Market events
-  private async generateMarketEvents(): Promise<any[]> {
-    // Placeholder for future event logic
-    console.log('Generating market events (scaffold)');
-    return [];
+  /**
+   * Update active events and remove expired ones
+   */
+  private updateActiveEvents(): void {
+    const expiredEvents: string[] = [];
+
+    for (const event of this.marketSentiment.activeEvents) {
+      if (this.eventCooldowns[event] > 0) {
+        this.eventCooldowns[event]--;
+      } else {
+        expiredEvents.push(event);
+      }
+    }
+
+    // Remove expired events
+    this.marketSentiment.activeEvents = this.marketSentiment.activeEvents.filter(
+      event => !expiredEvents.includes(event));
+
+    // Clean up cooldowns
+    for (const expired of expiredEvents) {
+      delete this.eventCooldowns[expired];
+    }
+
+    if (expiredEvents.length > 0) {
+      console.log(`Events expired: ${expiredEvents.join(', ')}`);
+    }
+  }
+
+  /**
+   * Generate a new market event
+   */
+  private generateMarketEvent(): { type: string; duration: number } | null {
+    const possibleEvents = [
+      { type: 'cryptoMarketCrash', duration: 3, probability: 0.1 },
+      { type: 'celebrityEndorsement', duration: 5, probability: 0.15 },
+      { type: 'environmentalBacklash', duration: 4, probability: 0.12 },
+      { type: 'techBoom', duration: 6, probability: 0.1 },
+      { type: 'regulatoryCrackdown', duration: 4, probability: 0.08 },
+      { type: 'institutionalAdoption', duration: 7, probability: 0.09 }
+    ];
+
+    const rand = Math.random();
+    let cumulativeProbability = 0;
+
+    for (const event of possibleEvents) {
+      cumulativeProbability += event.probability;
+      if (rand <= cumulativeProbability) {
+        return { type: event.type, duration: event.duration };
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Manually trigger a tick (for testing purposes)
+   */
+  public triggerTick(): Promise<void> {
+    return this.processTick();
   }
 }
 
-// Export a singleton instance
+// Export singleton instance for backward compatibility
 export const tickService = new TickService(); 

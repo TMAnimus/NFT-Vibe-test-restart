@@ -6,6 +6,7 @@ import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import app from '../app';
 import { tickService } from '../services/tickService';
+import { emitMarketUpdate } from '../services/socketService';
 import { connectTestDB, clearTestDB, closeTestDB } from '../test/db';
 
 // Mock the services to avoid real database operations
@@ -19,7 +20,8 @@ jest.mock('../models/NFT', () => ({
   default: {
     find: jest.fn().mockReturnValue({
       lean: jest.fn().mockResolvedValue([])
-    })
+    }),
+    distinct: jest.fn().mockResolvedValue(['collection1', 'collection2']) // Add distinct method
   }
 }));
 
@@ -115,6 +117,9 @@ describe('Realtime Integration (HTTP + Socket.IO)', () => {
   beforeEach(async () => {
     await clearTestDB();
     jest.clearAllMocks();
+    
+    // Set up tickService to emit through socketService
+    tickService.setEmitFunction(emitMarketUpdate);
     
     // Clean up previous socket connection
     if (clientSocket) {
