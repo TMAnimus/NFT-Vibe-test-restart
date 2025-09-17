@@ -58,8 +58,9 @@ interface ListingCreatedEvent {
     displayName: string;
     colorRarity: string;
     propRarity: string;
-    price: number;
-    seller: string;
+    currentPrice: number;
+    ownerId: string;
+    marketStatus: string;
   };
   timestamp: string;
 }
@@ -92,6 +93,64 @@ interface MarketUpdateEvent {
 }
 ```
 
+#### Auction Events ✅ **NEW**
+
+#### `auctionCreated`
+Emitted when a new auction is created.
+```typescript
+interface AuctionCreatedEvent {
+  auction: {
+    _id: string;
+    nftId: string;
+    sellerId: string;
+    auctionType: 'standard' | 'dutch' | 'reserve';
+    startingBid: number;
+    endTime: string;
+    displayName: string;
+  };
+  timestamp: string;
+}
+```
+
+#### `bidPlaced`
+Emitted when a bid is placed on an auction.
+```typescript
+interface BidPlacedEvent {
+  auctionId: string;
+  bidAmount: number;
+  bidderId: string;
+  bidderUsername: string;
+  isAutobid: boolean;
+  timestamp: string;
+}
+```
+
+#### `auctionEnded`
+Emitted when an auction ends (naturally or cancelled).
+```typescript
+interface AuctionEndedEvent {
+  auctionId: string;
+  winnerId?: string;
+  winnerUsername?: string;
+  finalBid?: number;
+  nftId: string;
+  reason: 'completed' | 'cancelled' | 'expired';
+  timestamp: string;
+}
+```
+
+#### `dutchPriceUpdate`
+Emitted when a Dutch auction's price decreases.
+```typescript
+interface DutchPriceUpdateEvent {
+  auctionId: string;
+  newPrice: number;
+  oldPrice: number;
+  timeRemaining: number;
+  timestamp: string;
+}
+```
+
 ### Client to Server Events
 
 #### `joinMarketplace`
@@ -101,15 +160,32 @@ Sent by client to join the marketplace room for updates.
 socket.emit('joinMarketplace');
 ```
 
+#### `joinAuction` ✅ **NEW**
+Sent by client to join a specific auction room for real-time bid updates.
+```typescript
+socket.emit('joinAuction', { auctionId: 'auction123' });
+```
+
+#### `leaveAuction` ✅ **NEW**
+Sent by client to leave a specific auction room.
+```typescript
+socket.emit('leaveAuction', { auctionId: 'auction123' });
+```
+
 ### Rooms
-- `marketplace`: price ticks, listing events
+- `marketplace`: price ticks, listing events, auction creation
+- `auction-<auctionId>`: auction-specific events (bids, price updates, endings) ✅ **NEW**
 - `<userId>`: user-targeted `notification` events
 
-Client example to join a user room (if not automatically joined by the server):
+Client example to join rooms:
 ```javascript
-// Join your personal room to receive notifications
-socket.emit('join', { room: userId });
-// Or if the server auto-joins on connect, no action needed here
+// Join marketplace for general updates
+socket.emit('joinMarketplace');
+
+// Join specific auction for real-time bidding
+socket.emit('joinAuction', { auctionId: 'auction123' });
+
+// Personal notifications are auto-joined on connection
 ```
 
 ## Error Handling
@@ -131,8 +207,6 @@ The following environment variables can be configured:
 |----------|-------------|---------|
 | `SOCKET_PING_TIMEOUT` | Socket ping timeout in ms | 5000 |
 | `SOCKET_PING_INTERVAL` | Socket ping interval in ms | 10000 |
-| `DAILY_TICK_INTERVAL` | Interval for daily market updates | 86400000 |
-| `WEEKLY_TICK_INTERVAL` | Interval for weekly market updates | 604800000 |
 
 ## REST: Notification Preferences
 Manage per-user notification delivery via REST APIs.
@@ -178,6 +252,9 @@ const socket = io({
   auth: { token: localStorage.getItem('jwt') }
 });
 
+// Join marketplace for general updates
+socket.emit('joinMarketplace');
+
 // Listen for new listings
 socket.on('listingCreated', (data) => {
   // Update UI with new listing
@@ -195,4 +272,35 @@ socket.on('marketUpdate', (data) => {
   // Update prices in UI
   updatePrices(data.updates);
 });
+
+// ✅ NEW: Auction event listeners
+socket.on('auctionCreated', (data) => {
+  // Add new auction to UI
+  addAuctionToUI(data.auction);
+});
+
+socket.on('bidPlaced', (data) => {
+  // Update auction with new bid
+  updateAuctionBid(data.auctionId, data.bidAmount, data.bidderUsername);
+});
+
+socket.on('auctionEnded', (data) => {
+  // Handle auction completion
+  handleAuctionEnd(data.auctionId, data.winnerId, data.finalBid);
+});
+
+socket.on('dutchPriceUpdate', (data) => {
+  // Update Dutch auction price
+  updateDutchPrice(data.auctionId, data.newPrice);
+});
+
+// Join specific auction for real-time updates
+function watchAuction(auctionId) {
+  socket.emit('joinAuction', { auctionId });
+}
+
+// Leave auction when navigating away
+function unwatchAuction(auctionId) {
+  socket.emit('leaveAuction', { auctionId });
+}
 ```

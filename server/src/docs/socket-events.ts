@@ -21,12 +21,15 @@
  *             propRarity:
  *               type: string
  *               description: The NFT's prop rarity level
- *             price:
+ *             currentPrice:
  *               type: number
  *               description: The listing price
- *             seller:
+ *             ownerId:
  *               type: string
- *               description: The seller's username
+ *               description: The ID of the user selling the NFT
+ *             marketStatus:
+ *               type: string
+ *               description: The market status of the NFT (e.g., 'Listed')
  *         timestamp:
  *           type: string
  *           format: date-time

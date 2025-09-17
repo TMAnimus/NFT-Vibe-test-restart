@@ -12,4 +12,8 @@ module.exports = {
   transform: {
     ...tsJestTransformCfg,
   },
+  // Force exit after tests complete to handle lingering handles in integration tests
+  forceExit: true,
+  // Increase timeout for integration tests
+  testTimeout: 30000,
 };

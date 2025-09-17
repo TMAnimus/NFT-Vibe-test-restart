@@ -17,14 +17,10 @@ This document lists all environment variables used in the NFT Trading Game, incl
 |----------|-------------|---------|----------|
 | `SOCKET_PING_TIMEOUT` | Socket ping timeout in ms | 5000 | No |
 | `SOCKET_PING_INTERVAL` | Socket ping interval in ms | 10000 | No |
-| `SOCKET_PATH` | Custom Socket.IO path | '/socket.io' | No |
 
 ### Game Mechanics
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
-| `DAILY_TICK_INTERVAL` | Interval for daily market updates (ms) | 86400000 | No |
-| `WEEKLY_TICK_INTERVAL` | Interval for weekly market updates (ms) | 604800000 | No |
-| `DEVELOPMENT_TICK_SPEED` | Speed multiplier for development (1-100) | 1 | No |
 
 ### Development and Testing
 | Variable | Description | Default | Required |
@@ -33,7 +29,7 @@ This document lists all environment variables used in the NFT Trading Game, incl
 | `LOG_LEVEL` | Logging verbosity | 'info' | No |
 | `DISABLE_REAL_TIME` | Disable real-time updates for testing | false | No |
 
-## Example Configuration
+# Example Configuration
 ```env
 # Server
 PORT=3000
@@ -43,11 +39,6 @@ JWT_SECRET=your-secret-key
 # Socket.IO
 SOCKET_PING_TIMEOUT=5000
 SOCKET_PING_INTERVAL=10000
-
-# Game Mechanics
-DAILY_TICK_INTERVAL=86400000
-WEEKLY_TICK_INTERVAL=604800000
-DEVELOPMENT_TICK_SPEED=10
 
 # Development
 NODE_ENV=development

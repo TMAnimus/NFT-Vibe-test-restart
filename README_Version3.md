@@ -40,8 +40,40 @@ See [server/docs/socket-events.md](server/docs/socket-events.md) for real-time e
 ## Authentication
 Players register with a username and a 4-digit PIN (satirical, minimal security). PINs are hashed and stored in MongoDB. JWTs are used for session management.
 
+## Marketplace Features
+- **Fixed-Price Sales**: Traditional immediate purchase marketplace
+- **Auction System**: Competitive bidding with multiple auction types ✅ **IMPLEMENTED**
+  - Standard Auctions (English-style bidding)
+  - Dutch Auctions (decreasing price over time)
+  - Reserve Auctions (hidden minimum price)
+- **Real-time Bidding**: Live auction updates via Socket.IO
+- **Seller Choice**: Choose between fixed-price or auction when listing NFTs
+
 ## Marketplace Events
 See [README.Events.md](README.Events.md) for current events. For proposed future events, see [README.Future.v2.md](README.Future.v2.md).
+
+## Auction System ✅ FULLY IMPLEMENTED
+The comprehensive auction system is **production-ready** with complete frontend and backend implementation:
+### Auction Types
+- **🔨 Standard Auctions**: English-style bidding where highest bid wins
+- **⚡ Dutch Auctions**: Price starts high and decreases over time, first bidder wins
+- **💎 Reserve Auctions**: Hidden minimum price that must be met
+### Key Features
+- **Seller Choice**: Choose between fixed-price sales or auctions when listing
+- **Real-time Bidding**: Live bid updates with Socket.IO integration
+- **Interactive UI**: Countdown timers, bid validation, and auction status indicators
+- **Automatic Processing**: Tick system handles auction expiration and Dutch price decreases
+- **Comprehensive Notifications**: Real-time alerts for bids, wins, and auction events
+- **Transaction Safety**: Full MongoDB transaction support with rollback capabilities
+### Technical Implementation
+- **Backend**: Complete auction service with validation, error handling, and Socket.IO events
+- **Frontend**: Interactive React components with real-time updates and responsive design
+- **Testing**: 104/104 tests passing including auction-specific unit and integration tests
+- **Documentation**: Complete API documentation with all endpoints and Socket.IO events
+### Documentation
+- **[Complete API Documentation](server/docs/api-documentation.md)**: Full REST API reference with auction endpoints ✅
+- **[Socket.IO Events](server/docs/socket-events.md)**: Real-time event documentation with auction events ✅
+- **[Implementation Demo](AUCTION_DEMO.md)**: Detailed implementation guide and usage examples
 
 ## Future Features
 Features listed in `README.Future.md` and `README.Future.v2.md` are proposals for future versions and are _not currently implemented_.

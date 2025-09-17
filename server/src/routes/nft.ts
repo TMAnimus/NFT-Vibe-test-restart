@@ -2,6 +2,8 @@ import express, { Request, Response } from 'express';
 import { generateNft } from '../services/nftGenerationService';
 import { body, validationResult } from 'express-validator';
 import { Rarity } from '../models/enums';
+import { authMiddleware, AuthRequest } from '../middleware/auth';
+import NFTModel from '../models/NFT';
 
 const router = express.Router();
 
@@ -61,7 +63,11 @@ const router = express.Router();
  *               $ref: '#/components/schemas/ErrorResponse'
  *             example:
  *               value:
- *                 message: "collectionName is required and must be a string."
+ *                 message: "Validation error"
+ *                 error: 
+ *                   - msg: "collectionName is required and must be a string."
+ *                     path: "collectionName"
+ *                     location: "body"
  *       404:
  *         description: NFT Set collection not found.
  *         content:
@@ -105,5 +111,41 @@ router.post(
     }
   }
 );
+
+/**
+ * @openapi
+ * /api/nft/my-nfts:
+ *   get:
+ *     summary: Get current user's NFTs
+ *     tags: [NFT]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User's NFTs retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/NFT'
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/my-nfts', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user!.userId;
+    const userNFTs = await NFTModel.find({ ownerId: userId })
+      .populate('setId')
+      .sort({ createdAt: -1 });
+    
+    res.status(200).json(userNFTs);
+  } catch (error: any) {
+    console.error('Error fetching user NFTs:', error);
+    res.status(500).json({ message: 'Error fetching user NFTs', error: error.message });
+  }
+});
 
 export default router; 

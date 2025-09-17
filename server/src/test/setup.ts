@@ -2,11 +2,12 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import { connectTestDB, clearTestDB, closeTestDB } from './db';
 
-// Load environment variables from .env file
-dotenv.config();
+// Load environment variables from .env.test file for testing
+dotenv.config({ path: '.env.test' });
 
 // Set test-specific environment variables
 process.env.NODE_ENV = 'test';
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret';
 
 // Configure test database URI
 const defaultUri = 'mongodb://127.0.0.1:27017/nft-game-test';

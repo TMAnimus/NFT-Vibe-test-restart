@@ -38,13 +38,13 @@ const router = express.Router();
  *         name: colorRarity
  *         schema:
  *           type: string
- *           enum: [common, uncommon, rare, veryrare]
- *         description: Filter by color rarity. Allowed values are common, uncommon, rare, veryrare.
+ *           enum: [common, uncommon, rare, veryRare]
+ *         description: Filter by color rarity. Allowed values are common, uncommon, rare, veryRare.
  *       - in: query
  *         name: propRarity
  *         schema:
  *           type: string
- *           enum: [notPresent, common, uncommon, rare, veryrare]
+ *           enum: [notPresent, common, uncommon, rare, veryRare]
  *         description: Filter by prop rarity. Allowed values are notPresent, common, uncommon, rare, veryrare.
  *       - in: query
  *         name: blockchain
@@ -253,7 +253,7 @@ router.post(
  *               value:
  *                 message: "NFT purchased successfully."
  *       400:
- *         description: Bad request (e.g., NFT not for sale, insufficient funds).
+ *         description: Bad request (e.g., NFT not for sale, insufficient funds, or trying to buy your own NFT).
  *         content:
  *           application/json:
  *             schema:
@@ -263,7 +263,7 @@ router.post(
  *                 message: "This NFT is not for sale."
  *                 error: "Not listed"
  *       401:
- *         description: Unauthorized (e.g., trying to buy your own NFT).
+ *         description: Unauthorized.
  *         content:
  *           application/json:
  *             schema:
@@ -271,7 +271,6 @@ router.post(
  *             example:
  *               value:
  *                 message: "Unauthorized"
- *                 error: "Cannot buy your own NFT"
  *       404:
  *         description: NFT not found.
  *         content:
@@ -333,7 +332,7 @@ router.post('/buy/:nftId', authMiddleware, async (req: Request, res: Response, n
  *               value:
  *                 suggestedPrice: 210
  *       404:
- *         description: NFT not found
+ *         description: NFT not found (e.g., invalid ID format or does not exist).
  *         content:
  *           application/json:
  *             schema:
@@ -341,7 +340,6 @@ router.post('/buy/:nftId', authMiddleware, async (req: Request, res: Response, n
  *             example:
  *               value:
  *                 message: "NFT not found"
- *                 error: "No NFT with that ID"
  *       500:
  *         description: Internal server error
  *         content:
@@ -414,7 +412,7 @@ router.get('/suggest-price/:nftId', async (req: Request, res: Response, next: an
  *                 message:
  *                   type: string
  *       400:
- *         description: Bad request (validation error, insufficient funds, etc.)
+ *         description: Bad request (e.g., validation error, insufficient funds, not enough in batch).
  *         content:
  *           application/json:
  *             schema:
@@ -499,7 +497,7 @@ router.post(
  *                 message:
  *                   type: string
  *       400:
- *         description: Bad request (validation error, etc.)
+ *         description: Bad request (e.g., validation error, seller not found).
  *         content:
  *           application/json:
  *             schema:

@@ -57,13 +57,36 @@ async function startServer() {
   io.on('connection', (socket: AuthenticatedSocket) => {
     console.log(`User ${socket.username} connected`);
 
-    // Join marketplace room
+    // Join marketplace and auction rooms by default
     socket.join('marketplace');
+    socket.join('auctions');
 
     // Handle marketplace events
     socket.on('joinMarketplace', () => {
       socket.join('marketplace');
       console.log(`${socket.username} joined marketplace`);
+    });
+
+    // Handle auction events
+    socket.on('joinAuctions', () => {
+      socket.join('auctions');
+      console.log(`${socket.username} joined auctions`);
+    });
+
+    socket.on('leaveAuctions', () => {
+      socket.leave('auctions');
+      console.log(`${socket.username} left auctions`);
+    });
+
+    // Join specific auction room for detailed updates
+    socket.on('joinAuction', (auctionId: string) => {
+      socket.join(`auction-${auctionId}`);
+      console.log(`${socket.username} joined auction ${auctionId}`);
+    });
+
+    socket.on('leaveAuction', (auctionId: string) => {
+      socket.leave(`auction-${auctionId}`);
+      console.log(`${socket.username} left auction ${auctionId}`);
     });
 
     socket.on('disconnect', () => {

@@ -10,6 +10,33 @@ const router = Router();
  * @openapi
  * components:
  *   schemas:
+ *     NFT:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: Unique identifier of the NFT
+ *         displayName:
+ *           type: string
+ *           description: Display name of the NFT
+ *         collectionName:
+ *           type: string
+ *           description: Name of the NFT collection
+ *         colorRarity:
+ *           type: string
+ *           description: Rarity based on color
+ *         propRarity:
+ *           type: string
+ *           description: Rarity based on properties
+ *         blockchain:
+ *           type: string
+ *           description: Blockchain the NFT is on
+ *         currentPrice:
+ *           type: number
+ *           description: Current price of the NFT
+ *         marketStatus:
+ *           type: string
+ *           description: Current market status (e.g., Listed, Owned)
  *     ErrorResponse:
  *       type: object
  *       properties:
@@ -44,7 +71,7 @@ const router = Router();
  *                 nfts:
  *                   type: array
  *                   items:
- *                     type: string
+ *                     $ref: '#/components/schemas/NFT'
  *             example:
  *               value:
  *                 _id: "60f7c2b8e1d2c8a1b8e1d2c8"

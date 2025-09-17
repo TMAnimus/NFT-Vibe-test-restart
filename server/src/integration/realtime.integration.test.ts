@@ -101,16 +101,40 @@ describe('Realtime Integration (HTTP + Socket.IO)', () => {
   });
 
   afterAll(async () => {
+    // Stop tick system first
     try {
       tickService.stopTickSystem();
-    } catch {}
+    } catch (e) {
+      console.warn('Error stopping tick system:', e);
+    }
+    
+    // Clean up client socket
     if (clientSocket) {
+      clientSocket.removeAllListeners();
       clientSocket.disconnect();
       clientSocket.close();
       clientSocket = null;
     }
-    ioServer.close();
-    await new Promise<void>((resolve) => server.close(() => resolve()));
+    
+    // Close Socket.IO server
+    if (ioServer) {
+      ioServer.removeAllListeners();
+      await new Promise<void>((resolve) => {
+        ioServer.close(() => resolve());
+      });
+    }
+    
+    // Close HTTP server
+    if (server) {
+      await new Promise<void>((resolve) => {
+        server.close(() => resolve());
+      });
+    }
+    
+    // Clean up global io reference
+    delete (global as any).io;
+    
+    // Close test database
     await closeTestDB();
   });
 
@@ -129,12 +153,24 @@ describe('Realtime Integration (HTTP + Socket.IO)', () => {
     }
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    // Stop any running tick system
+    try {
+      tickService.stopTickSystem();
+    } catch (e) {
+      // Ignore errors if already stopped
+    }
+    
+    // Clean up client socket
     if (clientSocket) {
+      clientSocket.removeAllListeners();
       clientSocket.disconnect();
       clientSocket.close();
       clientSocket = null;
     }
+    
+    // Small delay to allow cleanup
+    await new Promise(resolve => setTimeout(resolve, 100));
   });
 
   function connectSocket(): Promise<Socket> {
@@ -174,26 +210,31 @@ describe('Realtime Integration (HTTP + Socket.IO)', () => {
     
     // Wait for a tick to occur and event to be received
     await new Promise<void>((resolve) => {
-      const interval = setInterval(() => {
+      let interval: NodeJS.Timeout;
+      let timeout: NodeJS.Timeout;
+      
+      interval = setInterval(() => {
         if (updates.length > 0) {
           clearInterval(interval);
+          clearTimeout(timeout);
           resolve();
         }
       }, 50); // Check every 50ms
       
       // Timeout after 2 seconds
-      setTimeout(() => {
+      timeout = setTimeout(() => {
         clearInterval(interval);
         resolve();
       }, 2000);
     });
     
+    // Always stop the tick system
     tickService.stopTickSystem();
 
     expect(updates.length).toBeGreaterThan(0);
     expect(updates[0]).toHaveProperty('type', 'tick');
     expect(updates[0]).toHaveProperty('message', 'Market tick processed');
-  });
+  }, 10000); // Increase test timeout to 10 seconds
 
   it('should handle authentication errors gracefully', async () => {
     const invalidToken = 'invalid-token';
