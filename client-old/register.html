@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - NFT Marketplace</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
+    .container { max-width: 400px; margin: 60px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); padding: 32px 24px; }
+    h2 { text-align: center; margin-bottom: 24px; }
+    label { display: block; margin-bottom: 8px; font-weight: bold; }
+    input[type="text"], input[type="password"] { width: 100%; padding: 10px; margin-bottom: 18px; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; }
+    button { width: 100%; padding: 12px; background: #4CAF50; color: #fff; border: none; border-radius: 4px; font-size: 1em; cursor: pointer; }
+    button:hover { background: #388e3c; }
+    .message { margin-top: 16px; text-align: center; font-size: 1em; }
+    .success { color: #388e3c; }
+    .error { color: #d32f2f; }
+    .link { display: block; text-align: center; margin-top: 18px; color: #1976d2; text-decoration: none; }
+    .link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Create Account</h2>
+    <form id="register-form">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" required autocomplete="username">
+      <label for="pin">4-digit PIN</label>
+      <input type="password" id="pin" name="pin" required pattern="\d{4}" maxlength="4" minlength="4" autocomplete="new-password" inputmode="numeric">
+      <button type="submit">Register</button>
+      <div class="message" id="register-message"></div>
+    </form>
+    <a class="link" href="marketplace.html">Back to Marketplace</a>
+    <a class="link" href="marketplace.html">Already have an account? Log in</a>
+  </div>
+  <script>
+    document.getElementById('register-form').onsubmit = async function(e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const pin = document.getElementById('pin').value.trim();
+      const messageDiv = document.getElementById('register-message');
+      messageDiv.textContent = '';
+      messageDiv.className = 'message';
+      if (!/^\d{4}$/.test(pin)) {
+        messageDiv.textContent = 'PIN must be exactly 4 digits.';
+        messageDiv.classList.add('error');
+        return;
+      }
+      try {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, pin })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          messageDiv.textContent = 'Registration successful! You can now log in.';
+          messageDiv.classList.add('success');
+        } else {
+          messageDiv.textContent = data.message || 'Registration failed.';
+          messageDiv.classList.add('error');
+        }
+      } catch (err) {
+        messageDiv.textContent = 'Network error.';
+        messageDiv.classList.add('error');
+      }
+    };
+  </script>
+</body>
+</html> 

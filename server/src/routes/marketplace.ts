@@ -38,13 +38,13 @@ const router = express.Router();
  *         name: colorRarity
  *         schema:
  *           type: string
- *           enum: [common, uncommon, rare, veryrare]
- *         description: Filter by color rarity. Allowed values are common, uncommon, rare, veryrare.
+ *           enum: [common, uncommon, rare, veryRare]
+ *         description: Filter by color rarity. Allowed values are common, uncommon, rare, veryRare.
  *       - in: query
  *         name: propRarity
  *         schema:
  *           type: string
- *           enum: [notPresent, common, uncommon, rare, veryrare]
+ *           enum: [notPresent, common, uncommon, rare, veryRare]
  *         description: Filter by prop rarity. Allowed values are notPresent, common, uncommon, rare, veryrare.
  *       - in: query
  *         name: blockchain
@@ -91,7 +91,7 @@ const router = express.Router();
  *                 message: "Error fetching listed NFTs"
  *                 error: "Database error"
  */
-router.get('/listed', async (req: Request, res: Response) => {
+router.get('/listed', async (req: Request, res: Response, next: any) => {
     try {
         let minPrice = req.query.minPrice ? Number(req.query.minPrice) : undefined;
         let maxPrice = req.query.maxPrice ? Number(req.query.maxPrice) : undefined;
@@ -107,7 +107,7 @@ router.get('/listed', async (req: Request, res: Response) => {
         const nfts = await marketplaceService.getListedNfts(filters);
         res.status(200).json(nfts);
     } catch (error: any) {
-        res.status(500).json({ message: 'Error fetching listed NFTs', error: error.message });
+        next(error);
     }
 });
 
@@ -199,27 +199,27 @@ router.post(
         body('nftId').isMongoId().withMessage('A valid nftId is required.'),
         body('price').isFloat({ gt: 0 }).withMessage('Price must be a positive number.'),
     ],
-    async (req: Request, res: Response) => {
+    async (req: Request, res: Response, next: any) => {
         const errors = validationResult(req);
+        // Debug log for troubleshooting test failures
+        // eslint-disable-next-line no-console
+        console.log('[DEBUG] /api/marketplace/list req.body:', req.body);
+        // eslint-disable-next-line no-console
+        console.log('[DEBUG] /api/marketplace/list validation errors:', errors.array());
         if (!errors.isEmpty()) {
+            // Only validation errors return 400
             return res.status(400).json({ errors: errors.array() });
         }
 
         try {
             const { nftId, price } = req.body;
             // @ts-ignore
-            const sellerId = req.user.userId; // Corrected from req.user.id
-
+            const sellerId = req.user.userId;
             const result = await marketplaceService.listNft(nftId, sellerId, price);
             res.status(200).json(result);
-        } catch (error: any) {
-            if (error.message.includes('not found')) {
-                return res.status(404).json({ message: error.message });
-            }
-            if (error.message.includes('not the owner')) {
-                return res.status(401).json({ message: error.message });
-            }
-            res.status(500).json({ message: 'Error listing NFT', error: error.message });
+        } catch (err) {
+            // Pass all non-validation errors to the global error handler
+            next(err);
         }
     }
 );
@@ -253,7 +253,7 @@ router.post(
  *               value:
  *                 message: "NFT purchased successfully."
  *       400:
- *         description: Bad request (e.g., NFT not for sale, insufficient funds).
+ *         description: Bad request (e.g., NFT not for sale, insufficient funds, or trying to buy your own NFT).
  *         content:
  *           application/json:
  *             schema:
@@ -263,7 +263,7 @@ router.post(
  *                 message: "This NFT is not for sale."
  *                 error: "Not listed"
  *       401:
- *         description: Unauthorized (e.g., trying to buy your own NFT).
+ *         description: Unauthorized.
  *         content:
  *           application/json:
  *             schema:
@@ -271,7 +271,6 @@ router.post(
  *             example:
  *               value:
  *                 message: "Unauthorized"
- *                 error: "Cannot buy your own NFT"
  *       404:
  *         description: NFT not found.
  *         content:
@@ -293,7 +292,7 @@ router.post(
  *                 message: "Error buying NFT"
  *                 error: "Database error"
  */
-router.post('/buy/:nftId', authMiddleware, async (req: Request, res: Response) => {
+router.post('/buy/:nftId', authMiddleware, async (req: Request, res: Response, next: any) => {
     try {
         const { nftId } = req.params;
         // @ts-ignore
@@ -302,13 +301,7 @@ router.post('/buy/:nftId', authMiddleware, async (req: Request, res: Response) =
         const result = await marketplaceService.buyNft(nftId, buyerId);
         res.status(200).json(result);
     } catch (error: any) {
-        if (error.message.includes('not found')) {
-            return res.status(404).json({ message: error.message });
-        }
-        if (error.message.includes('not for sale') || error.message.includes('Insufficient funds') || error.message.includes('Cannot buy your own NFT')) {
-            return res.status(400).json({ message: error.message });
-        }
-        res.status(500).json({ message: 'Error buying NFT', error: error.message });
+        next(error);
     }
 });
 
@@ -339,7 +332,7 @@ router.post('/buy/:nftId', authMiddleware, async (req: Request, res: Response) =
  *               value:
  *                 suggestedPrice: 210
  *       404:
- *         description: NFT not found
+ *         description: NFT not found (e.g., invalid ID format or does not exist).
  *         content:
  *           application/json:
  *             schema:
@@ -347,7 +340,6 @@ router.post('/buy/:nftId', authMiddleware, async (req: Request, res: Response) =
  *             example:
  *               value:
  *                 message: "NFT not found"
- *                 error: "No NFT with that ID"
  *       500:
  *         description: Internal server error
  *         content:
@@ -359,18 +351,25 @@ router.post('/buy/:nftId', authMiddleware, async (req: Request, res: Response) =
  *                 message: "Error suggesting price"
  *                 error: "Calculation error"
  */
-router.get('/suggest-price/:nftId', async (req: Request, res: Response) => {
+router.get('/suggest-price/:nftId', async (req: Request, res: Response, next: any) => {
     try {
         const { nftId } = req.params;
+        // Query NFT; mocked model will not throw on invalid IDs in tests
         const nft = await require('../models/NFT').default.findById(nftId).lean();
         if (!nft) {
-            return res.status(404).json({ message: 'NFT not found' });
+            return next({ status: 404, message: 'NFT not found' });
         }
         // For now, assume no active events
         const suggestedPrice = await marketplaceService.suggestPriceForNft(nft, []);
         res.status(200).json({ suggestedPrice });
     } catch (error: any) {
-        res.status(500).json({ message: 'Error suggesting price', error: error.message });
+        if (error?.name === 'CastError') {
+            return next({ status: 404, message: 'NFT not found' });
+        }
+        if (typeof error?.status !== 'number' && typeof error?.message === 'string' && /not found/i.test(error.message)) {
+            return next({ status: 404, message: error.message });
+        }
+        next(error);
     }
 });
 
@@ -413,7 +412,7 @@ router.get('/suggest-price/:nftId', async (req: Request, res: Response) => {
  *                 message:
  *                   type: string
  *       400:
- *         description: Bad request (validation error, insufficient funds, etc.)
+ *         description: Bad request (e.g., validation error, insufficient funds, not enough in batch).
  *         content:
  *           application/json:
  *             schema:
@@ -498,7 +497,7 @@ router.post(
  *                 message:
  *                   type: string
  *       400:
- *         description: Bad request (validation error, etc.)
+ *         description: Bad request (e.g., validation error, seller not found).
  *         content:
  *           application/json:
  *             schema:

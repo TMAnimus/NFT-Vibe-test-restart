@@ -1,214 +1,160 @@
-# NFT VibeCode Gameplay Guide
+# NFT Trading Game - Gameplay Guide (Consolidated Version)
 
-## Overview
-NFT VibeCode is a blockchain-based NFT marketplace simulation where players can trade NFTs with dynamic pricing based on rarity, market events, and trading activity. The game operates on a tick-based system with daily and weekly updates, simulating a realistic NFT market environment.
-
-## Core Gameplay Mechanics
-
-### 1. NFT Collection & Management
-- **NFT Set Attributes**
-  - Base price (changes with sales of set members)
-  - Trajectory: New, Normal, Declining, Dead
-- **Acquisition Methods**:
-  - Purchase from the marketplace
-  - Generate new NFTs (Future expansion)
-  - Trade with other players
-  - Trade with NPCs
-- **NFT Attributes**:
-  - Color Rarity: Common, Rare, VeryRare
-  - Prop Rarity: NotPresent, Common, Rare, VeryRare
-  - First of Set: Special status for the first NFT in a collection
-  - Blockchain: The blockchain the NFT is minted on
-- **NFT Status**:
-  - Owned: Currently in your collection
-  - Listed: Available for purchase in the marketplace
-  - Sold: Recently sold
-
-### 2. Marketplace System
-- **Trading Features**:
-  - List NFTs for sale
-  - Set custom prices or use suggested prices
-  - Filter listings by:
-    - Color Rarity
-    - Prop Rarity
-    - Blockchain
-    - Price Range
-  - Daily listing updates
-  - Transaction history tracking
-- **Price Mechanics**:
-  - Base price calculation based on rarity
-  - First of Set bonus multiplier
-  - Market event modifiers
-  - Daily price updates
-  - Weekly market adjustments
-  - Minimum price floor before market crash
-
-### 3. Market Events
-- **Daily Events**:
-  - Price fluctuations
-  - Collection status updates
-  - NPC trading decisions
-- **Weekly Events**:
-  - Environmental Backlash (price reduction)
-  - Media Events (price boosts)
-  - Market Crashes
-  - Special Sales Periods
-  - Collection status changes
-- **Event Effects**:
-  - Price multipliers
-  - Status changes
-  - Market sentiment shifts
-  - Collection lifecycle progression
-
-### 4. Trading Strategy
-- **Market Analysis**:
-  - Track daily price trends
-  - Monitor weekly market cycles
-  - Watch for First of Set opportunities
-  - Follow market events
-- **Trading Tactics**:
-  - Buy low, sell high
-  - Collect complete sets
-  - Target rare combinations
-  - Time market events
-  - React to daily/weekly updates
-
-## Game Cycle
-
-### Daily Updates (24-hour tick)
-- Players can make offers on NFTs
-- List their own NFTs for sale
-- NPCs make trading decisions
-- Price fluctuations occur
-- Collection status updates
-- Market sentiment shifts
-
-### Weekly Updates (7-day tick)
-- Market events are checked and triggered
-- Collection statuses are updated
-- Player budgets are refreshed
-- Market sentiment is recalculated
-- Long-term price trends are adjusted
-- Environmental and media events occur
-
-### Collection Lifecycle
-- **New**: Recently created collections
-- **Normal**: Established collections
-- **Declining**: Collections losing value
-- **Dead**: Collections with no value
-- Status changes occur during weekly updates
-- Media events can reset collections to "New"
-
-## Getting Started
-
-### New Player Guide
-1. **Account Setup**:
-   - Create an account
-   - Receive initial balance
-   - Learn marketplace interface
-2. **First Steps**:
-   - Browse available NFTs
-   - Understand rarity system
-   - Make your first purchase
-3. **Early Trading**:
-   - Monitor daily price trends
-   - Learn weekly market cycles
-   - Build your collection
-
-### Advanced Trading
-1. **Collection Building**:
-   - Focus on rare combinations
-   - Complete sets
-   - Target First of Set NFTs
-2. **Market Timing**:
-   - Watch for weekly events
-   - Track daily price fluctuations
-   - Identify buying opportunities
-3. **Risk Management**:
-   - Diversify your collection
-   - Set price limits
-   - Monitor market health
-   - Plan for weekly updates
-
-## Tips & Tricks
-- **Trading Success**:
-  - Research before buying
-  - Set competitive prices
-  - Watch for weekly events
-  - Track daily price history
-- **Collection Management**:
-  - Balance rarity levels
-  - Maintain diverse portfolio
-  - Keep track of First of Set NFTs
-  - Monitor collection status
-- **Market Awareness**:
-  - Monitor weekly event calendar
-  - Watch daily price trends
-  - Track successful trades
-  - Plan for budget refreshes
-
-## Technical Features
-- **Daily Updates**:
-  - Listing notifications
-  - Purchase confirmations
-  - Price updates
-  - NPC trading activity
-- **Weekly Updates**:
-  - Market event alerts
-  - Collection status changes
-  - Budget refreshes
-  - Market sentiment updates
-- **User Interface**:
-  - Responsive marketplace
-  - Advanced filtering
-  - Price display
-  - Transaction history
-  - Event calendar
-
-## System Requirements
-- **Browser Compatibility**:
-  - Modern web browser (Chrome, Firefox, Safari, Edge)
-  - JavaScript enabled
-  - LocalStorage support
-- **Requirements**:
-  - Stable internet connection
-  - Screen resolution: 1024x768 or higher recommended
-
-## Game End Conditions
-- Market collapses when all NFT sets are dead
-- Each set may collapse independently
-- Final winner has the most money
-- Leaderboard tracks:
-  - Most money
-  - Most trades
-  - Best trade (sale price - purchase price)
-  - Most valuable NFT held
-- Dead NFTs are valued at $1 each
+> **Note:**  
+> This document consolidates and supersedes all previous gameplay README files:  
+> - README.Gameplay.md  
+> - README.Gameplay.v2.md  
+> - README.Gameplay.v2_Version3.md  
+> The most up-to-date and accurate gameplay information is found here.
 
 ---
-For technical details and development information, see the main [README.md](README.md).
 
-(Initial file)
-Gameplay notes for the NFT Sim:
+## Overview
 
-Pre-start: give players time to register 
+NFT Trading Game (NFT VibeCode) is a satirical, multiplayer NFT marketplace simulation. Players and NPCs compete to collect, trade, and manipulate the market with a variety of absurd NFTs. The game operates on a tick-based system with daily and weekly updates, simulating a dynamic and often chaotic NFT market.
 
-Start: the players have a budget of X dollars
-- this may refresh every 2 weeks or get a boost of Y dollars, representing income from a real job
+---
 
-Game begins: a selection of NFTs become available... not necessarily the first of their sets, since it's assumed unnamed buyers have taken some of the NFTs available.
-- should probably be at least one first in the set, though 
+## Core Mechanics
 
-NFT sets will have their own status: new, normal, declining, dead
-- media event switches normal back to new?
+- **NFT Creation:** Generate NFTs with random attributes and rarity.
+- **Marketplace:** List, buy, and sell NFTs. Prices fluctuate based on rarity, batch status, and market events.
+- **Events:** Market events (see [README.Events.md](README.Events.md)) can affect prices and collection status.
+- **Tick-based Updates:** Daily and weekly updates drive the market, update prices, and trigger events.
+- **NPCs:** Compete with NPC buyers using diverse strategies (see [README.NPCs.md](README.NPCs.md)).
+- **Satirical Flavor:** The game mocks NFT culture with exaggerated price swings, silly event names, and absurd NPC behavior.
 
-Daily: players make offers on viable NFTs, or try putting their own NFTs up for sale 
-- NPC buyers should do the same 
-Price fluctuations due to both the market in general and buyers' actions, the latter having more of an effect 
-Weekly: check for events, adjust prices and statuses accordingly.
+---
 
-Eventually the market should just collapse when everyone realizes how silly all this is.
-- each set may have its own collapse, but the whole market should start falling later in the game.
+## Glossary
 
-Game ends when all NFT sets are dead. Winner is whoever has the most money. Leaderboard could also have who traded the most NFTS, who made the best trade (in terms of sale price minus purchase price), who had the most valuable one, et cetera.
-- Held dead NFTS are essentially worthless, valued at $1 each.
+- **Set:** All NFTs of the same noun.
+- **Collection:** NFTs owned by a user or NPC.
+- **Batch:** Group of NFTs with the same description in the market.
+
+---
+
+## NFT Attributes
+
+- **Display Name:** Satirical name (e.g., “Glowing Crypto Potato”)
+- **Color Rarity:** Common, Uncommon, Rare, Very Rare
+- **Prop Rarity:** NotPresent, Common, Uncommon, Rare, Very Rare
+- **First of Set:** Special status for first NFT in a set
+- **Blockchain:** Ethereum (default; may expand)
+- **Base Price:** By rarity
+- **Current Price:** Dynamic; affected by market updates and events
+- **Status:** Owned, Listed, Sold
+- **Collection Status:** New, Normal, Declining, Dead
+
+---
+
+## Gameplay Flow
+
+### Player Budget
+
+- **Initial Balance:** Set by `PLAYER_INITIAL_BALANCE` in `nft_config.json` (e.g., $10,000).
+- **Refresh:** Players receive a budget refresh (`PLAYER_BUDGET_REFRESH`) every second weekly tick (14 days), simulating “real job” income.
+- **Constraints:** Players cannot spend beyond their balance. Failed transactions are refunded instantly.
+- **Bankruptcy:** If a player’s balance reaches $0 and they own no NFTs, they receive a one-time $1,000 bailout.
+- **Satirical Flavor:** Budget refreshes mock “real job” income in a crypto-obsessed world.
+
+### Trading Actions
+
+- **Buy NFTs:** Players bid on listed NFTs during daily ticks, competing with NPCs.
+- **Sell NFTs:** Players list NFTs for sale with custom or suggested prices.
+- **Filters:** Marketplace listings can be filtered by color rarity, prop rarity, blockchain, or price range.
+
+### Endgame and Leaderboard
+
+- **Endgame Conditions:** The game ends when all NFT sets reach “Dead” status or after a set duration (`GAME_DURATION_DAYS`).
+- **Leaderboard Metrics:**
+  - Most Money (cash + NFT value; dead NFTs = $1)
+  - Most Trades
+  - Best Trade (highest profit)
+  - Most Valuable NFT Held
+- **Tiebreakers:** Most trades, then best trade profit.
+- **Satirical Titles:** Leaderboard titles mock NFT hype (e.g., “Supreme Crypto Overlord”).
+
+### Player-NPC Interaction
+
+- **Bidding Competition:** Players and NPCs compete during daily ticks.
+- **Visibility:** Players see NPC activity but not their strategies.
+- **Impact:** Collector NPCs inflate prices for specific traits; Aggressive NPCs cause volatility.
+- **Satirical Flavor:** NPC actions are exaggerated (e.g., “CryptoHypeBot panic-bought a glowing potato for $10,000!”).
+
+### Tick-Based System
+
+- **Daily Ticks (24 hours):** Players and NPCs place bids and list NFTs. Prices update based on activity.
+- **Weekly Ticks (7 days):** Budgets refresh, market events trigger, and collection statuses update.
+
+### Game Progression
+
+- **Early Game:** Stable market, frequent new collections, moderate NPC activity.
+- **Mid Game:** Increased volatility, more events, aggressive NPCs.
+- **Late Game:** High risk of market crashes, collections turning “Dead,” opportunist NPCs dominate.
+
+### Collection Lifecycle
+
+- **Statuses:** New → Normal → Declining → Dead
+- **Transitions:** Based on time, sales, and events (see [README.Events.md](README.Events.md)).
+- **Price Floors:** $25 for active, $1 for dead.
+- **Completion Bonus:** Owning all NFTs in a set grants a value bonus.
+
+---
+
+## Technical Features
+
+- **Real-time updates via Socket.IO**
+- **TypeScript for improved coherence**
+- **Satirical authentication (4-digit PIN, hashed)**
+- **Marketplace events and sentiment shifts**
+- **NPC trading strategies**
+- **Batch management for common NFTs**
+- **Daily/weekly cycles**
+
+---
+
+## Environment Variables & Config
+
+| Variable                | Description                              | Default Value (see `nft_config.json`) |
+|-------------------------|------------------------------------------|---------------------------------------|
+| PLAYER_INITIAL_BALANCE  | Starting budget for players              | 10000                                 |
+| PLAYER_BUDGET_REFRESH   | Budget refresh every 14 days             | 2000                                  |
+| NPC_INITIAL_BALANCE     | Starting budget for NPCs                 | 10000                                 |
+| NPC_BUDGET_REFRESH      | Weekly budget refresh for NPCs           | 2000                                  |
+| NEW_SET_DEBUT_DAYS      | Days until new sets stop debuting        | 40                                    |
+| GAME_DURATION_DAYS      | Total game duration                      | 90                                    |
+
+---
+
+## TypeScript Integration
+
+- All NFT, player, and event data use TypeScript interfaces and enums.
+- API endpoints validate inputs using TypeScript types.
+- See codebase for details.
+
+---
+
+## Testing
+
+- **Unit Tests:** Budget mechanics, leaderboard, error handling.
+- **Integration Tests:** Player-NPC interactions, event effects.
+- **Performance Tests:** High transaction volumes, tick processing.
+
+---
+
+## Future Features
+
+See [README.Future.md](README.Future.md) for planned features (GUI, player-triggered events, etc.).
+
+---
+
+## Related Docs
+
+- [README.md](README.md) – Project overview
+- [README.Database.v2.md](README.Database.v2.md) – Database schema
+- [README.Events.md](README.Events.md) – Event system
+- [README.NPCs.md](README.NPCs.md) – NPC logic
+- [README.Players.md](README.Players.md) – Player logic
+
+---

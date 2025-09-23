@@ -1,10 +1,96 @@
 // marketplace.js
 
-document.addEventListener('DOMContentLoaded', () => {
-  setupLoginUI();
-  setupFiltersUI();
-  fetchAndRenderNFTs();
-});
+// Socket.IO client setup
+let socket = null;
+
+function initializeSocket() {
+  const token = localStorage.getItem('jwt');
+  if (!token) return;
+
+  // Connect to Socket.IO server
+  socket = io({
+    auth: {
+      token: token
+    }
+  });
+
+  // Connection events
+  socket.on('connect', () => {
+    console.log('Connected to real-time server');
+    socket.emit('joinMarketplace');
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Disconnected from real-time server');
+  });
+
+  socket.on('connect_error', (error) => {
+    console.error('Socket connection error:', error);
+  });
+
+  // Marketplace events
+  socket.on('listingCreated', (data) => {
+    console.log('New listing created:', data);
+    const displayName = `${data.nft.color || ''} ${data.nft.thing || ''}`.trim() || data.nft.collectionName || 'Unnamed NFT';
+    showNotification(`New NFT listed: ${displayName} for $${data.nft.currentPrice}`);
+    fetchAndRenderNFTs(getCurrentFilters());
+  });
+
+  socket.on('listingSold', (data) => {
+    console.log('NFT sold:', data);
+    const displayName = `${data.nft.color || ''} ${data.nft.thing || ''}`.trim() || data.nft.collectionName || 'Unnamed NFT';
+    showNotification(`NFT sold: ${displayName} to ${data.buyer}`);
+    fetchAndRenderNFTs(getCurrentFilters());
+  });
+
+  socket.on('marketUpdate', (data) => {
+    console.log('Market update:', data);
+    if (data.type === 'tick') {
+      showNotification(`Market tick processed at ${new Date(data.tickTime).toLocaleTimeString()}`);
+    } else {
+      showNotification('Market updated with new prices and events');
+    }
+    fetchAndRenderNFTs(getCurrentFilters());
+  });
+
+  socket.on('notification', (data) => {
+    console.log('Personal notification:', data);
+    showNotification(data.message);
+  });
+
+  socket.on('globalNotification', (data) => {
+    console.log('Global notification:', data);
+    showNotification(data.message);
+  });
+}
+
+function showNotification(message) {
+  // Create notification element
+  const notification = document.createElement('div');
+  notification.className = 'notification';
+  notification.textContent = message;
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #4CAF50;
+    color: white;
+    padding: 15px;
+    border-radius: 5px;
+    z-index: 1000;
+    max-width: 300px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  `;
+
+  document.body.appendChild(notification);
+
+  // Remove notification after 5 seconds
+  setTimeout(() => {
+    if (notification.parentNode) {
+      notification.parentNode.removeChild(notification);
+    }
+  }, 5000);
+}
 
 function setupLoginUI() {
   const loginForm = document.getElementById('login-form');
@@ -53,6 +139,9 @@ function setupLoginUI() {
       loginUser.textContent = `Logged in as ${username}`;
       listNftSection.style.display = '';
       fetchAndPopulateUserNFTs();
+      
+      // Initialize Socket.IO connection after login
+      initializeSocket();
     } catch (err) {
       loginError.textContent = 'Network error';
     }
@@ -64,6 +153,12 @@ function setupLoginUI() {
     loginForm.style.display = '';
     loginState.style.display = 'none';
     listNftSection.style.display = 'none';
+    
+    // Disconnect Socket.IO on logout
+    if (socket) {
+      socket.disconnect();
+      socket = null;
+    }
   };
 
   setupListNftForm();
@@ -118,11 +213,17 @@ async function fetchAndRenderNFTs(filters = {}) {
     nfts.forEach(nft => {
       const card = document.createElement('div');
       card.className = 'nft-card';
+      // Create display name from color, thing, and collection
+      const displayName = `${nft.color || ''} ${nft.thing || ''}`.trim() || nft.collectionName || 'Unnamed NFT';
+      // Compose title with [First of Set] if applicable
+      let title = displayName;
+      if (nft.isFirstOfSet) title += ' [First of Set]';
       card.innerHTML = `
-        <h3>${nft.displayName || nft.name || 'Unnamed NFT'}</h3>
+        <h3>${title}</h3>
         <p><strong>Price:</strong> $${nft.currentPrice}</p>
         <p><strong>Color Rarity:</strong> ${nft.colorRarity || '-'}</p>
         <p><strong>Prop Rarity:</strong> ${nft.propRarity || '-'}</p>
+        <p><strong>Blockchain:</strong> ${nft.blockchain || '-'}</p>
         <div class="nft-card-actions"></div>
         <span class="nft-card-feedback"></span>
       `;
@@ -182,11 +283,12 @@ async function fetchAndPopulateUserNFTs() {
   noneMsg.style.display = 'none';
   form.querySelector('button[type="submit"]').disabled = false;
   try {
-    const res = await fetch('/api/user/nfts', {
+    const res = await fetch('/api/user/profile', {
       headers: { 'Authorization': `Bearer ${user.token}` }
     });
     if (!res.ok) throw new Error('Failed to fetch NFTs');
-    const nfts = await res.json();
+    const data = await res.json();
+    const nfts = data.nfts || [];
     if (!nfts.length) {
       select.innerHTML = '';
       form.querySelector('button[type="submit"]').disabled = true;
@@ -197,7 +299,13 @@ async function fetchAndPopulateUserNFTs() {
     nfts.forEach(nft => {
       const option = document.createElement('option');
       option.value = nft._id;
-      option.textContent = `${nft.displayName || nft.name || 'Unnamed NFT'} (${nft._id})`;
+      // Create display name from color, thing, and collection
+      const displayName = `${nft.color || ''} ${nft.thing || ''}`.trim() || nft.collectionName || 'Unnamed NFT';
+      // Compose option text with [First of Set] and [blockchain] if applicable
+      let optionText = displayName;
+      if (nft.isFirstOfSet) optionText += ' [First of Set]';
+      if (nft.blockchain) optionText += ` [${nft.blockchain}]`;
+      option.textContent = optionText;
       select.appendChild(option);
     });
   } catch (err) {
@@ -245,4 +353,83 @@ function setupListNftForm() {
       feedback.textContent = 'Network error.';
     }
   };
-} 
+}
+
+async function updateTickStatus() {
+  try {
+    const response = await fetch('/api/tick/status');
+    const status = await response.json();
+    
+    const statusText = document.getElementById('tick-status-text');
+    if (statusText) {
+      if (status.isRunning) {
+        statusText.textContent = `Running (${status.interval}ms interval)`;
+        statusText.style.color = '#4CAF50';
+      } else {
+        statusText.textContent = 'Stopped';
+        statusText.style.color = '#f44336';
+      }
+    }
+  } catch (error) {
+    console.error('Failed to fetch tick status:', error);
+    const statusText = document.getElementById('tick-status-text');
+    if (statusText) {
+      statusText.textContent = 'Error';
+      statusText.style.color = '#f44336';
+    }
+  }
+}
+
+// Add Generate NFT button in test mode
+function setupGenerateNftTestButton() {
+  const params = new URLSearchParams(window.location.search);
+  if (!params.has('test')) return;
+  const container = document.getElementById('generate-nft-test-btn-container');
+  if (!container) return;
+  const btn = document.createElement('button');
+  btn.textContent = 'Generate NFT (Test Mode)';
+  btn.style.margin = '16px 0';
+  btn.onclick = async () => {
+    const collectionName = prompt('Enter collection name (see /server/sets/):');
+    if (!collectionName) return;
+    const user = getLoggedInUser();
+    if (!user) {
+      showNotification('You must be logged in to generate an NFT.');
+      return;
+    }
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/nft/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`
+        },
+        body: JSON.stringify({ collectionName })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showNotification(data.message || 'Failed to generate NFT.');
+        btn.disabled = false;
+        return;
+      }
+      showNotification('NFT generated!');
+      fetchAndPopulateUserNFTs && fetchAndPopulateUserNFTs();
+    } catch (err) {
+      showNotification('Network error.');
+    } finally {
+      btn.disabled = false;
+    }
+  };
+  container.appendChild(btn);
+}
+
+// Initialize everything when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  setupLoginUI();
+  setupFiltersUI();
+  fetchAndRenderNFTs();
+  initializeSocket();
+  updateTickStatus();
+  setupGenerateNftTestButton();
+}); 

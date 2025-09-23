@@ -1,5 +1,5 @@
 import NFTSetModel, { INFTSet } from '../models/NFTSet';
-import { Rarity } from '../models/enums';
+import { Rarity, CollectionStatus } from '../models/enums';
 import NFTModel from '../models/NFT';
 
 interface IAttribute {
@@ -12,7 +12,7 @@ const rarityMultipliers = {
   common: 1,
   uncommon: 1.5,
   rare: 2.5,
-  veryrare: 5,
+  veryRare: 5,
   notPresent: 1, // No price impact
 };
 
@@ -50,34 +50,45 @@ export async function generateNft(collectionName: string): Promise<any> {
     throw new Error(`NFT Set with collection name "${collectionName}" not found.`);
   }
 
-  const generatedAttributes: { [key: string]: string } = {};
-  const selectedAttributes: IAttribute[] = [];
+  // Check if this is the first NFT of this set
+  const existingNFTs = await NFTModel.countDocuments({ setId: nftSet._id });
+  const isFirstOfSet = existingNFTs === 0;
 
-  // Select attributes and store them
+  // Select color and thing
+  let selectedColor: IAttribute | null = null;
+  let selectedThing: string = '';
+  let selectedProps: IAttribute[] = [];
+
   if (nftSet.colors?.length) {
-    const selected = weightedRandomSelect(nftSet.colors);
-    generatedAttributes.color = selected.name;
-    selectedAttributes.push(selected);
+    selectedColor = weightedRandomSelect(nftSet.colors);
   }
+
+  // Use the thing from the NFT set
+  selectedThing = nftSet.thing;
+
+  // Select props (up to 3 props)
   if (nftSet.props?.length) {
-    const selected = weightedRandomSelect(nftSet.props);
-    generatedAttributes.prop = selected.name;
-    selectedAttributes.push(selected);
+    const numProps = Math.min(3, nftSet.props.length);
+    for (let i = 0; i < numProps; i++) {
+      const selected = weightedRandomSelect(nftSet.props);
+      selectedProps.push(selected);
+    }
   }
-  if (nftSet.backgrounds?.length) {
-    const selected = weightedRandomSelect(nftSet.backgrounds);
-    generatedAttributes.background = selected.name;
-    selectedAttributes.push(selected);
-  }
-  if (nftSet.expressions?.length) {
-    const selected = weightedRandomSelect(nftSet.expressions);
-    generatedAttributes.expression = selected.name;
-    selectedAttributes.push(selected);
+
+  // Determine overall rarity based on highest rarity among attributes
+  const allAttributes = [selectedColor, ...selectedProps].filter(Boolean);
+  const rarityOrder = [Rarity.Common, Rarity.Uncommon, Rarity.Rare, Rarity.VeryRare];
+  let overallRarity = Rarity.Common;
+  
+  for (const attr of allAttributes) {
+    if (attr && rarityOrder.indexOf(attr.rarity) > rarityOrder.indexOf(overallRarity)) {
+      overallRarity = attr.rarity;
+    }
   }
 
   // Calculate the current price based on rarities
-  const priceMultiplier = selectedAttributes.reduce(
-    (total, attr) => total * (rarityMultipliers[attr.rarity] || 1),
+  const priceMultiplier = allAttributes.reduce(
+    (total, attr) => total * (rarityMultipliers[attr?.rarity || 'common'] || 1),
     1
   );
   const calculatedPrice = nftSet.basePrice * priceMultiplier;
@@ -85,9 +96,17 @@ export async function generateNft(collectionName: string): Promise<any> {
   const newNft = new NFTModel({
     setId: nftSet._id,
     collectionName: nftSet.collectionName,
-    attributes: generatedAttributes,
+    color: selectedColor?.name || '',
+    thing: selectedThing,
+    props: selectedProps.map(prop => ({ name: prop.name, rarity: prop.rarity })),
+    rarity: overallRarity,
+    colorRarity: selectedColor?.rarity || Rarity.Common,
+    propRarity: selectedProps.length > 0 ? selectedProps[0].rarity : Rarity.NotPresent,
+    blockchain: '', // Default to blank as requested
     basePrice: nftSet.basePrice,
     currentPrice: calculatedPrice,
+    status: CollectionStatus.New,
+    isFirstOfSet: isFirstOfSet,
   });
 
   await newNft.save();

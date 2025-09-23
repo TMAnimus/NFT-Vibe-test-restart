@@ -2,6 +2,7 @@ import { Router, Response } from 'express';
 import { ObjectId } from 'mongodb';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { UserModel, IUser } from '../models/User';
+import NFTModel from '../models/NFT';
 
 const router = Router();
 
@@ -9,6 +10,33 @@ const router = Router();
  * @openapi
  * components:
  *   schemas:
+ *     NFT:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: Unique identifier of the NFT
+ *         displayName:
+ *           type: string
+ *           description: Display name of the NFT
+ *         collectionName:
+ *           type: string
+ *           description: Name of the NFT collection
+ *         colorRarity:
+ *           type: string
+ *           description: Rarity based on color
+ *         propRarity:
+ *           type: string
+ *           description: Rarity based on properties
+ *         blockchain:
+ *           type: string
+ *           description: Blockchain the NFT is on
+ *         currentPrice:
+ *           type: number
+ *           description: Current price of the NFT
+ *         marketStatus:
+ *           type: string
+ *           description: Current market status (e.g., Listed, Owned)
  *     ErrorResponse:
  *       type: object
  *       properties:
@@ -43,7 +71,7 @@ const router = Router();
  *                 nfts:
  *                   type: array
  *                   items:
- *                     type: string
+ *                     $ref: '#/components/schemas/NFT'
  *             example:
  *               value:
  *                 _id: "60f7c2b8e1d2c8a1b8e1d2c8"
@@ -88,11 +116,13 @@ router.get('/profile', authMiddleware, async (req: AuthRequest, res: Response) =
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
+    // Populate full NFT objects
+    const nfts = await NFTModel.find({ ownerId: user._id }).lean();
     res.status(200).json({
       _id: user._id,
       username: user.username,
       balance: user.balance,
-      nfts: user.nfts,
+      nfts: nfts,
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });

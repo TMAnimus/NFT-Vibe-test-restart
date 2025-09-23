@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { UserModel, IUser } from '../models/User';
+import fs from 'fs';
+import path from 'path';
 
 const router = Router();
 const SALT_ROUNDS = 10;
@@ -10,6 +12,22 @@ const SALT_ROUNDS = 10;
  * @openapi
  * components:
  *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         username:
+ *           type: string
+ *         balance:
+ *           type: number
+ *         nfts:
+ *           type: array
+ *           items:
+ *             type: string
+ *     LoginResponse:
+ *       type: object
+ *       properties:
+ *         token:
+ *           type: string
  *     ErrorResponse:
  *       type: object
  *       properties:
@@ -51,35 +69,19 @@ const SALT_ROUNDS = 10;
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *             example:
- *               value:
- *                 message: "User created successfully."
+ *               $ref: '#/components/schemas/User'
  *       400:
  *         description: Invalid input or username already exists
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
- *             examples:
- *               missingFields:
- *                 value:
- *                   message: "Username and a 4-digit PIN are required."
- *               duplicate:
- *                 value:
- *                   message: "Username already exists."
  *       500:
  *         description: Server error
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
- *             example:
- *               value:
- *                 message: "Server error during registration."
  */
 router.post('/register', async (req: Request, res: Response) => {
   try {
@@ -97,15 +99,19 @@ router.post('/register', async (req: Request, res: Response) => {
 
     const hashedPin = await bcrypt.hash(pin, SALT_ROUNDS);
 
+    const configPath = path.join(__dirname, '..', '..', '..', 'nft_config.json');
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    const initialBalance = config.PLAYER_INITIAL_BALANCE || 10000;
+
     const newUser: Partial<IUser> = {
       username,
       pin: hashedPin,
-      balance: 10000, // Starting balance
+      balance: initialBalance, // Starting balance
       nfts: [],
     };
-    await UserModel.create(newUser);
+    const createdUser = await UserModel.create(newUser);
 
-    res.status(201).json({ message: 'User created successfully.' });
+    res.status(201).json(createdUser);
   } catch (error) {
     console.error('Registration error:', error);
     res.status(500).json({ message: 'Server error during registration.' });
@@ -144,13 +150,7 @@ router.post('/register', async (req: Request, res: Response) => {
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 token:
- *                   type: string
- *             example:
- *               value:
- *                 token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *               $ref: '#/components/schemas/LoginResponse'
  *       400:
  *         description: Invalid username or PIN
  *         content:
