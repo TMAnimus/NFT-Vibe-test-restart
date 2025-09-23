@@ -79,7 +79,9 @@ The comprehensive auction system is **production-ready** with complete frontend 
 Features listed in `README.Future.md` and `README.Future.v2.md` are proposals for future versions and are _not currently implemented_.
 
 ## Milestones
-Milestone documentation (e.g., `README.Milestone6.md`) is for reference/legacy only.
+See [README.Milestones.md](README.Milestones.md) for complete milestone overview and project status.
+
+**Current Status**: ✅ **Production Ready** - Milestones 4 & 5 complete + Post-M5 auction system & frontend enhancements
 
 ## Setup
 See [README.setup.md](README.setup.md) for installation and development instructions.
