@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { generateNFT } from '../services/api';
 
 interface GenerateNFTProps {
@@ -11,18 +11,28 @@ const GenerateNFT: React.FC<GenerateNFTProps> = ({ onClose, onNFTGenerated }) =>
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Available collections (these should match what's in the backend)
+  // Available collections (these match the collections in server/sets)
   const availableCollections = [
-    'Crypto Toasters',
-    'Digital Potatoes', 
-    'Blockchain Bananas',
-    'NFT Ninjas',
-    'Pixel Pandas'
+    'Apathetic Axolotls',
+    'Crypto Bananas',
+    'Cynical Capybaras',
+    'Distracted Degenerates',
+    'Disinterested Ducks',
+    'Crypto Lamps',
+    'Crypto Mugs',
+    'Crypto Clips',
+    'Crypto Pencils',
+    'Crypto Plants',
+    'Crypto Potatoes',
+    'Sleepy Sloths',
+    'Crypto Socks',
+    'Crypto Toast',
+    'Crypto Toasters'
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!collectionName) {
       setError('Please select a collection');
       return;
@@ -31,12 +41,12 @@ const GenerateNFT: React.FC<GenerateNFTProps> = ({ onClose, onNFTGenerated }) =>
     try {
       setLoading(true);
       setError(null);
-      
+
       const newNFT = await generateNFT(collectionName);
-      
+
       // Show success message or handle the new NFT
       alert(`Successfully generated: ${newNFT.displayName || `${newNFT.color} ${newNFT.thing}`}`);
-      
+
       onNFTGenerated();
       onClose();
     } catch (err: any) {
@@ -47,69 +57,33 @@ const GenerateNFT: React.FC<GenerateNFTProps> = ({ onClose, onNFTGenerated }) =>
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0,0,0,0.5)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 1000
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        padding: '30px',
-        borderRadius: '8px',
-        width: '90%',
-        maxWidth: '400px'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h2 style={{ margin: 0 }}>Generate New NFT</h2>
-          <button 
+    <div className="modal-overlay">
+      <div className="modal-content p-8 max-w-md">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">Generate New NFT</h2>
+          <button
             onClick={onClose}
-            style={{
-              background: 'none',
-              border: 'none',
-              fontSize: '24px',
-              cursor: 'pointer',
-              color: '#6c757d'
-            }}
+            className="text-gray-400 hover:text-gray-600 text-3xl font-light transition-colors"
           >
             ×
           </button>
         </div>
 
         {error && (
-          <div style={{
-            backgroundColor: '#f8d7da',
-            color: '#721c24',
-            padding: '10px',
-            borderRadius: '4px',
-            marginBottom: '20px',
-            border: '1px solid #f5c6cb'
-          }}>
+          <div className="bg-red-100 border border-red-300 text-red-800 px-4 py-3 rounded-lg mb-6">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+          <div className="mb-6">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Choose Collection:
             </label>
             <select
               value={collectionName}
               onChange={(e) => setCollectionName(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '10px',
-                border: '1px solid #ccc',
-                borderRadius: '4px',
-                fontSize: '16px'
-              }}
+              className="select-field text-base"
               required
             >
               <option value="">Select a collection...</option>
@@ -119,69 +93,47 @@ const GenerateNFT: React.FC<GenerateNFTProps> = ({ onClose, onNFTGenerated }) =>
                 </option>
               ))}
             </select>
-            <p style={{ fontSize: '12px', color: '#6c757d', margin: '8px 0 0 0' }}>
+            <p className="text-xs text-gray-500 mt-2">
               Each NFT will have randomly generated colors, properties, and rarity levels.
             </p>
           </div>
 
-          <div style={{
-            backgroundColor: '#e3f2fd',
-            padding: '15px',
-            borderRadius: '4px',
-            marginBottom: '20px'
-          }}>
-            <h4 style={{ margin: '0 0 10px 0', color: '#1976d2' }}>🎲 What You'll Get:</h4>
-            <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '14px', color: '#495057' }}>
-              <li>Random color with rarity (common to very rare)</li>
-              <li>Random properties with individual rarities</li>
-              <li>Chance for <strong>**FIRST OF SET**</strong> designation</li>
-              <li>Unique combination within the collection</li>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <h4 className="text-blue-800 font-semibold mb-3 flex items-center">
+              🎲 What You'll Get:
+            </h4>
+            <ul className="text-sm text-gray-700 space-y-1 pl-4">
+              <li className="list-disc">Random color with rarity (common to very rare)</li>
+              <li className="list-disc">Random properties with individual rarities</li>
+              <li className="list-disc">Chance for <strong>**FIRST OF SET**</strong> designation</li>
+              <li className="list-disc">Unique combination within the collection</li>
             </ul>
           </div>
 
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+          <div className="flex gap-3 justify-end">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              style={{
-                padding: '10px 20px',
-                border: '1px solid #6c757d',
-                backgroundColor: 'white',
-                color: '#6c757d',
-                borderRadius: '4px',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                opacity: loading ? 0.6 : 1
-              }}
+              className={`px-5 py-2 border border-gray-400 text-gray-600 rounded-lg font-medium transition-all ${loading
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:bg-gray-50 hover:border-gray-500'
+                }`}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              style={{
-                padding: '10px 20px',
-                border: 'none',
-                backgroundColor: loading ? '#6c757d' : '#28a745',
-                color: 'white',
-                borderRadius: '4px',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}
+              className={`px-5 py-2 rounded-lg font-medium text-white transition-all flex items-center gap-2 ${loading
+                ? 'bg-gray-500 cursor-not-allowed'
+                : 'btn-success'
+                }`}
             >
               {loading ? (
                 <>
                   <span>Generating...</span>
-                  <div style={{
-                    width: '16px',
-                    height: '16px',
-                    border: '2px solid #ffffff',
-                    borderTop: '2px solid transparent',
-                    borderRadius: '50%',
-                    animation: 'spin 1s linear infinite'
-                  }}></div>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 </>
               ) : (
                 <>🎲 Generate NFT</>
@@ -189,15 +141,6 @@ const GenerateNFT: React.FC<GenerateNFTProps> = ({ onClose, onNFTGenerated }) =>
             </button>
           </div>
         </form>
-
-        <style>
-          {`
-            @keyframes spin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-          `}
-        </style>
       </div>
     </div>
   );

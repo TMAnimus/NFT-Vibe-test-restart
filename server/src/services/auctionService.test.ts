@@ -367,6 +367,7 @@ describe('Auction Service', () => {
     it('should handle auction with no winner', async () => {
       const mockNFT = {
         _id: 'nft123',
+        marketStatus: 'Listed',
         save: jest.fn()
       };
 

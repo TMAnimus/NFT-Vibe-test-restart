@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import {
   BrowserRouter as Router,
@@ -106,14 +106,14 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route 
-          path="/" 
+        <Route
+          path="/"
           element={isAuthenticated() ? <Marketplace /> : <Navigate to="/login" />}
         />
       </Routes>
-      <NotificationToast 
-        notifications={notifications} 
-        onRemove={removeNotification} 
+      <NotificationToast
+        notifications={notifications}
+        onRemove={removeNotification}
       />
     </Router>
   );
