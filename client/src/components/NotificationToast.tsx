@@ -26,28 +26,17 @@ const NotificationToast: React.FC<NotificationToastProps> = ({ notifications, on
     });
   }, [notifications, onRemove]);
 
-  const getNotificationStyle = (type: string) => {
-    const baseStyle = {
-      padding: '12px 16px',
-      marginBottom: '8px',
-      borderRadius: '6px',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'flex-start',
-      minWidth: '300px',
-      maxWidth: '400px',
-      animation: 'slideIn 0.3s ease-out'
+  const getNotificationClasses = (type: string) => {
+    const baseClasses = "p-3 mb-2 rounded-md shadow-lg flex justify-between items-start min-w-[300px] max-w-[400px] animate-slideIn";
+    
+    const typeClasses = {
+      success: "bg-green-100 text-green-800 border border-green-200",
+      error: "bg-red-100 text-red-800 border border-red-200", 
+      info: "bg-blue-100 text-blue-800 border border-blue-200",
+      warning: "bg-yellow-100 text-yellow-800 border border-yellow-200"
     };
 
-    const typeStyles = {
-      success: { backgroundColor: '#d4edda', color: '#155724', border: '1px solid #c3e6cb' },
-      error: { backgroundColor: '#f8d7da', color: '#721c24', border: '1px solid #f5c6cb' },
-      info: { backgroundColor: '#d1ecf1', color: '#0c5460', border: '1px solid #bee5eb' },
-      warning: { backgroundColor: '#fff3cd', color: '#856404', border: '1px solid #ffeaa7' }
-    };
-
-    return { ...baseStyle, ...typeStyles[type as keyof typeof typeStyles] };
+    return `${baseClasses} ${typeClasses[type as keyof typeof typeClasses] || typeClasses.info}`;
   };
 
   const getIcon = (type: string) => {
@@ -76,45 +65,30 @@ const NotificationToast: React.FC<NotificationToastProps> = ({ notifications, on
               opacity: 1;
             }
           }
+          .animate-slideIn {
+            animation: slideIn 0.3s ease-out;
+          }
         `}
       </style>
-      <div style={{
-        position: 'fixed',
-        top: '20px',
-        right: '20px',
-        zIndex: 9999,
-        display: 'flex',
-        flexDirection: 'column'
-      }}>
+      <div className="fixed top-5 right-5 z-[9999] flex flex-col">
         {notifications.map(notification => (
-          <div key={notification.id} style={getNotificationStyle(notification.type)}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', flex: 1 }}>
-              <span style={{ marginRight: '8px', fontSize: '16px' }}>
+          <div key={notification.id} className={getNotificationClasses(notification.type)}>
+            <div className="flex items-start flex-1">
+              <span className="mr-2 text-base">
                 {getIcon(notification.type)}
               </span>
               <div>
-                <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
+                <div className="font-bold mb-1">
                   {notification.title}
                 </div>
-                <div style={{ fontSize: '14px' }}>
+                <div className="text-sm">
                   {notification.message}
                 </div>
               </div>
             </div>
             <button
               onClick={() => onRemove(notification.id)}
-              style={{
-                background: 'none',
-                border: 'none',
-                fontSize: '18px',
-                cursor: 'pointer',
-                marginLeft: '8px',
-                opacity: 0.7,
-                padding: '0',
-                lineHeight: '1'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-              onMouseLeave={(e) => e.currentTarget.style.opacity = '0.7'}
+              className="bg-transparent border-none text-lg cursor-pointer ml-2 opacity-70 p-0 leading-none hover:opacity-100"
             >
               ×
             </button>

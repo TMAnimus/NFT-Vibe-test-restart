@@ -159,24 +159,8 @@ const MyAuctions: React.FC<MyAuctionsProps> = ({ onClose }) => {
 
   if (loading) {
     return (
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 1000
-      }}>
-        <div style={{
-          backgroundColor: 'white',
-          padding: '20px',
-          borderRadius: '8px',
-          textAlign: 'center'
-        }}>
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[1000]">
+        <div className="bg-white p-5 rounded-lg text-center">
           Loading auction data...
         </div>
       </div>
@@ -184,79 +168,44 @@ const MyAuctions: React.FC<MyAuctionsProps> = ({ onClose }) => {
   }
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0,0,0,0.5)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 1000
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        padding: '20px',
-        borderRadius: '8px',
-        width: '90%',
-        maxWidth: '800px',
-        maxHeight: '90vh',
-        overflow: 'auto'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h2 style={{ margin: 0 }}>My Auction Activity</h2>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[1000]">
+      <div className="bg-white p-5 rounded-lg w-[90%] max-w-[800px] max-h-[90vh] overflow-auto">
+        <div className="flex justify-between items-center mb-5">
+          <h2 className="m-0 text-2xl font-bold">My Auction Activity</h2>
           <button 
             onClick={onClose}
-            style={{
-              background: 'none',
-              border: 'none',
-              fontSize: '24px',
-              cursor: 'pointer',
-              color: '#6c757d'
-            }}
+            className="bg-transparent border-none text-2xl cursor-pointer text-gray-500 hover:text-gray-700"
           >
             ×
           </button>
         </div>
 
         {error && (
-          <div style={{ color: '#dc3545', marginBottom: '20px', textAlign: 'center' }}>
+          <div className="text-red-600 mb-5 text-center">
             {error}
           </div>
         )}
 
         {/* Tab Navigation */}
-        <div style={{ marginBottom: '20px' }}>
-          <div style={{ display: 'flex', borderBottom: '2px solid #e9ecef' }}>
+        <div className="mb-5">
+          <div className="flex border-b-2 border-gray-200">
             <button
               onClick={() => setActiveTab('selling')}
-              style={{
-                padding: '10px 20px',
-                border: 'none',
-                backgroundColor: 'transparent',
-                borderBottom: activeTab === 'selling' ? '2px solid #007bff' : 'none',
-                color: activeTab === 'selling' ? '#007bff' : '#6c757d',
-                cursor: 'pointer',
-                fontSize: '16px',
-                fontWeight: activeTab === 'selling' ? 'bold' : 'normal'
-              }}
+              className={`px-5 py-2.5 border-none bg-transparent cursor-pointer text-base ${
+                activeTab === 'selling' 
+                  ? 'border-b-2 border-blue-600 text-blue-600 font-bold' 
+                  : 'text-gray-500 font-normal'
+              }`}
             >
               🏪 My Auctions ({myAuctions.length})
             </button>
             <button
               onClick={() => setActiveTab('bidding')}
-              style={{
-                padding: '10px 20px',
-                border: 'none',
-                backgroundColor: 'transparent',
-                borderBottom: activeTab === 'bidding' ? '2px solid #007bff' : 'none',
-                color: activeTab === 'bidding' ? '#007bff' : '#6c757d',
-                cursor: 'pointer',
-                fontSize: '16px',
-                fontWeight: activeTab === 'bidding' ? 'bold' : 'normal'
-              }}
+              className={`px-5 py-2.5 border-none bg-transparent cursor-pointer text-base ${
+                activeTab === 'bidding' 
+                  ? 'border-b-2 border-blue-600 text-blue-600 font-bold' 
+                  : 'text-gray-500 font-normal'
+              }`}
             >
               🎯 My Bids ({myBids.length})
             </button>
@@ -267,24 +216,19 @@ const MyAuctions: React.FC<MyAuctionsProps> = ({ onClose }) => {
         {activeTab === 'selling' && (
           <div>
             {myAuctions.length === 0 ? (
-              <p style={{ textAlign: 'center', color: '#6c757d', padding: '40px' }}>
+              <p className="text-center text-gray-500 py-10">
                 You haven't created any auctions yet.
               </p>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <div className="flex flex-col gap-4">
                 {myAuctions.map((auction) => (
-                  <div key={auction._id} style={{
-                    border: '1px solid #dee2e6',
-                    borderRadius: '8px',
-                    padding: '15px',
-                    backgroundColor: '#f8f9fa'
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                  <div key={auction._id} className="border border-gray-300 rounded-lg p-4 bg-gray-50">
+                    <div className="flex justify-between items-start mb-2.5">
                       <div>
-                        <h4 style={{ margin: '0 0 5px 0', color: '#495057' }}>
+                        <h4 className="m-0 mb-1.5 text-gray-700">
                           {getAuctionTypeIcon(auction.auctionType)} {formatNFTDescription(auction.nftId)}
                         </h4>
-                        <div style={{ fontSize: '12px', color: '#6c757d', marginBottom: '5px' }}>
+                        <div className="text-xs text-gray-500 mb-1.5">
                           <span style={{ color: getRarityColor(auction.nftId.colorRarity) }}>
                             Color: {auction.nftId.colorRarity}
                           </span>
@@ -298,41 +242,37 @@ const MyAuctions: React.FC<MyAuctionsProps> = ({ onClose }) => {
                           )}
                         </div>
                       </div>
-                      <span style={{
-                        backgroundColor: auction.auctionStatus === 'active' ? '#28a745' : 
-                                       auction.auctionStatus === 'ended' ? '#007bff' : '#6c757d',
-                        color: 'white',
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        fontSize: '12px'
-                      }}>
+                      <span className={`text-white px-2 py-1 rounded text-xs ${
+                        auction.auctionStatus === 'active' ? 'bg-green-600' : 
+                        auction.auctionStatus === 'ended' ? 'bg-blue-600' : 'bg-gray-500'
+                      }`}>
                         {auction.auctionStatus.toUpperCase()}
                       </span>
                     </div>
                     
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="flex justify-between items-center">
                       <div>
-                        <div style={{ fontSize: '14px', marginBottom: '5px' }}>
+                        <div className="text-sm mb-1.5">
                           <strong>Starting Bid:</strong> ${auction.startingBid}
                           {auction.currentBid && (
-                            <span style={{ marginLeft: '15px' }}>
+                            <span className="ml-4">
                               <strong>Current Bid:</strong> ${auction.currentBid}
                             </span>
                           )}
                         </div>
                         {auction.winnerId && (
-                          <div style={{ fontSize: '14px', color: '#28a745' }}>
+                          <div className="text-sm text-green-600">
                             <strong>Winner:</strong> {auction.winnerId.username}
                           </div>
                         )}
                       </div>
-                      <div style={{ textAlign: 'right', fontSize: '14px' }}>
+                      <div className="text-right text-sm">
                         {auction.auctionStatus === 'active' ? (
-                          <div style={{ color: '#007bff' }}>
+                          <div className="text-blue-600">
                             ⏰ {getTimeRemaining(auction.endTime)}
                           </div>
                         ) : (
-                          <div style={{ color: '#6c757d' }}>
+                          <div className="text-gray-500">
                             Ended {new Date(auction.endTime).toLocaleDateString()}
                           </div>
                         )}
@@ -349,26 +289,21 @@ const MyAuctions: React.FC<MyAuctionsProps> = ({ onClose }) => {
         {activeTab === 'bidding' && (
           <div>
             {myBids.length === 0 ? (
-              <p style={{ textAlign: 'center', color: '#6c757d', padding: '40px' }}>
+              <p className="text-center text-gray-500 py-10">
                 You haven't placed any bids yet.
               </p>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <div className="flex flex-col gap-4">
                 {myBids.map((bid) => {
                   const bidStatus = getBidStatus(bid);
                   return (
-                    <div key={bid._id} style={{
-                      border: '1px solid #dee2e6',
-                      borderRadius: '8px',
-                      padding: '15px',
-                      backgroundColor: '#f8f9fa'
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                    <div key={bid._id} className="border border-gray-300 rounded-lg p-4 bg-gray-50">
+                      <div className="flex justify-between items-start mb-2.5">
                         <div>
-                          <h4 style={{ margin: '0 0 5px 0', color: '#495057' }}>
+                          <h4 className="m-0 mb-1.5 text-gray-700">
                             {formatNFTDescription(bid.auctionId.nftId)}
                           </h4>
-                          <div style={{ fontSize: '12px', color: '#6c757d', marginBottom: '5px' }}>
+                          <div className="text-xs text-gray-500 mb-1.5">
                             <span style={{ color: getRarityColor(bid.auctionId.nftId.colorRarity) }}>
                               Color: {bid.auctionId.nftId.colorRarity}
                             </span>
@@ -382,34 +317,31 @@ const MyAuctions: React.FC<MyAuctionsProps> = ({ onClose }) => {
                             )}
                           </div>
                         </div>
-                        <span style={{
-                          backgroundColor: bidStatus.color,
-                          color: 'white',
-                          padding: '4px 8px',
-                          borderRadius: '4px',
-                          fontSize: '12px'
-                        }}>
+                        <span 
+                          className="text-white px-2 py-1 rounded text-xs"
+                          style={{ backgroundColor: bidStatus.color }}
+                        >
                           {bidStatus.status}
                         </span>
                       </div>
                       
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div className="flex justify-between items-center">
                         <div>
-                          <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#007bff', marginBottom: '5px' }}>
+                          <div className="text-base font-bold text-blue-600 mb-1.5">
                             Your Bid: ${bid.bidAmount}
-                            {bid.isAutobid && <span style={{ fontSize: '12px', marginLeft: '8px' }}>(Auto)</span>}
+                            {bid.isAutobid && <span className="text-xs ml-2">(Auto)</span>}
                           </div>
-                          <div style={{ fontSize: '12px', color: '#6c757d' }}>
+                          <div className="text-xs text-gray-500">
                             Placed: {new Date(bid.bidTime).toLocaleString()}
                           </div>
                         </div>
-                        <div style={{ textAlign: 'right', fontSize: '14px' }}>
+                        <div className="text-right text-sm">
                           {bid.auctionId.auctionStatus === 'active' ? (
-                            <div style={{ color: '#007bff' }}>
+                            <div className="text-blue-600">
                               ⏰ {getTimeRemaining(bid.auctionId.endTime)}
                             </div>
                           ) : (
-                            <div style={{ color: '#6c757d' }}>
+                            <div className="text-gray-500">
                               Ended {new Date(bid.auctionId.endTime).toLocaleDateString()}
                             </div>
                           )}

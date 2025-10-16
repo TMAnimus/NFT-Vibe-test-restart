@@ -99,38 +99,13 @@ const CreateListing: React.FC<CreateListingProps> = ({ userNFTs, onCreateListing
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0,0,0,0.5)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 1000
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        padding: '30px',
-        borderRadius: '8px',
-        width: '90%',
-        maxWidth: '500px',
-        maxHeight: '90vh',
-        overflow: 'auto'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h2 style={{ margin: 0 }}>Create New Listing</h2>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[1000]">
+      <div className="bg-white p-8 rounded-lg w-[90%] max-w-[500px] max-h-[90vh] overflow-auto">
+        <div className="flex justify-between items-center mb-5">
+          <h2 className="m-0 text-2xl font-bold">Create New Listing</h2>
           <button 
             onClick={onClose}
-            style={{
-              background: 'none',
-              border: 'none',
-              fontSize: '24px',
-              cursor: 'pointer',
-              color: '#6c757d'
-            }}
+            className="bg-transparent border-none text-2xl cursor-pointer text-gray-500 hover:text-gray-700"
           >
             ×
           </button>
@@ -138,19 +113,14 @@ const CreateListing: React.FC<CreateListingProps> = ({ userNFTs, onCreateListing
 
         <form onSubmit={handleSubmit}>
           {/* NFT Selection */}
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+          <div className="mb-5">
+            <label className="block mb-2 font-bold">
               Select NFT to List:
             </label>
             <select
               value={selectedNFT}
               onChange={(e) => setSelectedNFT(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '8px',
-                border: '1px solid #ccc',
-                borderRadius: '4px'
-              }}
+              className="w-full p-2 border border-gray-300 rounded"
               required
             >
               <option value="">Choose an NFT...</option>
@@ -161,35 +131,35 @@ const CreateListing: React.FC<CreateListingProps> = ({ userNFTs, onCreateListing
               ))}
             </select>
             {availableNFTs.length === 0 && (
-              <p style={{ color: '#6c757d', fontSize: '14px', margin: '5px 0' }}>
+              <p className="text-gray-500 text-sm my-1.5">
                 No NFTs available to list. You need to own NFTs to create listings.
               </p>
             )}
           </div>
 
           {/* Listing Type Selection */}
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+          <div className="mb-5">
+            <label className="block mb-2 font-bold">
               Listing Type:
             </label>
-            <div style={{ display: 'flex', gap: '15px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+            <div className="flex gap-4">
+              <label className="flex items-center cursor-pointer">
                 <input
                   type="radio"
                   value="fixed"
                   checked={listingType === 'fixed'}
                   onChange={(e) => setListingType(e.target.value as 'fixed' | 'auction')}
-                  style={{ marginRight: '8px' }}
+                  className="mr-2"
                 />
                 🏷️ Fixed Price Sale
               </label>
-              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+              <label className="flex items-center cursor-pointer">
                 <input
                   type="radio"
                   value="auction"
                   checked={listingType === 'auction'}
                   onChange={(e) => setListingType(e.target.value as 'fixed' | 'auction')}
-                  style={{ marginRight: '8px' }}
+                  className="mr-2"
                 />
                 🔨 Auction
               </label>
@@ -198,10 +168,10 @@ const CreateListing: React.FC<CreateListingProps> = ({ userNFTs, onCreateListing
 
           {/* Fixed Price Fields */}
           {listingType === 'fixed' && (
-            <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
-              <h4 style={{ margin: '0 0 15px 0' }}>Fixed Price Sale</h4>
+            <div className="mb-5 p-4 bg-gray-50 rounded">
+              <h4 className="m-0 mb-4 text-lg font-semibold">Fixed Price Sale</h4>
               <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+                <label className="block mb-2 font-bold">
                   Sale Price ($):
                 </label>
                 <input
@@ -210,16 +180,11 @@ const CreateListing: React.FC<CreateListingProps> = ({ userNFTs, onCreateListing
                   onChange={(e) => setFixedPrice(Number(e.target.value))}
                   min="1"
                   step="1"
-                  style={{
-                    width: '100%',
-                    padding: '8px',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px'
-                  }}
+                  className="w-full p-2 border border-gray-300 rounded"
                   placeholder="Enter sale price"
                   required
                 />
-                <p style={{ fontSize: '12px', color: '#6c757d', margin: '5px 0' }}>
+                <p className="text-xs text-gray-500 my-1.5">
                   Buyers can purchase immediately at this price
                 </p>
               </div>
@@ -228,23 +193,18 @@ const CreateListing: React.FC<CreateListingProps> = ({ userNFTs, onCreateListing
 
           {/* Auction Fields */}
           {listingType === 'auction' && (
-            <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#e3f2fd', borderRadius: '4px' }}>
-              <h4 style={{ margin: '0 0 15px 0' }}>Auction Settings</h4>
+            <div className="mb-5 p-4 bg-blue-50 rounded">
+              <h4 className="m-0 mb-4 text-lg font-semibold">Auction Settings</h4>
               
               {/* Auction Type */}
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+              <div className="mb-4">
+                <label className="block mb-2 font-bold">
                   Auction Type:
                 </label>
                 <select
                   value={auctionType}
                   onChange={(e) => setAuctionType(e.target.value as 'standard' | 'dutch' | 'reserve')}
-                  style={{
-                    width: '100%',
-                    padding: '8px',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px'
-                  }}
+                  className="w-full p-2 border border-gray-300 rounded"
                 >
                   <option value="standard">🔨 Standard Auction (bids increase)</option>
                   <option value="dutch">⚡ Dutch Auction (price decreases)</option>
@@ -253,8 +213,8 @@ const CreateListing: React.FC<CreateListingProps> = ({ userNFTs, onCreateListing
               </div>
 
               {/* Starting Bid */}
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+              <div className="mb-4">
+                <label className="block mb-2 font-bold">
                   {auctionType === 'dutch' ? 'Starting Price ($):' : 'Starting Bid ($):'}
                 </label>
                 <input
@@ -263,20 +223,15 @@ const CreateListing: React.FC<CreateListingProps> = ({ userNFTs, onCreateListing
                   onChange={(e) => setStartingBid(Number(e.target.value))}
                   min="1"
                   step="1"
-                  style={{
-                    width: '100%',
-                    padding: '8px',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px'
-                  }}
+                  className="w-full p-2 border border-gray-300 rounded"
                   placeholder={auctionType === 'dutch' ? 'Enter starting price' : 'Enter minimum bid'}
                   required
                 />
               </div>
 
               {/* Duration */}
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+              <div className="mb-4">
+                <label className="block mb-2 font-bold">
                   Duration: {getDurationDisplay(duration)}
                 </label>
                 <input
@@ -286,9 +241,9 @@ const CreateListing: React.FC<CreateListingProps> = ({ userNFTs, onCreateListing
                   min="60"
                   max="3600"
                   step="60"
-                  style={{ width: '100%' }}
+                  className="w-full"
                 />
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#6c757d' }}>
+                <div className="flex justify-between text-xs text-gray-500">
                   <span>1m</span>
                   <span>30m</span>
                   <span>1h</span>
@@ -297,8 +252,8 @@ const CreateListing: React.FC<CreateListingProps> = ({ userNFTs, onCreateListing
 
               {/* Reserve Price (only for reserve auctions) */}
               {auctionType === 'reserve' && (
-                <div style={{ marginBottom: '15px' }}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+                <div className="mb-4">
+                  <label className="block mb-2 font-bold">
                     Reserve Price ($) - Optional:
                   </label>
                   <input
@@ -307,34 +262,29 @@ const CreateListing: React.FC<CreateListingProps> = ({ userNFTs, onCreateListing
                     onChange={(e) => setReservePrice(Number(e.target.value))}
                     min="0"
                     step="1"
-                    style={{
-                      width: '100%',
-                      padding: '8px',
-                      border: '1px solid #ccc',
-                      borderRadius: '4px'
-                    }}
+                    className="w-full p-2 border border-gray-300 rounded"
                     placeholder="Hidden minimum price (optional)"
                   />
-                  <p style={{ fontSize: '12px', color: '#6c757d', margin: '5px 0' }}>
+                  <p className="text-xs text-gray-500 my-1.5">
                     Auction won't sell below this price (hidden from bidders)
                   </p>
                 </div>
               )}
 
               {/* Auction Type Descriptions */}
-              <div style={{ fontSize: '12px', color: '#6c757d', backgroundColor: 'white', padding: '10px', borderRadius: '4px' }}>
+              <div className="text-xs text-gray-500 bg-white p-2.5 rounded">
                 {auctionType === 'standard' && (
-                  <p style={{ margin: 0 }}>
+                  <p className="m-0">
                     <strong>Standard Auction:</strong> Bidders compete by placing higher bids. Highest bid wins when time expires.
                   </p>
                 )}
                 {auctionType === 'dutch' && (
-                  <p style={{ margin: 0 }}>
+                  <p className="m-0">
                     <strong>Dutch Auction:</strong> Price starts high and decreases over time. First bidder at current price wins.
                   </p>
                 )}
                 {auctionType === 'reserve' && (
-                  <p style={{ margin: 0 }}>
+                  <p className="m-0">
                     <strong>Reserve Auction:</strong> Like standard auction, but won't sell below your hidden reserve price.
                   </p>
                 )}
@@ -343,32 +293,22 @@ const CreateListing: React.FC<CreateListingProps> = ({ userNFTs, onCreateListing
           )}
 
           {/* Submit Buttons */}
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+          <div className="flex gap-2.5 justify-end">
             <button
               type="button"
               onClick={onClose}
-              style={{
-                padding: '10px 20px',
-                border: '1px solid #6c757d',
-                backgroundColor: 'white',
-                color: '#6c757d',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
+              className="px-5 py-2.5 border border-gray-500 bg-white text-gray-500 rounded cursor-pointer hover:bg-gray-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={availableNFTs.length === 0}
-              style={{
-                padding: '10px 20px',
-                border: 'none',
-                backgroundColor: availableNFTs.length === 0 ? '#6c757d' : '#007bff',
-                color: 'white',
-                borderRadius: '4px',
-                cursor: availableNFTs.length === 0 ? 'not-allowed' : 'pointer'
-              }}
+              className={`px-5 py-2.5 border-none text-white rounded ${
+                availableNFTs.length === 0 
+                  ? 'bg-gray-500 cursor-not-allowed' 
+                  : 'bg-blue-600 cursor-pointer hover:bg-blue-700'
+              }`}
             >
               {listingType === 'fixed' ? 'List for Sale' : 'Start Auction'}
             </button>
