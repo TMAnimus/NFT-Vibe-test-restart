@@ -3,7 +3,7 @@
 ## Overview
 Complete API documentation for the NFT Trading Game, including authentication, marketplace, auction system, notifications, and real-time features.
 
-**Base URL**: `http://localhost:3001/api`  
+**Base URL**: `http://localhost:3000/api`  
 **Authentication**: JWT Bearer Token  
 **Real-time**: Socket.IO for live updates
 
@@ -121,6 +121,12 @@ Generate a new NFT from a collection.
   "collectionName": "Crypto Toasters"
 }
 ```
+
+**Available Collections:**
+- Apathetic Axolotls, Crypto Bananas, Cynical Capybaras
+- Distracted Degenerates, Disinterested Ducks, Crypto Lamps  
+- Crypto Mugs, Crypto Clips, Crypto Pencils, Crypto Plants
+- Crypto Potatoes, Sleepy Sloths, Crypto Socks, Crypto Toast, Crypto Toasters
 
 **Response (201):**
 ```json
@@ -695,7 +701,7 @@ const socket = io({
 ## Development & Testing
 
 ### Swagger UI
-Interactive API documentation available at: `http://localhost:3001/api-docs`
+Interactive API documentation available at: `http://localhost:3000/api-docs`
 
 ### Test Coverage
 - **104/104 tests passing** ✅
@@ -710,6 +716,15 @@ See `server/docs/environment-variables.md` for configuration options.
 ---
 
 ## Changelog
+
+### Version 3.1 - Modern Frontend ✅ **LATEST**
+- **NEW**: React + TypeScript + Tailwind CSS frontend implementation
+- **NEW**: Interactive auction components with real-time countdown timers
+- **NEW**: Modern UI with responsive design and custom component classes
+- **NEW**: Enhanced NFT generation interface with all 15 collections
+- **ENHANCED**: Improved user experience with modal dialogs and form validation
+- **ENHANCED**: Real-time notifications with custom toast animations
+- **ENHANCED**: Production-ready build process with Vite and optimized CSS
 
 ### Version 3.0 - Auction System ✅
 - **NEW**: Complete auction system with Standard, Dutch, and Reserve auctions

@@ -28,8 +28,8 @@ const swaggerOptions = {
         openapi: '3.0.0',
         info: {
             title: 'NFT Trading Game API',
-            version: '1.0.0',
-            description: 'API documentation for the NFT Trading Game',
+            version: '3.1.0',
+            description: 'Complete API documentation for the NFT Trading Game with auction system and real-time features',
         },
         components: {
             securitySchemes: {

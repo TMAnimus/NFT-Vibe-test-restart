@@ -37,8 +37,9 @@ const router = express.Router();
  *             properties:
  *               collectionName:
  *                 type: string
- *                 description: The name of the collection to generate an NFT from.
+ *                 description: The name of the collection to generate an NFT from. Available collections include Apathetic Axolotls, Crypto Bananas, Cynical Capybaras, Distracted Degenerates, Disinterested Ducks, Crypto Lamps, Crypto Mugs, Crypto Clips, Crypto Pencils, Crypto Plants, Crypto Potatoes, Sleepy Sloths, Crypto Socks, Crypto Toast, and Crypto Toasters.
  *                 example: "Crypto Toasters"
+ *                 enum: ["Apathetic Axolotls", "Crypto Bananas", "Cynical Capybaras", "Distracted Degenerates", "Disinterested Ducks", "Crypto Lamps", "Crypto Mugs", "Crypto Clips", "Crypto Pencils", "Crypto Plants", "Crypto Potatoes", "Sleepy Sloths", "Crypto Socks", "Crypto Toast", "Crypto Toasters"]
  *     responses:
  *       201:
  *         description: NFT generated successfully.
