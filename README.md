@@ -112,3 +112,51 @@ cd client && npm install && npm run dev
 ```
 
 **Access**: Frontend at http://localhost:5173, Backend API at http://localhost:3000/api-docs
+
+## Testing
+
+### Quick Health Check
+Run the automated health check to verify everything is set up correctly:
+
+**Windows:**
+```bash
+test-quick.bat
+```
+
+**Linux/Mac:**
+```bash
+chmod +x test-quick.sh
+./test-quick.sh
+```
+
+### Manual Testing
+See [TESTING_GUIDE.md](TESTING_GUIDE.md) for comprehensive manual testing scenarios including:
+- User registration and login
+- NFT generation and management
+- Fixed-price marketplace operations
+- All three auction types (Standard, Dutch, Reserve)
+- Real-time features and notifications
+- Edge cases and error handling
+
+### API Testing
+Test all API endpoints automatically:
+
+**Linux/Mac:**
+```bash
+chmod +x test-api.sh
+./test-api.sh
+```
+
+Or use the Swagger UI at http://localhost:3000/api-docs
+
+### Automated Tests
+```bash
+# Backend tests (104 tests)
+cd server && npm test
+
+# Frontend tests
+cd client && npm test
+
+# Run specific test suite
+cd server && npm test -- marketplace.test.ts
+```
