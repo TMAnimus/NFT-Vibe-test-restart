@@ -1,68 +1,181 @@
 # Frontend Overview
 
 ## Tech Stack
-- **Current:** React, TypeScript, and CSS.
-- **Real-time:** Socket.IO for live marketplace updates and notifications.
+- **Framework:** React 19 + TypeScript
+- **Styling:** Tailwind CSS v3 with custom component classes
+- **Real-time:** Socket.IO client for live marketplace and auction updates
+- **Build:** Vite with optimised production bundles
+- **Testing:** Jest + React Testing Library
 
-## Key Features ✅ IMPLEMENTED
-- **Real-time Marketplace:** The UI updates in real-time to show new NFT listings, sales, and price changes without needing to refresh the page. This is powered by Socket.IO events from the backend.
-- **Auction System:** ✅ **NEW** - Interactive auction interface with live bidding, countdown timers, and real-time updates
-- **Seller Choice Interface:** ✅ **NEW** - Unified listing creation allowing sellers to choose between fixed-price sales and auctions
-- **Text-Based NFTs:** In the current version, NFTs are represented as text descriptions. There are no images associated with NFTs. For example, an NFT might be "A sentient JPEG of a toaster."
-- **Real-time Notifications:** Users receive real-time pop-up notifications for marketplace events, auction updates, and bidding activity
+## Project Structure
 
-## Connection to Backend
-The frontend communicates with the backend primarily through a Socket.IO connection. This allows for the real-time features that are central to the gameplay experience. User authentication is handled via JWTs, which are used to secure the Socket.IO connection.
+```
+client/src/
+├── types/
+│   └── index.ts          # Shared types mirroring server-side enums
+├── components/
+│   ├── Marketplace.tsx   # Main marketplace view (fixed-price + auctions)
+│   ├── AuctionCard.tsx   # Individual auction card with live countdown
+│   ├── CreateListing.tsx # Unified fixed-price / auction listing form
+│   ├── MyAuctions.tsx    # User's auctions and bids activity modal
+│   ├── GenerateNFT.tsx   # NFT generation modal
+│   ├── NotificationToast.tsx  # Toast notification system
+│   ├── Login.tsx
+│   └── Register.tsx
+├── services/
+│   └── api.ts            # All REST API calls
+└── App.tsx               # Router + global Socket.IO notification listener
+```
 
+## Shared Types (`client/src/types/index.ts`)
 
-## Auction System Implementation ✅ COMPLETE
+All component interfaces are defined once in `types/index.ts` and imported where needed — no more duplicated local interfaces. These mirror the server-side enums exactly.
 
-The auction system frontend has been **fully implemented** with comprehensive UI components and real-time functionality.
+```typescript
+export type MarketStatus = 'Owned' | 'Listed' | 'Auction' | 'Sold';
+export type AuctionType  = 'standard' | 'dutch' | 'reserve';
+export type AuctionStatus = 'active' | 'ended' | 'cancelled';
+export type Rarity = 'common' | 'uncommon' | 'rare' | 'veryRare' | 'notPresent';
 
-### ✅ Implemented UI Components
+export interface NFT { ... }
+export interface Auction { ... }
+```
 
-- **AuctionCard.tsx:** ✅ Interactive auction display component featuring:
-  - Live countdown timers with real-time updates
-  - Current bid display with winner information
-  - Auction type indicators (🔨 Standard, ⚡ Dutch, 💎 Reserve)
-  - Interactive bidding interface with minimum bid validation
-  - Real-time bid updates via Socket.IO
+### NFT Market Status
 
-- **CreateListing.tsx:** ✅ Unified listing creation interface allowing:
-  - Choice between fixed-price sales and auctions
-  - Auction type selection (Standard, Dutch, Reserve)
-  - Configurable auction duration with visual slider
-  - Reserve price setting for reserve auctions
-  - Helpful descriptions for each auction type
+| Status | Meaning | Can be listed? |
+|--------|---------|----------------|
+| `Owned` | Owned, not on market | ✅ Yes |
+| `Listed` | Fixed-price sale active | ❌ No |
+| `Auction` | Currently being auctioned | ❌ No |
+| `Sold` | Legacy/reserved | ❌ No |
 
-- **Enhanced Marketplace.tsx:** ✅ Updated marketplace with:
-  - Tabbed interface showing fixed-price listings and auctions separately
-  - Real-time updates for both listing types
-  - Integrated "Create Listing" button
-  - Live auction and fixed-price data fetching
+`CreateListing` filters `userNFTs` to only show `Owned` NFTs. The empty-state message explains why `Listed` and `Auction` NFTs are excluded.
 
-- **NotificationToast.tsx:** ✅ Real-time notification system with:
-  - Auction-specific notifications (outbid, won, ended)
-  - Auto-dismissing toast notifications
-  - Different notification types (success, warning, info, error)
-  - Clean animation and styling
+`Marketplace` renders a coloured status badge on each NFT card using a `MARKET_STATUS_BADGE` map:
 
-### ✅ Real-time Features Implemented
+```typescript
+const MARKET_STATUS_BADGE: Record<string, string> = {
+    Owned:   'bg-gray-400',
+    Listed:  'bg-blue-500',
+    Auction: 'bg-purple-600',
+    Sold:    'bg-green-600',
+};
+```
 
-- **Live Bidding:** ✅ UI updates instantly as new bids are placed via Socket.IO events
-- **Auction Status Updates:** ✅ Real-time auction status changes (active → ended) without page reload
-- **Price Updates:** ✅ Dutch auction price decreases shown in real-time
-- **Countdown Timers:** ✅ Live countdown timers updating every second
-- **Instant Notifications:** ✅ Real-time notifications for:
-  - Being outbid in an auction
-  - Winning an auction
-  - Auction ending notifications
-  - New bid alerts for sellers
+---
 
-### ✅ Socket.IO Integration
+## Components
 
-- **Auction Events:** `auctionCreated`, `bidPlaced`, `auctionEnded`, `auctionUpdated`
-- **Notification Events:** `notification`, `globalNotification`
-- **Room Management:** Automatic joining of marketplace and auction rooms
-- **Authentication:** JWT-based Socket.IO authentication
-- **Error Handling:** Graceful connection error handling and reconnection
+### `Marketplace.tsx`
+Main view. Fetches listed NFTs, active auctions, user NFTs, and user profile on mount. Sets up Socket.IO listeners for all real-time events. Renders tabbed navigation between fixed-price listings and auctions.
+
+**Socket.IO events handled:**
+- `listingCreated` — prepends new NFT to fixed-price list
+- `listingSold` — removes sold NFT from list
+- `auctionCreated` — prepends new auction
+- `bidPlaced` / `auctionUpdated` — updates auction in place
+- `auctionEnded` — removes ended auction
+
+### `AuctionCard.tsx`
+Displays a single auction with:
+- Live countdown timer (updates every second via `setInterval`)
+- Current price display (uses `dutchCurrentPrice` for Dutch auctions)
+- Auction type badge (🔨 / ⚡ / 💎)
+- Inline bid form with minimum bid validation
+- Seller badge when viewing your own auction
+
+### `CreateListing.tsx`
+Unified form for creating either a fixed-price listing or an auction. Only shows NFTs with `marketStatus === 'Owned'`. Auction section includes type selector, duration slider, and optional reserve price field.
+
+### `MyAuctions.tsx`
+Modal with two tabs:
+- **My Auctions** — auctions the user created as seller
+- **My Bids** — auctions the user has bid on, with Won/Lost/Active status
+
+### `GenerateNFT.tsx`
+Modal for generating a new NFT. Dropdown lists all 15 available collections.
+
+### `NotificationToast.tsx`
+Fixed-position toast stack (top-right). Notifications auto-dismiss after a configurable duration. Uses a custom `slideIn` CSS animation.
+
+### `App.tsx`
+Handles routing (Login / Register / Marketplace) and a global Socket.IO connection for personal `notification` and `globalNotification` events, which feed into the `NotificationToast`.
+
+---
+
+## Styling
+
+All components use **Tailwind CSS v3** utility classes. Custom component classes are defined in `client/src/index.css`:
+
+```css
+.btn-primary   { ... }
+.btn-success   { ... }
+.btn-secondary { ... }
+.btn-info      { ... }
+.card-auction  { ... }
+.input-field   { ... }
+.select-field  { ... }
+.modal-overlay { ... }
+.modal-content { ... }
+.rarity-common / uncommon / rare / very-rare  { ... }
+```
+
+Rarity colours for dynamic inline styles (where Tailwind can't be used with runtime values):
+
+```typescript
+const RARITY_COLORS: Record<string, string> = {
+    common:     '#6c757d',
+    uncommon:   '#28a745',
+    rare:       '#007bff',
+    veryRare:   '#6f42c1',
+    notPresent: '#6c757d',
+};
+```
+
+---
+
+## API Service (`client/src/services/api.ts`)
+
+All backend calls go through `api.ts`. Auth token is read from `localStorage` and attached as a `Bearer` header automatically via `getAuthHeaders()`.
+
+| Function | Method | Endpoint |
+|----------|--------|----------|
+| `registerPlayer` | POST | `/auth/register` |
+| `loginPlayer` | POST | `/auth/login` |
+| `getUserProfile` | GET | `/user/profile` |
+| `getUserNFTs` | GET | `/nft/my-nfts` |
+| `generateNFT` | POST | `/nft/generate` |
+| `getListedNFTs` | GET | `/marketplace/listed` |
+| `createFixedPriceListing` | POST | `/marketplace/list` |
+| `buyNFT` | POST | `/marketplace/buy/:id` |
+| `getActiveAuctions` | GET | `/auctions/active` |
+| `createAuction` | POST | `/auctions/create` |
+| `placeBid` | POST | `/auctions/:id/bid` |
+| `cancelAuction` | POST | `/auctions/:id/cancel` |
+| `getMyAuctions` | GET | `/auctions/my-auctions` |
+| `getMyBids` | GET | `/auctions/my-bids` |
+| `getAuctionDetails` | GET | `/auctions/:id` |
+
+---
+
+## Real-time Integration
+
+Two separate Socket.IO connections are used:
+
+1. **`App.tsx`** — global connection for personal notifications (`notification`, `globalNotification`)
+2. **`Marketplace.tsx`** — marketplace connection for live listing and auction updates
+
+Both authenticate with the JWT token stored in `localStorage`.
+
+---
+
+## Running the Frontend
+
+```bash
+cd client
+npm install
+npm run dev      # Development server at http://localhost:5173
+npm run build    # Production build
+npm test         # Run Jest tests
+```

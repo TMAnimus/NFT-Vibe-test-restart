@@ -115,7 +115,11 @@ router.get('/listed', async (req: Request, res: Response, next: any) => {
  * @openapi
  * /api/marketplace/list:
  *   post:
- *     summary: List an NFT for sale
+ *     summary: List an NFT for fixed-price sale
+ *     description: |
+ *       Lists an NFT on the fixed-price marketplace. The NFT must have `marketStatus: Owned`.
+ *       NFTs with `Listed` or `Auction` status cannot be listed again.
+ *       On success the NFT's `marketStatus` is set to `Listed`.
  *     tags: [Marketplace]
  *     security:
  *       - bearerAuth: []
@@ -229,6 +233,9 @@ router.post(
  * /api/marketplace/buy/{nftId}:
  *   post:
  *     summary: Buy an NFT from the marketplace
+ *     description: |
+ *       Purchases a `Listed` NFT. On success the NFT's `marketStatus` is set to `Owned`
+ *       and ownership transfers to the buyer.
  *     tags: [Marketplace]
  *     security:
  *       - bearerAuth: []

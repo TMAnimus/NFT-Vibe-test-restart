@@ -1,18 +1,5 @@
 import React, { useState } from 'react';
-
-interface NFT {
-  _id: string;
-  collectionName: string;
-  displayName: string;
-  color: string;
-  thing: string;
-  colorRarity: string;
-  propRarity: string;
-  props: Array<{ name: string; rarity: string }>;
-  currentPrice: number;
-  marketStatus: string;
-  isFirstOfSet?: boolean;
-}
+import type { NFT } from '../types';
 
 interface CreateListingProps {
   userNFTs: NFT[];
@@ -132,7 +119,7 @@ const CreateListing: React.FC<CreateListingProps> = ({ userNFTs, onCreateListing
             </select>
             {availableNFTs.length === 0 && (
               <p className="text-gray-500 text-sm my-1.5">
-                No NFTs available to list. You need to own NFTs to create listings.
+                No NFTs available to list. NFTs must have <strong>Owned</strong> status — NFTs currently <strong>Listed</strong> or <strong>Being Auctioned</strong> cannot be listed again.
               </p>
             )}
           </div>

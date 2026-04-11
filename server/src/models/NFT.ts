@@ -1,6 +1,6 @@
 import { Schema, model, Document, Types } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import { Rarity, CollectionStatus } from './enums';
+import { Rarity, CollectionStatus, MarketStatus } from './enums';
 
 export interface Prop {
   name: string;
@@ -52,7 +52,7 @@ const NFTSchema = new Schema<INFT>({
   status: { type: String, enum: Object.values(CollectionStatus), required: true },
   isFirstOfSet: { type: Boolean, default: false },
   basePrice: { type: Number, required: true },
-  marketStatus: { type: String, enum: ['Owned', 'Listed', 'Sold'], default: 'Listed' },
+  marketStatus: { type: String, enum: Object.values(MarketStatus), default: MarketStatus.Owned },
   collectionName: { type: String, required: true },
 }, { timestamps: true });
 

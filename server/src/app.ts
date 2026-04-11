@@ -28,7 +28,7 @@ const swaggerOptions = {
         openapi: '3.0.0',
         info: {
             title: 'NFT Trading Game API',
-            version: '3.1.0',
+            version: '3.2.0',
             description: 'Complete API documentation for the NFT Trading Game with auction system and real-time features',
         },
         components: {
@@ -41,7 +41,7 @@ const swaggerOptions = {
             },
         },
     },
-    apis: ['./src/index.ts', './src/routes/*.ts'], // Scan all files in the routes folder
+    apis: ['./src/index.ts', './src/routes/*.ts', './src/docs/*.ts'],
 };
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

@@ -28,3 +28,10 @@ export enum AuctionStatus {
   Ended = 'ended',
   Cancelled = 'cancelled',
 }
+
+export enum MarketStatus {
+  Owned = 'Owned',
+  Listed = 'Listed',
+  Sold = 'Sold',
+  Auction = 'Auction',
+}

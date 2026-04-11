@@ -142,6 +142,14 @@ Generate a new NFT from a collection.
 }
 ```
 
+**NFT Market Status Values:**
+| Status | Description |
+|--------|-------------|
+| `Owned` | NFT is owned and not listed — default state after generation or purchase |
+| `Listed` | NFT is listed for fixed-price sale on the marketplace |
+| `Auction` | NFT is currently being auctioned |
+| `Sold` | NFT has been sold (legacy/reserved state) |
+
 **Errors:**
 - `400`: Validation error
 - `404`: Collection not found
@@ -220,7 +228,7 @@ List an NFT for fixed-price sale.
 ```
 
 **Errors:**
-- `400`: Validation error or NFT already listed
+- `400`: Validation error or NFT not in `Owned` status (already listed or being auctioned)
 - `401`: User doesn't own the NFT
 - `404`: NFT not found
 
@@ -384,8 +392,9 @@ Create a new auction for an NFT.
 ```
 
 **Errors:**
-- `400`: Validation error or NFT already listed/auctioned
+- `400`: Validation error or NFT not in `Owned` status (already listed or being auctioned)
 - `401`: User doesn't own the NFT
+- `403`: NFT is currently being auctioned (`Auction` status)
 - `404`: NFT not found
 
 ### Place Bid
@@ -717,7 +726,21 @@ See `server/docs/environment-variables.md` for configuration options.
 
 ## Changelog
 
-### Version 3.1 - Modern Frontend ✅ **LATEST**
+### Version 3.2 - MarketStatus Enum ✅ **LATEST**
+- **NEW**: `MarketStatus` enum added to `server/src/models/enums.ts` with four states: `Owned`, `Listed`, `Auction`, `Sold`
+- **FIXED**: NFT schema now uses `Object.values(MarketStatus)` — `Auction` is now a valid enum value (was previously missing, causing silent Mongoose validation failures)
+- **FIXED**: Default `marketStatus` corrected from `Listed` → `Owned` (a newly generated NFT starts as owned, not listed)
+- **FIXED**: Cancelled and no-winner auctions now correctly reset NFT status to `Owned` instead of `Listed`
+- **IMPROVED**: All magic strings replaced with `MarketStatus` enum references across `auctionService.ts` and `marketplaceService.ts`
+
+### NFT Market Status State Machine
+```
+[Generated] ──► Owned ──► Listed ──► Owned  (after purchase)
+                  │
+                  └──► Auction ──► Owned    (after auction ends: won, no-winner, or cancelled)
+```
+
+### Version 3.1 - Modern Frontend ✅
 - **NEW**: React + TypeScript + Tailwind CSS frontend implementation
 - **NEW**: Interactive auction components with real-time countdown timers
 - **NEW**: Modern UI with responsive design and custom component classes

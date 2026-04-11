@@ -1,36 +1,5 @@
 import { useState, useEffect } from 'react';
-
-interface Auction {
-    _id: string;
-    id: string;
-    nftId: {
-        _id: string;
-        collectionName: string;
-        displayName: string;
-        color: string;
-        thing: string;
-        colorRarity: string;
-        propRarity: string;
-        props: Array<{ name: string; rarity: string }>;
-        currentPrice: number;
-        isFirstOfSet?: boolean;
-    };
-    sellerId: {
-        _id: string;
-        username: string;
-    };
-    auctionType: 'standard' | 'dutch' | 'reserve';
-    auctionStatus: 'active' | 'ended' | 'cancelled';
-    startingBid: number;
-    currentBid?: number;
-    reservePrice?: number;
-    dutchCurrentPrice?: number;
-    endTime: string;
-    winnerId?: {
-        _id: string;
-        username: string;
-    };
-}
+import type { Auction } from '../types';
 
 interface AuctionCardProps {
     auction: Auction;

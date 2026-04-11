@@ -367,7 +367,7 @@ describe('Auction Service', () => {
     it('should handle auction with no winner', async () => {
       const mockNFT = {
         _id: 'nft123',
-        marketStatus: 'Listed',
+        marketStatus: 'Auction',
         save: jest.fn()
       };
 
@@ -394,7 +394,7 @@ describe('Auction Service', () => {
 
       await endAuction('auction123');
 
-      expect(mockNFT.marketStatus).toBe('Listed');
+      expect(mockNFT.marketStatus).toBe('Owned');
       expect(mockSession.commitTransaction).toHaveBeenCalled();
     });
   });

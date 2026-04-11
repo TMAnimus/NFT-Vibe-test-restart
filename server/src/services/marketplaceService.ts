@@ -6,6 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import { TransactionModel } from '../models/Transaction';
 import { emitListingCreated, emitListingSold } from './socketService';
+import { MarketStatus } from '../models/enums';
 
 /**
  * Custom error for HTTP status codes
@@ -34,7 +35,7 @@ export const listNft = async (nftId: string, sellerId: string, price: number) =>
     throw new HttpError('User is not the owner of this NFT.', 401);
   }
 
-  nft.marketStatus = 'Listed';
+  nft.marketStatus = MarketStatus.Listed;
   nft.currentPrice = price;
 
   await nft.save();
@@ -59,7 +60,7 @@ export const buyNft = async (nftId: string, buyerId: string) => {
     if (!nft) {
       throw new HttpError('NFT not found.', 404);
     }
-    if (nft.marketStatus !== 'Listed') {
+    if (nft.marketStatus !== MarketStatus.Listed) {
       throw new HttpError('This NFT is not for sale.', 400);
     }
 
@@ -96,7 +97,7 @@ export const buyNft = async (nftId: string, buyerId: string) => {
     }
 
     nft.ownerId = buyer._id as any;
-    nft.marketStatus = 'Owned';
+    nft.marketStatus = MarketStatus.Owned;
 
     // Update the basePrice of the entire set to the sale price
     await NFTSetModel.updateOne(
@@ -238,7 +239,7 @@ export interface MarketSentiment {
  */
 export const updateAllListedNftPrices = async (marketSentiment?: MarketSentiment) => {
   try {
-    const queryResult: any = (NFTModel as any)?.find?.({ marketStatus: 'Listed' });
+    const queryResult: any = (NFTModel as any)?.find?.({ marketStatus: MarketStatus.Listed });
     const listedNfts: any[] = typeof queryResult?.lean === 'function' ? await queryResult.lean() : [];
     
     // Ensure listedNfts is always an array
@@ -399,7 +400,7 @@ export const getListedNfts = async (filters: {
   minPrice?: number;
   maxPrice?: number;
 } = {}) => {
-  const query: any = { marketStatus: 'Listed' };
+  const query: any = { marketStatus: MarketStatus.Listed };
   if (filters.colorRarity) query.colorRarity = filters.colorRarity;
   if (filters.propRarity) query.propRarity = filters.propRarity;
   if (filters.blockchain) query.blockchain = filters.blockchain;

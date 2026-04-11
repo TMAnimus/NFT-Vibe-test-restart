@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { 
-    getListedNFTs, 
-    getActiveAuctions, 
-    getUserNFTs, 
-    createFixedPriceListing, 
-    createAuction, 
-    placeBid, 
+import {
+    getListedNFTs,
+    getActiveAuctions,
+    getUserNFTs,
+    createFixedPriceListing,
+    createAuction,
+    placeBid,
     buyNFT,
     getUserProfile
 } from '../services/api';
@@ -14,56 +14,22 @@ import AuctionCard from './AuctionCard';
 import CreateListing from './CreateListing';
 import MyAuctions from './MyAuctions';
 import GenerateNFT from './GenerateNFT';
+import type { NFT, Auction } from '../types';
 
-interface NFT {
-    _id: string;
-    collectionName: string;
-    displayName: string;
-    color: string;
-    thing: string;
-    colorRarity: string;
-    propRarity: string;
-    props: Array<{ name: string; rarity: string }>;
-    currentPrice: number;
-    marketStatus: string;
-    isFirstOfSet?: boolean;
-    ownerId?: {
-        _id: string;
-        username: string;
-    };
-}
+const RARITY_COLORS: Record<string, string> = {
+    common: '#6c757d',
+    uncommon: '#28a745',
+    rare: '#007bff',
+    veryRare: '#6f42c1',
+    notPresent: '#6c757d',
+};
 
-interface Auction {
-    _id: string;
-    id: string;
-    nftId: {
-        _id: string;
-        collectionName: string;
-        displayName: string;
-        color: string;
-        thing: string;
-        colorRarity: string;
-        propRarity: string;
-        props: Array<{ name: string; rarity: string }>;
-        currentPrice: number;
-        isFirstOfSet?: boolean;
-    };
-    sellerId: {
-        _id: string;
-        username: string;
-    };
-    auctionType: 'standard' | 'dutch' | 'reserve';
-    auctionStatus: 'active' | 'ended' | 'cancelled';
-    startingBid: number;
-    currentBid?: number;
-    reservePrice?: number;
-    dutchCurrentPrice?: number;
-    endTime: string;
-    winnerId?: {
-        _id: string;
-        username: string;
-    };
-}
+const MARKET_STATUS_BADGE: Record<string, string> = {
+    Owned: 'bg-gray-400',
+    Listed: 'bg-blue-500',
+    Auction: 'bg-purple-600',
+    Sold: 'bg-green-600',
+};
 
 const Marketplace = () => {
     const [nfts, setNfts] = useState<NFT[]>([]);
@@ -71,10 +37,10 @@ const Marketplace = () => {
     const [userNFTs, setUserNFTs] = useState<NFT[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<'fixed' | 'auctions'>('fixed');
-    const [showCreateListing, setShowCreateListing] = useState<boolean>(false);
-    const [showMyAuctions, setShowMyAuctions] = useState<boolean>(false);
-    const [showGenerateNFT, setShowGenerateNFT] = useState<boolean>(false);
-    const [currentUserId, setCurrentUserId] = useState<string>('');
+    const [showCreateListing, setShowCreateListing] = useState(false);
+    const [showMyAuctions, setShowMyAuctions] = useState(false);
+    const [showGenerateNFT, setShowGenerateNFT] = useState(false);
+    const [currentUserId, setCurrentUserId] = useState('');
     const [userProfile, setUserProfile] = useState<any>(null);
 
     useEffect(() => {
@@ -86,13 +52,12 @@ const Marketplace = () => {
                     getUserNFTs(),
                     getUserProfile()
                 ]);
-                
+
                 setNfts(listedNfts);
                 setAuctions(activeAuctions);
                 setUserNFTs(myNFTs);
                 setUserProfile(profile);
-                
-                // Extract user ID from JWT token (simple decode)
+
                 const token = localStorage.getItem('jwt_token');
                 if (token) {
                     try {
@@ -109,153 +74,46 @@ const Marketplace = () => {
 
         fetchData();
 
-        // Setup Socket.IO
         const socket = io('http://localhost:3000', {
-            auth: {
-                token: localStorage.getItem('jwt_token'),
-            },
+            auth: { token: localStorage.getItem('jwt_token') },
         });
 
-        socket.on('connect', () => {
-            console.log('Connected to Socket.IO');
-        });
-
-        // Fixed-price listing events
         socket.on('listingCreated', (data: { nft: NFT }) => {
-            console.log('New listing created:', data.nft);
-            setNfts((prevNfts) => [data.nft, ...prevNfts]);
+            setNfts(prev => [data.nft, ...prev]);
         });
 
-        socket.on('listingSold', (data: { nft: NFT, buyer: string }) => {
-            console.log('NFT sold:', data);
-            setNfts((prevNfts) => prevNfts.filter(nft => nft._id !== data.nft._id));
+        socket.on('listingSold', (data: { nft: NFT }) => {
+            setNfts(prev => prev.filter(n => n._id !== data.nft._id));
         });
 
-        // Auction events
         socket.on('auctionCreated', (data: { auction: Auction }) => {
-            console.log('New auction created:', data.auction);
-            setAuctions((prevAuctions) => [data.auction, ...prevAuctions]);
+            setAuctions(prev => [data.auction, ...prev]);
         });
 
-        socket.on('bidPlaced', (data: { auction: Auction, bid: any }) => {
-            console.log('Bid placed:', data);
-            setAuctions((prevAuctions) => 
-                prevAuctions.map(auction => 
-                    auction._id === data.auction._id ? data.auction : auction
-                )
-            );
+        socket.on('bidPlaced', (data: { auction: Auction }) => {
+            setAuctions(prev => prev.map(a => a._id === data.auction._id ? data.auction : a));
         });
 
-        socket.on('auctionEnded', (data: { auction: Auction, winner?: string }) => {
-            console.log('Auction ended:', data);
-            setAuctions((prevAuctions) => 
-                prevAuctions.filter(auction => auction._id !== data.auction._id)
-            );
+        socket.on('auctionEnded', (data: { auction: Auction }) => {
+            setAuctions(prev => prev.filter(a => a._id !== data.auction._id));
         });
 
         socket.on('auctionUpdated', (data: { auction: Auction }) => {
-            console.log('Auction updated:', data.auction);
-            setAuctions((prevAuctions) => 
-                prevAuctions.map(auction => 
-                    auction._id === data.auction._id ? data.auction : auction
-                )
-            );
-        });
-
-        socket.on('disconnect', () => {
-            console.log('Disconnected from Socket.IO');
+            setAuctions(prev => prev.map(a => a._id === data.auction._id ? data.auction : a));
         });
 
         socket.on('connect_error', (err) => {
             console.error('Socket.IO connection error:', err.message);
         });
 
-        return () => {
-            socket.disconnect();
-        };
+        return () => { socket.disconnect(); };
     }, []);
-
-    const handleBuy = async (nftId: string) => {
-        try {
-            await buyNFT(nftId);
-            // Remove from listings
-            setNfts(prevNfts => prevNfts.filter(nft => nft._id !== nftId));
-            // Refresh user NFTs
-            const updatedUserNFTs = await getUserNFTs();
-            setUserNFTs(updatedUserNFTs);
-        } catch (err: any) {
-            alert(`Error buying NFT: ${err.message}`);
-        }
-    };
-
-    const handleBid = async (auctionId: string, bidAmount: number) => {
-        try {
-            await placeBid(auctionId, bidAmount);
-            // Real-time update will come via socket
-        } catch (err: any) {
-            alert(`Error placing bid: ${err.message}`);
-        }
-    };
-
-    const getRarityColor = (rarity: string) => {
-        const colors = {
-            'common': '#6c757d',
-            'uncommon': '#28a745', 
-            'rare': '#007bff',
-            'veryRare': '#6f42c1',
-            'notPresent': '#6c757d'
-        };
-        return colors[rarity as keyof typeof colors] || '#6c757d';
-    };
-
-    const formatNFTDescription = (nft: NFT) => {
-        let description = '';
-        
-        // Add FIRST OF SET indicator
-        if (nft.isFirstOfSet) {
-            description += '**FIRST OF SET** ';
-        }
-        
-        // Add color with rarity styling
-        description += nft.color;
-        
-        // Add thing/item
-        description += ` ${nft.thing}`;
-        
-        // Add props if any
-        if (nft.props && nft.props.length > 0) {
-            const propDescriptions = nft.props.map(prop => prop.name).join(', ');
-            description += ` with ${propDescriptions}`;
-        }
-        
-        return description;
-    };
-
-    const handleCreateListing = async (nftId: string, listingType: 'fixed' | 'auction', data: any) => {
-        try {
-            if (listingType === 'fixed') {
-                await createFixedPriceListing(nftId, data.price);
-            } else {
-                await createAuction(nftId, data);
-            }
-            
-            // Refresh data
-            await refreshData();
-            setShowCreateListing(false);
-        } catch (err: any) {
-            alert(`Error creating listing: ${err.message}`);
-        }
-    };
 
     const refreshData = async () => {
         try {
             const [listedNfts, activeAuctions, myNFTs, profile] = await Promise.all([
-                getListedNFTs(),
-                getActiveAuctions(),
-                getUserNFTs(),
-                getUserProfile()
+                getListedNFTs(), getActiveAuctions(), getUserNFTs(), getUserProfile()
             ]);
-            
             setNfts(listedNfts);
             setAuctions(activeAuctions);
             setUserNFTs(myNFTs);
@@ -265,171 +123,142 @@ const Marketplace = () => {
         }
     };
 
-    const handleNFTGenerated = async () => {
-        await refreshData();
+    const handleBuy = async (nftId: string) => {
+        try {
+            await buyNFT(nftId);
+            setNfts(prev => prev.filter(n => n._id !== nftId));
+            setUserNFTs(await getUserNFTs());
+        } catch (err: any) {
+            alert(`Error buying NFT: ${err.message}`);
+        }
+    };
+
+    const handleBid = async (auctionId: string, bidAmount: number) => {
+        try {
+            await placeBid(auctionId, bidAmount);
+        } catch (err: any) {
+            alert(`Error placing bid: ${err.message}`);
+        }
+    };
+
+    const handleCreateListing = async (nftId: string, listingType: 'fixed' | 'auction', data: any) => {
+        try {
+            if (listingType === 'fixed') {
+                await createFixedPriceListing(nftId, data.price);
+            } else {
+                await createAuction(nftId, data);
+            }
+            await refreshData();
+            setShowCreateListing(false);
+        } catch (err: any) {
+            alert(`Error creating listing: ${err.message}`);
+        }
+    };
+
+    const formatNFTDescription = (nft: NFT) => {
+        let desc = nft.isFirstOfSet ? '**FIRST OF SET** ' : '';
+        desc += nft.color + ` ${nft.thing}`;
+        if (nft.props?.length) {
+            desc += ` with ${nft.props.map(p => p.name).join(', ')}`;
+        }
+        return desc;
     };
 
     return (
-        <div style={{ padding: '20px' }}>
-            {/* Header with user info */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <div className="p-5">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-5">
                 <div>
-                    <h1 style={{ margin: '0 0 5px 0' }}>NFT Marketplace</h1>
+                    <h1 className="m-0 mb-1 text-3xl font-bold">NFT Marketplace</h1>
                     {userProfile && (
-                        <div style={{ fontSize: '14px', color: '#6c757d' }}>
-                            Welcome, <strong>{userProfile.username}</strong> • Balance: <strong style={{ color: '#28a745' }}>${userProfile.balance}</strong> • NFTs: <strong>{userProfile.nfts?.length || 0}</strong>
+                        <div className="text-sm text-gray-500">
+                            Welcome, <strong>{userProfile.username}</strong>
+                            {' • '}Balance: <strong className="text-green-600">${userProfile.balance}</strong>
+                            {' • '}NFTs: <strong>{userProfile.nfts?.length ?? 0}</strong>
                         </div>
                     )}
                 </div>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                    <button
-                        onClick={() => setShowGenerateNFT(true)}
-                        style={{
-                            backgroundColor: '#17a2b8',
-                            color: 'white',
-                            border: 'none',
-                            padding: '10px 20px',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '16px'
-                        }}
-                    >
+                <div className="flex gap-2.5">
+                    <button onClick={() => setShowGenerateNFT(true)} className="btn-info">
                         🎲 Generate NFT
                     </button>
-                    <button
-                        onClick={() => setShowMyAuctions(true)}
-                        style={{
-                            backgroundColor: '#6f42c1',
-                            color: 'white',
-                            border: 'none',
-                            padding: '10px 20px',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '16px'
-                        }}
-                    >
+                    <button onClick={() => setShowMyAuctions(true)} className="btn-secondary">
                         📊 My Activity
                     </button>
-                    <button
-                        onClick={() => setShowCreateListing(true)}
-                        style={{
-                            backgroundColor: '#28a745',
-                            color: 'white',
-                            border: 'none',
-                            padding: '10px 20px',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '16px'
-                        }}
-                    >
+                    <button onClick={() => setShowCreateListing(true)} className="btn-success">
                         + Create Listing
                     </button>
                 </div>
             </div>
 
-            {error && <p style={{ color: 'red', marginBottom: '20px' }}>{error}</p>}
+            {error && <p className="text-red-600 mb-5">{error}</p>}
 
             {/* Tab Navigation */}
-            <div style={{ marginBottom: '20px' }}>
-                <div style={{ display: 'flex', borderBottom: '2px solid #e9ecef' }}>
+            <div className="mb-5 border-b-2 border-gray-200 flex">
+                {(['fixed', 'auctions'] as const).map(tab => (
                     <button
-                        onClick={() => setActiveTab('fixed')}
-                        style={{
-                            padding: '10px 20px',
-                            border: 'none',
-                            backgroundColor: 'transparent',
-                            borderBottom: activeTab === 'fixed' ? '2px solid #007bff' : 'none',
-                            color: activeTab === 'fixed' ? '#007bff' : '#6c757d',
-                            cursor: 'pointer',
-                            fontSize: '16px',
-                            fontWeight: activeTab === 'fixed' ? 'bold' : 'normal'
-                        }}
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        className={`px-5 py-2.5 border-none bg-transparent cursor-pointer text-base ${
+                            activeTab === tab
+                                ? 'border-b-2 border-blue-600 text-blue-600 font-bold'
+                                : 'text-gray-500'
+                        }`}
                     >
-                        🏷️ Fixed Price ({nfts.length})
+                        {tab === 'fixed' ? `🏷️ Fixed Price (${nfts.length})` : `🔨 Auctions (${auctions.length})`}
                     </button>
-                    <button
-                        onClick={() => setActiveTab('auctions')}
-                        style={{
-                            padding: '10px 20px',
-                            border: 'none',
-                            backgroundColor: 'transparent',
-                            borderBottom: activeTab === 'auctions' ? '2px solid #007bff' : 'none',
-                            color: activeTab === 'auctions' ? '#007bff' : '#6c757d',
-                            cursor: 'pointer',
-                            fontSize: '16px',
-                            fontWeight: activeTab === 'auctions' ? 'bold' : 'normal'
-                        }}
-                    >
-                        🔨 Auctions ({auctions.length})
-                    </button>
-                </div>
+                ))}
             </div>
 
             {/* Fixed Price Listings */}
             {activeTab === 'fixed' && (
                 <div>
-                    <h2 style={{ marginBottom: '15px' }}>Fixed Price Listings</h2>
+                    <h2 className="mb-4 text-xl font-semibold">Fixed Price Listings</h2>
                     {nfts.length === 0 ? (
-                        <p style={{ color: '#6c757d', textAlign: 'center', padding: '40px' }}>
-                            No fixed-price listings available
-                        </p>
+                        <p className="text-gray-500 text-center py-10">No fixed-price listings available</p>
                     ) : (
-                        <div style={{ 
-                            display: 'grid', 
-                            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
-                            gap: '20px' 
-                        }}>
-                            {nfts.map((nft) => (
-                                <div key={nft._id} style={{ 
-                                    border: '1px solid #dee2e6', 
-                                    padding: '15px', 
-                                    borderRadius: '8px',
-                                    backgroundColor: 'white'
-                                }}>
-                                    <h3 style={{ margin: '0 0 8px 0', color: '#495057', fontSize: '16px', lineHeight: '1.3' }}>
-                                        {formatNFTDescription(nft)}
-                                    </h3>
-                                    <div style={{ fontSize: '12px', color: '#6c757d', marginBottom: '8px' }}>
-                                        <span style={{ color: getRarityColor(nft.colorRarity) }}>
+                        <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
+                            {nfts.map(nft => (
+                                <div key={nft._id} className="border border-gray-200 p-4 rounded-lg bg-white">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <h3 className="text-gray-700 text-base font-semibold leading-tight m-0 flex-1 mr-2">
+                                            {formatNFTDescription(nft)}
+                                        </h3>
+                                        <span className={`text-white text-xs px-2 py-0.5 rounded whitespace-nowrap ${MARKET_STATUS_BADGE[nft.marketStatus] ?? 'bg-gray-400'}`}>
+                                            {nft.marketStatus}
+                                        </span>
+                                    </div>
+                                    <div className="text-xs text-gray-500 mb-2">
+                                        <span style={{ color: RARITY_COLORS[nft.colorRarity] }}>
                                             Color: {nft.colorRarity}
                                         </span>
                                         {nft.propRarity !== 'notPresent' && (
                                             <>
                                                 {' • '}
-                                                <span style={{ color: getRarityColor(nft.propRarity) }}>
+                                                <span style={{ color: RARITY_COLORS[nft.propRarity] }}>
                                                     Props: {nft.propRarity}
                                                 </span>
                                             </>
                                         )}
                                     </div>
-                                    <p style={{ margin: '5px 0', fontSize: '14px', color: '#6c757d' }}>
+                                    <p className="text-sm text-gray-500 my-1">
                                         <strong>Collection:</strong> {nft.collectionName}
                                     </p>
                                     {nft.ownerId && (
-                                        <p style={{ margin: '5px 0', fontSize: '14px', color: '#6c757d' }}>
+                                        <p className="text-sm text-gray-500 my-1">
                                             <strong>Seller:</strong> {nft.ownerId.username}
                                         </p>
                                     )}
-                                    <div style={{ 
-                                        display: 'flex', 
-                                        justifyContent: 'space-between', 
-                                        alignItems: 'center',
-                                        marginTop: '15px'
-                                    }}>
-                                        <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#28a745' }}>
-                                            ${nft.currentPrice}
-                                        </span>
-                                        <button 
+                                    <div className="flex justify-between items-center mt-4">
+                                        <span className="text-lg font-bold text-green-600">${nft.currentPrice}</span>
+                                        <button
                                             onClick={() => handleBuy(nft._id)}
                                             disabled={nft.ownerId?._id === currentUserId}
-                                            style={{
-                                                backgroundColor: nft.ownerId?._id === currentUserId ? '#6c757d' : '#007bff',
-                                                color: 'white',
-                                                border: 'none',
-                                                padding: '8px 16px',
-                                                borderRadius: '4px',
-                                                cursor: nft.ownerId?._id === currentUserId ? 'not-allowed' : 'pointer'
-                                            }}
+                                            className={`px-4 py-2 rounded text-white text-sm ${
+                                                nft.ownerId?._id === currentUserId
+                                                    ? 'bg-gray-400 cursor-not-allowed'
+                                                    : 'bg-blue-600 hover:bg-blue-700 cursor-pointer'
+                                            }`}
                                         >
                                             {nft.ownerId?._id === currentUserId ? 'Your NFT' : 'Buy Now'}
                                         </button>
@@ -444,18 +273,12 @@ const Marketplace = () => {
             {/* Auctions */}
             {activeTab === 'auctions' && (
                 <div>
-                    <h2 style={{ marginBottom: '15px' }}>Active Auctions</h2>
+                    <h2 className="mb-4 text-xl font-semibold">Active Auctions</h2>
                     {auctions.length === 0 ? (
-                        <p style={{ color: '#6c757d', textAlign: 'center', padding: '40px' }}>
-                            No active auctions available
-                        </p>
+                        <p className="text-gray-500 text-center py-10">No active auctions available</p>
                     ) : (
-                        <div style={{ 
-                            display: 'grid', 
-                            gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', 
-                            gap: '20px' 
-                        }}>
-                            {auctions.map((auction) => (
+                        <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))' }}>
+                            {auctions.map(auction => (
                                 <AuctionCard
                                     key={auction._id}
                                     auction={auction}
@@ -468,7 +291,6 @@ const Marketplace = () => {
                 </div>
             )}
 
-            {/* Create Listing Modal */}
             {showCreateListing && (
                 <CreateListing
                     userNFTs={userNFTs}
@@ -477,18 +299,14 @@ const Marketplace = () => {
                 />
             )}
 
-            {/* My Auctions Modal */}
             {showMyAuctions && (
-                <MyAuctions
-                    onClose={() => setShowMyAuctions(false)}
-                />
+                <MyAuctions onClose={() => setShowMyAuctions(false)} />
             )}
 
-            {/* Generate NFT Modal */}
             {showGenerateNFT && (
                 <GenerateNFT
                     onClose={() => setShowGenerateNFT(false)}
-                    onNFTGenerated={handleNFTGenerated}
+                    onNFTGenerated={refreshData}
                 />
             )}
         </div>

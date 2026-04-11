@@ -1,30 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import type { NFT, Auction, AuctionStatus } from '../types';
 
-interface NFT {
-  _id: string;
-  displayName: string;
-  collectionName: string;
-  color: string;
-  thing: string;
-  colorRarity: string;
-  propRarity: string;
-  props: Array<{ name: string; rarity: string }>;
-  isFirstOfSet?: boolean;
-}
-
-interface Auction {
-  _id: string;
-  nftId: NFT;
-  auctionType: 'standard' | 'dutch' | 'reserve';
-  auctionStatus: 'active' | 'ended' | 'cancelled';
+interface AuctionWithBid extends Omit<Auction, 'sellerId'> {
   startingBid: number;
   currentBid?: number;
   reservePrice?: number;
   endTime: string;
-  winnerId?: {
-    _id: string;
-    username: string;
-  };
+  winnerId?: { _id: string; username: string };
 }
 
 interface Bid {
@@ -32,12 +14,9 @@ interface Bid {
   auctionId: {
     _id: string;
     nftId: NFT;
-    auctionStatus: 'active' | 'ended' | 'cancelled';
+    auctionStatus: AuctionStatus;
     endTime: string;
-    winnerId?: {
-      _id: string;
-      username: string;
-    };
+    winnerId?: { _id: string; username: string };
   };
   bidAmount: number;
   bidTime: string;
@@ -50,7 +29,7 @@ interface MyAuctionsProps {
 
 const MyAuctions: React.FC<MyAuctionsProps> = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState<'selling' | 'bidding'>('selling');
-  const [myAuctions, setMyAuctions] = useState<Auction[]>([]);
+  const [myAuctions, setMyAuctions] = useState<AuctionWithBid[]>([]);
   const [myBids, setMyBids] = useState<Bid[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -91,7 +70,7 @@ const MyAuctions: React.FC<MyAuctionsProps> = ({ onClose }) => {
     }
   };
 
-  const formatNFTDescription = (nft: NFT) => {
+  const formatNFTDescription = (nft: Pick<NFT, 'color' | 'thing' | 'props' | 'isFirstOfSet'>) => {
     let description = '';
     
     if (nft.isFirstOfSet) {

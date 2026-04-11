@@ -20,15 +20,25 @@ const router = express.Router();
  *     Auction:
  *       type: object
  *       properties:
- *         id:
+ *         _id:
  *           type: string
  *         nftId:
- *           type: string
+ *           $ref: '#/components/schemas/NFT'
+ *           description: The NFT being auctioned (populated)
  *         sellerId:
- *           type: string
+ *           type: object
+ *           properties:
+ *             _id:
+ *               type: string
+ *             username:
+ *               type: string
  *         auctionType:
  *           type: string
  *           enum: [standard, dutch, reserve]
+ *           description: |
+ *             - `standard`: English-style — bids increase, highest wins
+ *             - `dutch`: Price decreases over time, first bidder wins
+ *             - `reserve`: Hidden minimum price that must be met
  *         auctionStatus:
  *           type: string
  *           enum: [active, ended, cancelled]
@@ -38,18 +48,34 @@ const router = express.Router();
  *           type: number
  *         reservePrice:
  *           type: number
+ *           description: Hidden reserve price (reserve auctions only)
+ *         dutchCurrentPrice:
+ *           type: number
+ *           description: Current decreasing price (Dutch auctions only)
  *         endTime:
  *           type: string
  *           format: date-time
+ *         winnerId:
+ *           type: object
+ *           properties:
+ *             _id:
+ *               type: string
+ *             username:
+ *               type: string
  *     Bid:
  *       type: object
  *       properties:
- *         id:
+ *         _id:
  *           type: string
  *         auctionId:
  *           type: string
  *         bidderId:
- *           type: string
+ *           type: object
+ *           properties:
+ *             _id:
+ *               type: string
+ *             username:
+ *               type: string
  *         bidAmount:
  *           type: number
  *         isAutobid:
@@ -57,6 +83,10 @@ const router = express.Router();
  *         bidTime:
  *           type: string
  *           format: date-time
+ *         isWinning:
+ *           type: boolean
+ *         isOutbid:
+ *           type: boolean
  */
 
 /**
@@ -235,6 +265,10 @@ router.get('/my-bids', authMiddleware, async (req: AuthRequest, res: Response) =
  * /api/auctions/create:
  *   post:
  *     summary: Create a new auction
+ *     description: |
+ *       Creates a new auction for an NFT. The NFT must have `marketStatus: Owned`.
+ *       On success the NFT's `marketStatus` is set to `Auction` for the duration of the auction.
+ *       When the auction ends (won, no winner, or cancelled) the NFT reverts to `Owned`.
  *     tags: [Auctions]
  *     security:
  *       - bearerAuth: []
@@ -251,7 +285,7 @@ router.get('/my-bids', authMiddleware, async (req: AuthRequest, res: Response) =
  *             properties:
  *               nftId:
  *                 type: string
- *                 description: ID of the NFT to auction
+ *                 description: ID of the NFT to auction (must have marketStatus Owned)
  *               auctionType:
  *                 type: string
  *                 enum: [standard, dutch, reserve]
@@ -261,10 +295,10 @@ router.get('/my-bids', authMiddleware, async (req: AuthRequest, res: Response) =
  *                 description: Starting bid amount
  *               duration:
  *                 type: number
- *                 description: Auction duration in seconds (optional)
+ *                 description: Auction duration in seconds (optional, uses server default if omitted)
  *               reservePrice:
  *                 type: number
- *                 description: Reserve price for reserve auctions (optional)
+ *                 description: Hidden reserve price — reserve auctions only (optional)
  *           example:
  *             nftId: "abc123"
  *             auctionType: "standard"
@@ -272,11 +306,22 @@ router.get('/my-bids', authMiddleware, async (req: AuthRequest, res: Response) =
  *             duration: 300
  *     responses:
  *       201:
- *         description: Auction created successfully
+ *         description: Auction created successfully. NFT marketStatus is now `Auction`.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 auction:
+ *                   $ref: '#/components/schemas/Auction'
  *       400:
- *         description: Validation error
+ *         description: Validation error, NFT not in Owned status, or auction limits reached
  *       401:
  *         description: Unauthorized
+ *       403:
+ *         description: User does not own the NFT
  *       404:
  *         description: NFT not found
  *       500:

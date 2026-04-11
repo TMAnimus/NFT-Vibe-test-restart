@@ -32,12 +32,14 @@ NFTs have the following rarity options:
 - **Styling:** Tailwind CSS v3 with custom component classes
 
 ## Frontend Features ✅ **MODERN REACT + TAILWIND**
-- **Modern UI Framework**: React + TypeScript for type-safe component development
-- **Tailwind CSS Styling**: Utility-first CSS framework with custom component classes
-- **Responsive Design**: Mobile-first approach with consistent design system
+- **Shared Type System**: `client/src/types/index.ts` mirrors server-side enums — `MarketStatus`, `AuctionType`, `Rarity`, `NFT`, `Auction` — used across all components
+- **NFT Market Status**: Four states — `Owned`, `Listed`, `Auction`, `Sold` — with coloured badges in the UI
+- **Tailwind CSS Styling**: Utility-first CSS with custom component classes (`btn-primary`, `card-auction`, etc.)
+- **Responsive Design**: Mobile-first layout with consistent design system
 - **Interactive Components**: Real-time auction cards, modal dialogs, and form validation
-- **Custom Styling System**: Reusable button classes, card layouts, and rarity color coding
-- **Production Build**: Optimized Vite build process with CSS purging
+- **Production Build**: Optimised Vite build with CSS purging
+
+See [README.Frontend.md](README.Frontend.md) for full frontend architecture documentation.
 
 ## Real-time Features
 - **Live Market Updates**: See new listings and sales instantly
