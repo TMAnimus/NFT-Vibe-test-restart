@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { loginPlayer } from '../services/api';
 
 const Login = () => {
     const [username, setUsername] = useState('');
     const [pin, setPin] = useState('');
     const [error, setError] = useState<string | null>(null);
-    const [token, setToken] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
-        setToken(null);
 
         try {
             const jwtToken = await loginPlayer(username, pin);
-            setToken(jwtToken);
             localStorage.setItem('jwt_token', jwtToken);
+            navigate('/');
         } catch (err: any) {
             setError(err.message);
         }
@@ -26,7 +26,6 @@ const Login = () => {
             <h2>Login</h2>
             <form onSubmit={handleSubmit}>
                 {error && <p style={{ color: 'red' }}>{error}</p>}
-                {token && <p style={{ color: 'green' }}>Login successful!</p>}
                 <div style={{ marginBottom: '10px' }}>
                     <label htmlFor="username">Username:</label>
                     <input

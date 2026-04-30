@@ -38,7 +38,7 @@ const PropSchema = new Schema<Prop>({
 const NFTSchema = new Schema<INFT>({
   id: { type: String, default: uuidv4, unique: true },
   setId: { type: Schema.Types.ObjectId, ref: 'NFTSet', required: true },
-  ownerId: { type: Schema.Types.ObjectId, ref: 'Player', default: null },
+  ownerId: { type: Schema.Types.ObjectId, ref: 'User', default: null },
   color: { type: String, required: true },
   thing: { type: String, required: true },
   props: { type: [PropSchema], default: [] },

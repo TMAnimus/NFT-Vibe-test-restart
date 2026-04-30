@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api'; // Assuming the server runs on port 3000
+const API_URL = 'http://localhost:3000/api';
 
 const getAuthHeaders = () => {
     const token = localStorage.getItem('jwt_token');
@@ -8,92 +8,82 @@ const getAuthHeaders = () => {
     };
 };
 
-export const registerPlayer = async (username: string, pin: string) => {
-    const response = await fetch(`${API_URL}/auth/register`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ username, pin }),
-    });
+/** Decode the JWT expiry and return true if the token is still valid. */
+export const isTokenValid = (): boolean => {
+    const token = localStorage.getItem('jwt_token');
+    if (!token) return false;
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        // exp is in seconds; Date.now() is in ms
+        return payload.exp * 1000 > Date.now();
+    } catch {
+        return false;
+    }
+};
+
+/**
+ * Central fetch wrapper. Throws on non-OK responses and automatically
+ * clears the stored token + redirects to /login on 401.
+ */
+const apiFetch = async (url: string, options: RequestInit = {}): Promise<any> => {
+    const response = await fetch(url, options);
 
     if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to register');
+        if (response.status === 401) {
+            localStorage.removeItem('jwt_token');
+            window.location.href = '/login';
+        }
+        const errorData = await response.json().catch(() => ({ message: 'Request failed' }));
+        throw new Error(errorData.message || 'Request failed');
     }
 
     return response.json();
 };
 
-export const loginPlayer = async (username: string, pin: string) => {
-    const response = await fetch(`${API_URL}/auth/login`, {
+export const registerPlayer = async (username: string, pin: string) => {
+    return apiFetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({ username, pin }),
     });
+};
 
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to login');
-    }
-
-    const data = await response.json();
+export const loginPlayer = async (username: string, pin: string) => {
+    const data = await apiFetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ username, pin }),
+    });
     return data.token;
 };
 
 export const getListedNFTs = async () => {
-    const response = await fetch(`${API_URL}/marketplace/listed`, {
+    return apiFetch(`${API_URL}/marketplace/listed`, {
         method: 'GET',
         headers: getAuthHeaders(),
     });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch listed NFTs');
-    }
-
-    return response.json();
 };
 
 export const getActiveAuctions = async () => {
-    const response = await fetch(`${API_URL}/auctions/active`, {
+    return apiFetch(`${API_URL}/auctions/active`, {
         method: 'GET',
         headers: getAuthHeaders(),
     });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch active auctions');
-    }
-
-    return response.json();
 };
 
 export const getUserNFTs = async () => {
-    const response = await fetch(`${API_URL}/nft/my-nfts`, {
+    return apiFetch(`${API_URL}/nft/my-nfts`, {
         method: 'GET',
         headers: getAuthHeaders(),
     });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch user NFTs');
-    }
-
-    return response.json();
 };
 
 export const createFixedPriceListing = async (nftId: string, price: number) => {
-    const response = await fetch(`${API_URL}/marketplace/list`, {
+    return apiFetch(`${API_URL}/marketplace/list`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({ nftId, price }),
     });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create listing');
-    }
-
-    return response.json();
 };
 
 export const createAuction = async (nftId: string, auctionData: {
@@ -102,133 +92,67 @@ export const createAuction = async (nftId: string, auctionData: {
     duration: number;
     reservePrice?: number;
 }) => {
-    const response = await fetch(`${API_URL}/auctions/create`, {
+    return apiFetch(`${API_URL}/auctions/create`, {
         method: 'POST',
         headers: getAuthHeaders(),
-        body: JSON.stringify({
-            nftId,
-            ...auctionData
-        }),
+        body: JSON.stringify({ nftId, ...auctionData }),
     });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create auction');
-    }
-
-    return response.json();
 };
 
 export const placeBid = async (auctionId: string, bidAmount: number) => {
-    const response = await fetch(`${API_URL}/auctions/${auctionId}/bid`, {
+    return apiFetch(`${API_URL}/auctions/${auctionId}/bid`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({ bidAmount }),
     });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to place bid');
-    }
-
-    return response.json();
 };
 
 export const buyNFT = async (nftId: string) => {
-    const response = await fetch(`${API_URL}/marketplace/buy/${nftId}`, {
+    return apiFetch(`${API_URL}/marketplace/buy/${nftId}`, {
         method: 'POST',
         headers: getAuthHeaders(),
     });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to buy NFT');
-    }
-
-    return response.json();
 };
 
 export const getMyAuctions = async () => {
-    const response = await fetch(`${API_URL}/auctions/my-auctions`, {
+    return apiFetch(`${API_URL}/auctions/my-auctions`, {
         method: 'GET',
         headers: getAuthHeaders(),
     });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch my auctions');
-    }
-
-    return response.json();
 };
 
 export const getMyBids = async () => {
-    const response = await fetch(`${API_URL}/auctions/my-bids`, {
+    return apiFetch(`${API_URL}/auctions/my-bids`, {
         method: 'GET',
         headers: getAuthHeaders(),
     });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch my bids');
-    }
-
-    return response.json();
 };
 
 export const getAuctionDetails = async (auctionId: string) => {
-    const response = await fetch(`${API_URL}/auctions/${auctionId}`, {
+    return apiFetch(`${API_URL}/auctions/${auctionId}`, {
         method: 'GET',
         headers: getAuthHeaders(),
     });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch auction details');
-    }
-
-    return response.json();
 };
 
 export const cancelAuction = async (auctionId: string) => {
-    const response = await fetch(`${API_URL}/auctions/${auctionId}/cancel`, {
+    return apiFetch(`${API_URL}/auctions/${auctionId}/cancel`, {
         method: 'POST',
         headers: getAuthHeaders(),
     });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to cancel auction');
-    }
-
-    return response.json();
 };
 
 export const generateNFT = async (collectionName: string) => {
-    const response = await fetch(`${API_URL}/nft/generate`, {
+    return apiFetch(`${API_URL}/nft/generate`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({ collectionName }),
     });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to generate NFT');
-    }
-
-    return response.json();
 };
 
 export const getUserProfile = async () => {
-    const response = await fetch(`${API_URL}/user/profile`, {
+    return apiFetch(`${API_URL}/user/profile`, {
         method: 'GET',
         headers: getAuthHeaders(),
     });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch user profile');
-    }
-
-    return response.json();
 };

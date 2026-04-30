@@ -26,6 +26,8 @@ const router = express.Router();
  *   post:
  *     summary: Generate a new NFT from a specific collection
  *     tags: [NFT]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -56,6 +58,8 @@ const router = express.Router();
  *                 propRarity: "common"
  *                 blockchain: "Ethereum"
  *                 currentPrice: 100
+ *                 marketStatus: "Owned"
+ *                 ownerId: "60f7c2b8e1d2c8a1b8e1d2c8"
  *       400:
  *         description: Bad request (e.g., missing collectionName).
  *         content:
@@ -90,10 +94,11 @@ const router = express.Router();
  */
 router.post(
   '/generate',
+  authMiddleware,
   [
     body('collectionName').isString().notEmpty().withMessage('collectionName is required and must be a string.'),
   ],
-  async (req: Request, res: Response) => {
+  async (req: AuthRequest, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -101,7 +106,8 @@ router.post(
 
     try {
       const { collectionName } = req.body;
-      const newNft = await generateNft(collectionName);
+      const ownerId = req.user!.userId;
+      const newNft = await generateNft(collectionName, ownerId);
       res.status(201).json(newNft);
     } catch (error: any) {
       if (error.message.includes('not found')) {

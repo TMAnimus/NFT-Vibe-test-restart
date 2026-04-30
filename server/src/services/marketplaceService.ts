@@ -410,7 +410,10 @@ export const getListedNfts = async (filters: {
     if (filters.maxPrice !== undefined) query.currentPrice.$lte = filters.maxPrice;
     if (Object.keys(query.currentPrice).length === 0) delete query.currentPrice;
   }
-  const listedNfts = await NFTModel.find(query).populate('setId').lean();
+  const listedNfts = await NFTModel.find(query)
+    .populate('setId')
+    .populate('ownerId', 'username')
+    .lean();
   return listedNfts;
 };
 

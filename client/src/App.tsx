@@ -11,6 +11,7 @@ import Register from './components/Register';
 import Marketplace from './components/Marketplace';
 import NotificationToast from './components/NotificationToast';
 import { io } from 'socket.io-client';
+import { isTokenValid } from './services/api';
 
 interface Notification {
   id: string;
@@ -24,7 +25,7 @@ function App() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   const isAuthenticated = () => {
-    return localStorage.getItem('jwt_token') !== null;
+    return isTokenValid();
   };
 
   const addNotification = (notification: Omit<Notification, 'id'>) => {

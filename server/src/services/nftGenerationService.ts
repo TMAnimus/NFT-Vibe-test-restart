@@ -43,7 +43,7 @@ function weightedRandomSelect(values: IAttribute[]): IAttribute {
  * @param {string} collectionName - The name of the collection to generate an NFT for.
  * @returns {Promise<any>} The newly created NFT document.
  */
-export async function generateNft(collectionName: string): Promise<any> {
+export async function generateNft(collectionName: string, ownerId: string): Promise<any> {
   const nftSet = await NFTSetModel.findOne({ collectionName: collectionName });
 
   if (!nftSet) {
@@ -107,6 +107,8 @@ export async function generateNft(collectionName: string): Promise<any> {
     currentPrice: calculatedPrice,
     status: CollectionStatus.New,
     isFirstOfSet: isFirstOfSet,
+    ownerId: ownerId,
+    marketStatus: 'Owned',
   });
 
   await newNft.save();
