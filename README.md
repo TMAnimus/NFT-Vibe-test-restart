@@ -93,13 +93,27 @@ The comprehensive auction system is **production-ready** with complete frontend 
 - **[Socket.IO Events](server/docs/socket-events.md)**: Real-time event documentation with auction events ✅
 - **[Implementation Demo](AUCTION_DEMO.md)**: Detailed implementation guide and usage examples
 
+## NPC Buyers System 🚧 IN DEVELOPMENT
+The NPC system (Milestone 6) is currently being built on the `NPCs` branch. NPCs will simulate real market participants with five distinct trading strategies:
+
+- **Conservative** — stable, long-term holders that reduce volatility
+- **Aggressive** — high-risk traders that create price swings and attempt market manipulation
+- **Speculative** — trend-followers that amplify hype cycles
+- **Collector** — obsessive buyers fixated on a specific colour, prop, or colour+prop combination
+- **Opportunist** — event-driven traders that capitalise on market dips
+
+NPCs participate in the existing tick system, use the same marketplace service functions as players, and their activity is visible in the trade feed. Players can observe and exploit NPC behaviour patterns.
+
+See [README.NPCs.md](README.NPCs.md) for full design and implementation detail.  
+See [README.Milestone6.md](README.Milestone6.md) for the sub-milestone breakdown.
+
 ## Future Features
 Features listed in `README.Future.md` and `README.Future.v2.md` are proposals for future versions and are _not currently implemented_.
 
 ## Milestones
 See [README.Milestones.md](README.Milestones.md) for complete milestone overview and project status.
 
-**Current Status**: ✅ **Production Ready** - Milestones 4 & 5 complete + Post-M5 auction system & frontend enhancements
+**Current Status**: ✅ **Production Ready** (Milestones 4 & 5 + Post-M5 auction system & frontend) | 🚧 **Milestone 6 (NPCs) in development**
 
 ## Development Setup
 See [README.setup_Version3.md](README.setup_Version3.md) for complete installation and development instructions.
