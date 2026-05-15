@@ -12,8 +12,9 @@ This milestone implements the core NFT marketplace, including listing, browsing,
 - [x] API endpoints for listing, browsing, and purchasing NFTs.
 
 ## Frontend Features
-- [x] Modern front-end for browsing/filtering NFTs (`client/marketplace.html`, `client/js/marketplace.js`, `client/styles/marketplace.css`).
-- [x] UI for listing NFTs and purchasing NFTs.
+- [x] React + TypeScript + Tailwind CSS frontend for browsing and filtering NFTs
+- [x] UI for listing NFTs and purchasing NFTs
+- [x] Responsive marketplace with advanced filtering and real-time updates
 
 ## Testing
 - [x] Comprehensive Jest tests for all marketplace routes and logic, including:

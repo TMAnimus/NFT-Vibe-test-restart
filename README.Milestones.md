@@ -105,26 +105,23 @@ The NFT Trading Game has completed all core functionality and is ready for deplo
 
 ## Future Milestones (Not Implemented)
 
-### 🚧 Milestone 6: NPC Buyers System (FUTURE)
-**Status**: **PLANNED** - Future enhancement, not currently implemented  
-**Documentation**: [README.Milestone6.md](README.Milestone6.md)
+### 🚧 Milestone 6: NPC Buyers System
+**Status**: **IN DEVELOPMENT** — `NPCs` branch  
+**Documentation**: [README.Milestone6.md](README.Milestone6.md) · [README.NPCs.md](README.NPCs.md)
 
-**Proposed Sub-Milestones**:
-- **6A: NPC Foundation System** - Basic NPC entities and infrastructure
-- **6B: NPC Decision Engine** - Intelligent decision-making for trading
-- **6C: Market Integration & Tick Processing** - Integration with existing systems
-- **6D: Advanced NPC Behaviors** - Sophisticated trading patterns and manipulation
-- **6E: Market Events & Dynamic Systems** - Dynamic events triggered by NPC behavior
-- **6F: Testing & Performance Optimization** - Quality assurance and performance
+**Sub-Milestones**:
+- **6A: NPC Foundation** 🚧 — Model, schema, wallet, generation service, basic API
+- **6B: Decision Engine** ⬜ — Strategy behaviours, market analysis, buy/sell decisions
+- **6C: Market Integration** ⬜ — Tick system hooks, marketplace participation, price influence
+- **6D: Advanced Behaviours** ⬜ — Market manipulation, NPC–NPC interaction
+- **6E: Market Events** ⬜ — Event system, chain reactions, bull/bear cycles
+- **6F: Testing & Optimisation** ⬜ — Full coverage, 50+ NPC performance, balance testing
 
-**Proposed Features**:
-- Intelligent NPC buyers with 5 distinct trading strategies
-- Advanced market simulation with NPC-driven price fluctuations
-- Complex market manipulation and NPC social behaviors
-- Dynamic event system with chain reactions and market cycles
-- Comprehensive testing and performance optimization for 50+ NPCs
-
-> ⚠️ **Note**: This milestone represents future enhancements. The game is fully functional and production-ready without these features.
+**Features**:
+- 5 distinct NPC trading strategies (Conservative, Aggressive, Speculative, Collector, Opportunist)
+- NPC activity visible in the trade feed; players can observe and exploit NPC behaviour
+- NPCs reuse existing marketplace and auction service functions
+- Market dynamics driven by NPC buying/selling pressure and manipulation
 
 ---
 
@@ -136,7 +133,7 @@ The NFT Trading Game has completed all core functionality and is ready for deplo
 | Milestone 5 | ✅ Complete | January 2025 | Real-time multiplayer features |
 | **Post-M5: Auction System** | ✅ Complete | January 2025 | Complete auction system with 3 types |
 | **Post-M5: Frontend Enhancement** | ✅ Complete | January 2025 | Production-ready React UI |
-| Milestone 6 | 🚧 Future | TBD | NPC trading system |
+| Milestone 6 | 🚧 In development | — | NPC trading system (`NPCs` branch) |
 
 ---
 
@@ -177,7 +174,7 @@ The NFT Trading Game has completed all core functionality and is ready for deplo
 
 ## Getting Started
 
-1. **Setup**: Follow [README.setup.md](README.setup.md) for installation
+1. **Setup**: Follow [README.setup_Version3.md](README.setup_Version3.md) for installation
 2. **API Reference**: See [server/docs/api-documentation.md](server/docs/api-documentation.md)
 3. **Socket Events**: Check [server/docs/socket-events.md](server/docs/socket-events.md)
 4. **Auction Demo**: Review [AUCTION_DEMO.md](AUCTION_DEMO.md) for auction system details

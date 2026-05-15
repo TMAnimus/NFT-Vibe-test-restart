@@ -205,4 +205,4 @@ export class TickService {
 See `server/docs/socket-events.md` for Socket.IO `notification` and `globalNotification` event schemas and client examples.
 
 ---
-See [README.Milestone4.md](README.Milestone4.md) for completed marketplace features and [README.v2.md](README.v2.md) for project overview.
+See [README.Milestone4.md](README.Milestone4.md) for completed marketplace features and [README.md](README.md) for project overview.
