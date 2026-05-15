@@ -45,7 +45,7 @@ describe('NFT Generation Service', () => {
       save: saveMock,
     }));
 
-    await generateNft(mockCollectionName);
+    await generateNft(mockCollectionName, 'user123');
 
     expect(NFTSetModel.findOne).toHaveBeenCalledWith({ collectionName: mockCollectionName });
     expect(NFTModel.countDocuments).toHaveBeenCalledWith({ setId: mockSet._id });
@@ -64,6 +64,8 @@ describe('NFT Generation Service', () => {
     expect(constructorArgs.blockchain).toBe('');
     expect(constructorArgs.isFirstOfSet).toBe(true);
     expect(constructorArgs.status).toBe(CollectionStatus.New);
+    expect(constructorArgs.ownerId).toBe('user123');
+    expect(constructorArgs.marketStatus).toBe('Owned');
 
     // Price calculation: 100 * 1.5 (uncommon) * 2.5 (rare) = 375
     expect(constructorArgs.currentPrice).toBe(375);
@@ -77,7 +79,7 @@ describe('NFT Generation Service', () => {
     const mockCollectionName = 'Non-Existent Toasters';
     (NFTSetModel.findOne as jest.Mock).mockResolvedValue(null);
 
-    await expect(generateNft(mockCollectionName)).rejects.toThrow(
+    await expect(generateNft(mockCollectionName, 'user123')).rejects.toThrow(
       `NFT Set with collection name "${mockCollectionName}" not found.`
     );
 

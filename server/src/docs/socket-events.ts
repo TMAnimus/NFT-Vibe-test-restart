@@ -17,10 +17,10 @@
  *               description: The NFT's display name
  *             colorRarity:
  *               type: string
- *               description: The NFT's color rarity level
+ *               enum: [common, uncommon, rare, veryRare]
  *             propRarity:
  *               type: string
- *               description: The NFT's prop rarity level
+ *               enum: [notPresent, common, uncommon, rare, veryRare]
  *             currentPrice:
  *               type: number
  *               description: The listing price
@@ -29,7 +29,8 @@
  *               description: The ID of the user selling the NFT
  *             marketStatus:
  *               type: string
- *               description: The market status of the NFT (e.g., 'Listed')
+ *               enum: [Owned, Listed, Auction, Sold]
+ *               description: Market status of the NFT — will be `Listed` in this event
  *         timestamp:
  *           type: string
  *           format: date-time
@@ -45,6 +46,10 @@
  *               type: string
  *             displayName:
  *               type: string
+ *             marketStatus:
+ *               type: string
+ *               enum: [Owned, Listed, Auction, Sold]
+ *               description: Market status of the NFT — will be `Owned` after purchase
  *         buyer:
  *           type: string
  *           description: The buyer's username
@@ -72,6 +77,43 @@
  *           type: string
  *           format: date-time
  * 
+ *     AuctionCreatedEvent:
+ *       type: object
+ *       description: Emitted when a new auction is created. The NFT's marketStatus is now `Auction`.
+ *       properties:
+ *         auction:
+ *           $ref: '#/components/schemas/Auction'
+ *         timestamp:
+ *           type: string
+ *           format: date-time
+ * 
+ *     BidPlacedEvent:
+ *       type: object
+ *       description: Emitted when a bid is placed on an auction.
+ *       properties:
+ *         auction:
+ *           $ref: '#/components/schemas/Auction'
+ *         bid:
+ *           $ref: '#/components/schemas/Bid'
+ *         timestamp:
+ *           type: string
+ *           format: date-time
+ * 
+ *     AuctionEndedEvent:
+ *       type: object
+ *       description: |
+ *         Emitted when an auction ends. The NFT's marketStatus reverts to `Owned`
+ *         regardless of whether there was a winner.
+ *       properties:
+ *         auction:
+ *           $ref: '#/components/schemas/Auction'
+ *         winner:
+ *           type: string
+ *           description: Winner's username (omitted if no winner)
+ *         timestamp:
+ *           type: string
+ *           format: date-time
+ * 
  * tags:
  *   - name: Real-time Events
  *     description: Socket.IO events for real-time marketplace updates
@@ -83,12 +125,30 @@
  *       description: |
  *         WebSocket endpoint for real-time updates. Use Socket.IO client to connect.
  *         
- *         Example connection:
+ *         **Connection:**
  *         ```javascript
- *         const socket = io({
- *           auth: { token: 'your-jwt-token' }
- *         });
+ *         const socket = io({ auth: { token: 'your-jwt-token' } });
  *         ```
+ *         
+ *         **Server → Client events:**
+ *         | Event | Schema | Trigger |
+ *         |-------|--------|---------|
+ *         | `listingCreated` | `ListingCreatedEvent` | NFT listed for fixed-price sale |
+ *         | `listingSold` | `ListingSoldEvent` | Fixed-price NFT purchased |
+ *         | `marketUpdate` | `MarketUpdateEvent` | Tick system price update |
+ *         | `auctionCreated` | `AuctionCreatedEvent` | New auction started |
+ *         | `bidPlaced` | `BidPlacedEvent` | Bid placed on auction |
+ *         | `auctionEnded` | `AuctionEndedEvent` | Auction completed or cancelled |
+ *         | `auctionUpdated` | `Auction` | Dutch price tick or bid update |
+ *         | `notification` | — | Personal notification to user |
+ *         | `globalNotification` | — | System-wide announcement |
+ *         
+ *         **Client → Server events:**
+ *         | Event | Payload | Effect |
+ *         |-------|---------|--------|
+ *         | `joinMarketplace` | — | Join marketplace room |
+ *         | `joinAuction` | `{ auctionId }` | Join auction room |
+ *         | `leaveAuction` | `{ auctionId }` | Leave auction room |
  *       tags:
  *         - Real-time Events
  *       security:

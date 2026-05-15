@@ -4,7 +4,7 @@ import BidModel, { IBid } from '../models/Bid';
 import NFTModel from '../models/NFT';
 import { UserModel } from '../models/User';
 import { TransactionModel } from '../models/Transaction';
-import { AuctionType, AuctionStatus } from '../models/enums';
+import { AuctionType, AuctionStatus, MarketStatus } from '../models/enums';
 import { 
   emitAuctionCreated, 
   emitBidPlaced, 
@@ -61,7 +61,7 @@ export const createAuction = async (
     if (nft.ownerId?.toString() !== sellerId) {
       throw new AuctionError('User is not the owner of this NFT', 403);
     }
-    if (nft.marketStatus === 'Sold') {
+    if (nft.marketStatus === MarketStatus.Sold) {
       throw new AuctionError('Cannot auction a sold NFT', 400);
     }
 
@@ -124,7 +124,7 @@ export const createAuction = async (
     await auction.save({ session });
 
     // Update NFT status
-    nft.marketStatus = 'Auction';
+    nft.marketStatus = MarketStatus.Auction;
     await nft.save({ session });
 
     await session.commitTransaction();
@@ -375,7 +375,7 @@ export const endAuction = async (auctionId: string) => {
 
       // Transfer NFT ownership
       nft.ownerId = winner._id;
-      nft.marketStatus = 'Owned';
+      nft.marketStatus = MarketStatus.Owned;
       nft.currentPrice = auction.winningBid!;
 
       // Save all changes
@@ -420,10 +420,10 @@ export const endAuction = async (auctionId: string) => {
       });
 
     } else {
-      // No winner - reset NFT status
+      // No winner - reset NFT status back to Owned
       const nft = await NFTModel.findById(auction.nftId).session(session);
       if (nft) {
-        nft.marketStatus = 'Listed';
+        nft.marketStatus = MarketStatus.Owned;
         await nft.save({ session });
       }
 
@@ -499,10 +499,10 @@ export const cancelAuction = async (auctionId: string, userId: string) => {
     
     seller!.balance -= cancelFee;
 
-    // Reset NFT status
+    // Reset NFT status back to Owned
     const nft = await NFTModel.findById(auction.nftId).session(session);
     if (nft) {
-      nft.marketStatus = 'Listed';
+      nft.marketStatus = MarketStatus.Owned;
       await nft.save({ session });
     }
 

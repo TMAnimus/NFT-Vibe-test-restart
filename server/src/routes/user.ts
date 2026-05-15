@@ -22,21 +22,49 @@ const router = Router();
  *         collectionName:
  *           type: string
  *           description: Name of the NFT collection
+ *         color:
+ *           type: string
+ *           description: Color of the NFT
+ *         thing:
+ *           type: string
+ *           description: The noun/item type of the NFT
  *         colorRarity:
  *           type: string
- *           description: Rarity based on color
+ *           enum: [common, uncommon, rare, veryRare]
+ *           description: Rarity of the NFT's color
  *         propRarity:
  *           type: string
- *           description: Rarity based on properties
+ *           enum: [notPresent, common, uncommon, rare, veryRare]
+ *           description: Rarity of the NFT's properties
+ *         props:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               rarity:
+ *                 type: string
+ *                 enum: [common, uncommon, rare, veryRare, notPresent]
+ *           description: List of properties attached to the NFT
  *         blockchain:
  *           type: string
  *           description: Blockchain the NFT is on
  *         currentPrice:
  *           type: number
  *           description: Current price of the NFT
+ *         isFirstOfSet:
+ *           type: boolean
+ *           description: Whether this NFT is the first of its set
  *         marketStatus:
  *           type: string
- *           description: Current market status (e.g., Listed, Owned)
+ *           enum: [Owned, Listed, Auction, Sold]
+ *           description: |
+ *             Current market status of the NFT.
+ *             - `Owned`: NFT is owned and not on the market (default after generation or purchase)
+ *             - `Listed`: NFT is listed for fixed-price sale
+ *             - `Auction`: NFT is currently being auctioned
+ *             - `Sold`: Legacy/reserved state
  *     ErrorResponse:
  *       type: object
  *       properties:

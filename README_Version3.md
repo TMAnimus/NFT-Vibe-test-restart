@@ -22,18 +22,28 @@ NFTs have the following rarity options:
 - **Prop Rarity:** NotPresent, Common, Uncommon, Rare, Very Rare
 
 ## Tech Stack
-- **Front-end:** HTML, CSS, JavaScript (future: React + Tailwind CSS)
-- **Back-end:** Node.js with Express.js
-- **Realtime:** Socket.IO
-- **Database:** MongoDB
+- **Front-end:** React + TypeScript + Tailwind CSS ✅ **IMPLEMENTED**
+- **Back-end:** Node.js with Express.js + TypeScript
+- **Realtime:** Socket.IO for live updates
+- **Database:** MongoDB with Mongoose
 - **Authentication:** Username + 4-digit PIN (hashed), JWT for sessions
-- **Testing:** Jest
-- **Language:** TypeScript (v2 and onwards)
+- **Testing:** Jest (104/104 tests passing)
+- **Build Tools:** Vite (frontend), TypeScript compiler (backend)
+- **Styling:** Tailwind CSS v3 with custom component classes
+
+## Frontend Features ✅ **MODERN REACT + TAILWIND**
+- **Modern UI Framework**: React + TypeScript for type-safe component development
+- **Tailwind CSS Styling**: Utility-first CSS framework with custom component classes
+- **Responsive Design**: Mobile-first approach with consistent design system
+- **Interactive Components**: Real-time auction cards, modal dialogs, and form validation
+- **Custom Styling System**: Reusable button classes, card layouts, and rarity color coding
+- **Production Build**: Optimized Vite build process with CSS purging
 
 ## Real-time Features
 - **Live Market Updates**: See new listings and sales instantly
 - **Dynamic Pricing**: Watch prices update in real-time based on market activity
 - **Instant Notifications**: Receive alerts for marketplace events and price changes
+- **Real-time Bidding**: Live auction updates with countdown timers
 - **Tick-based System**: Market updates occur on daily and weekly cycles
 See [server/docs/socket-events.md](server/docs/socket-events.md) for real-time event documentation.
 
@@ -41,13 +51,19 @@ See [server/docs/socket-events.md](server/docs/socket-events.md) for real-time e
 Players register with a username and a 4-digit PIN (satirical, minimal security). PINs are hashed and stored in MongoDB. JWTs are used for session management.
 
 ## Marketplace Features
-- **Fixed-Price Sales**: Traditional immediate purchase marketplace
-- **Auction System**: Competitive bidding with multiple auction types ✅ **IMPLEMENTED**
-  - Standard Auctions (English-style bidding)
-  - Dutch Auctions (decreasing price over time)
-  - Reserve Auctions (hidden minimum price)
-- **Real-time Bidding**: Live auction updates via Socket.IO
-- **Seller Choice**: Choose between fixed-price or auction when listing NFTs
+- **Dual Marketplace Interface**: Modern React components with tabbed navigation
+- **Fixed-Price Sales**: Traditional immediate purchase marketplace with instant buying
+- **Complete Auction System**: ✅ **FULLY IMPLEMENTED**
+  - **🔨 Standard Auctions**: English-style bidding with real-time updates
+  - **⚡ Dutch Auctions**: Decreasing price over time with live price display
+  - **💎 Reserve Auctions**: Hidden minimum price with status indicators
+- **Interactive UI Elements**: 
+  - Real-time countdown timers for active auctions
+  - Live bid validation and submission forms
+  - Responsive auction cards with Tailwind styling
+- **NFT Generation Interface**: Modal-based NFT creation from 15 available collections
+- **User Activity Tracking**: "My Auctions" and "My Bids" management interface
+- **Real-time Notifications**: Toast-style notifications with custom animations
 
 ## Marketplace Events
 See [README.Events.md](README.Events.md) for current events. For proposed future events, see [README.Future.v2.md](README.Future.v2.md).
@@ -83,5 +99,16 @@ See [README.Milestones.md](README.Milestones.md) for complete milestone overview
 
 **Current Status**: ✅ **Production Ready** - Milestones 4 & 5 complete + Post-M5 auction system & frontend enhancements
 
-## Setup
-See [README.setup.md](README.setup.md) for installation and development instructions.
+## Development Setup
+See [README.setup_Version3.md](README.setup_Version3.md) for complete installation and development instructions.
+
+### Quick Start
+```bash
+# Backend (Terminal 1)
+cd server && npm install && npm run build && npm start
+
+# Frontend (Terminal 2) 
+cd client && npm install && npm run dev
+```
+
+**Access**: Frontend at http://localhost:5173, Backend API at http://localhost:3000/api-docs

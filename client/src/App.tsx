@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import {
   BrowserRouter as Router,
@@ -11,6 +11,7 @@ import Register from './components/Register';
 import Marketplace from './components/Marketplace';
 import NotificationToast from './components/NotificationToast';
 import { io } from 'socket.io-client';
+import { isTokenValid } from './services/api';
 
 interface Notification {
   id: string;
@@ -24,7 +25,7 @@ function App() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   const isAuthenticated = () => {
-    return localStorage.getItem('jwt_token') !== null;
+    return isTokenValid();
   };
 
   const addNotification = (notification: Omit<Notification, 'id'>) => {
@@ -106,14 +107,14 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route 
-          path="/" 
+        <Route
+          path="/"
           element={isAuthenticated() ? <Marketplace /> : <Navigate to="/login" />}
         />
       </Routes>
-      <NotificationToast 
-        notifications={notifications} 
-        onRemove={removeNotification} 
+      <NotificationToast
+        notifications={notifications}
+        onRemove={removeNotification}
       />
     </Router>
   );

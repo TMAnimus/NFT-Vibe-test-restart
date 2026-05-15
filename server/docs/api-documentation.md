@@ -3,7 +3,7 @@
 ## Overview
 Complete API documentation for the NFT Trading Game, including authentication, marketplace, auction system, notifications, and real-time features.
 
-**Base URL**: `http://localhost:3001/api`  
+**Base URL**: `http://localhost:3000/api`  
 **Authentication**: JWT Bearer Token  
 **Real-time**: Socket.IO for live updates
 
@@ -122,6 +122,12 @@ Generate a new NFT from a collection.
 }
 ```
 
+**Available Collections:**
+- Apathetic Axolotls, Crypto Bananas, Cynical Capybaras
+- Distracted Degenerates, Disinterested Ducks, Crypto Lamps  
+- Crypto Mugs, Crypto Clips, Crypto Pencils, Crypto Plants
+- Crypto Potatoes, Sleepy Sloths, Crypto Socks, Crypto Toast, Crypto Toasters
+
 **Response (201):**
 ```json
 {
@@ -135,6 +141,14 @@ Generate a new NFT from a collection.
   "marketStatus": "Owned"
 }
 ```
+
+**NFT Market Status Values:**
+| Status | Description |
+|--------|-------------|
+| `Owned` | NFT is owned and not listed — default state after generation or purchase |
+| `Listed` | NFT is listed for fixed-price sale on the marketplace |
+| `Auction` | NFT is currently being auctioned |
+| `Sold` | NFT has been sold (legacy/reserved state) |
 
 **Errors:**
 - `400`: Validation error
@@ -214,7 +228,7 @@ List an NFT for fixed-price sale.
 ```
 
 **Errors:**
-- `400`: Validation error or NFT already listed
+- `400`: Validation error or NFT not in `Owned` status (already listed or being auctioned)
 - `401`: User doesn't own the NFT
 - `404`: NFT not found
 
@@ -378,8 +392,9 @@ Create a new auction for an NFT.
 ```
 
 **Errors:**
-- `400`: Validation error or NFT already listed/auctioned
+- `400`: Validation error or NFT not in `Owned` status (already listed or being auctioned)
 - `401`: User doesn't own the NFT
+- `403`: NFT is currently being auctioned (`Auction` status)
 - `404`: NFT not found
 
 ### Place Bid
@@ -695,7 +710,7 @@ const socket = io({
 ## Development & Testing
 
 ### Swagger UI
-Interactive API documentation available at: `http://localhost:3001/api-docs`
+Interactive API documentation available at: `http://localhost:3000/api-docs`
 
 ### Test Coverage
 - **104/104 tests passing** ✅
@@ -710,6 +725,29 @@ See `server/docs/environment-variables.md` for configuration options.
 ---
 
 ## Changelog
+
+### Version 3.2 - MarketStatus Enum ✅ **LATEST**
+- **NEW**: `MarketStatus` enum added to `server/src/models/enums.ts` with four states: `Owned`, `Listed`, `Auction`, `Sold`
+- **FIXED**: NFT schema now uses `Object.values(MarketStatus)` — `Auction` is now a valid enum value (was previously missing, causing silent Mongoose validation failures)
+- **FIXED**: Default `marketStatus` corrected from `Listed` → `Owned` (a newly generated NFT starts as owned, not listed)
+- **FIXED**: Cancelled and no-winner auctions now correctly reset NFT status to `Owned` instead of `Listed`
+- **IMPROVED**: All magic strings replaced with `MarketStatus` enum references across `auctionService.ts` and `marketplaceService.ts`
+
+### NFT Market Status State Machine
+```
+[Generated] ──► Owned ──► Listed ──► Owned  (after purchase)
+                  │
+                  └──► Auction ──► Owned    (after auction ends: won, no-winner, or cancelled)
+```
+
+### Version 3.1 - Modern Frontend ✅
+- **NEW**: React + TypeScript + Tailwind CSS frontend implementation
+- **NEW**: Interactive auction components with real-time countdown timers
+- **NEW**: Modern UI with responsive design and custom component classes
+- **NEW**: Enhanced NFT generation interface with all 15 collections
+- **ENHANCED**: Improved user experience with modal dialogs and form validation
+- **ENHANCED**: Real-time notifications with custom toast animations
+- **ENHANCED**: Production-ready build process with Vite and optimized CSS
 
 ### Version 3.0 - Auction System ✅
 - **NEW**: Complete auction system with Standard, Dutch, and Reserve auctions

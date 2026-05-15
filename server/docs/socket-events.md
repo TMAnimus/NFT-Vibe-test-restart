@@ -60,7 +60,7 @@ interface ListingCreatedEvent {
     propRarity: string;
     currentPrice: number;
     ownerId: string;
-    marketStatus: string;
+    marketStatus: 'Owned' | 'Listed' | 'Auction' | 'Sold';
   };
   timestamp: string;
 }
