@@ -27,7 +27,7 @@ jest.mock('fs', () => ({
           limits: { maxActiveAuctionsPerUser: 5 },
           pricing: { minStartingBid: 1, maxStartingBid: 100000, bidIncrement: 1, reservePriceMin: 1, reservePriceMax: 100000 },
           timing: { defaultDuration: 300, minDuration: 60, maxDuration: 3600 },
-          fees: { transactionFee: 0.05, cancelFee: 5 },
+          fees: { transactionFee: 0.05, cancelFee: 0.01 },
           dutchAuctions: { defaultStartPriceMultiplier: 2, defaultDecrementPercent: 30, priceFloorMultiplier: 0.1 },
           autobid: { maxAutobidsPerUser: 10, defaultIncrement: 1 }
         }

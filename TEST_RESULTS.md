@@ -47,12 +47,12 @@
 
 ### Backend Tests (Server)
 ```
-Test Suites: 10 passed, 1 failed*, 11 total
-Tests:       104 passed, 104 total
-Time:        25.181 s
+Test Suites: 11 passed, 11 total
+Tests:       121 passed, 121 total
+Time:        30.902 s
 ```
 
-*Auth test suite shows as "failed" due to console error output from intentional error testing, but all tests pass functionally.
+Jest still reports a forced-exit/open-handle warning after completion; rerun with `--detectOpenHandles` when investigating teardown cleanup.
 
 #### Test Coverage:
 - ✅ **Authentication** (register, login, JWT validation)

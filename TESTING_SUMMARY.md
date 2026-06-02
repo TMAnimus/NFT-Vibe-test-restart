@@ -157,7 +157,7 @@ Simple guide to get up and running fast.
 
 ## 📊 Test Coverage
 
-### Backend Tests (104 total)
+### Backend Tests (121 total)
 - ✅ Authentication (register, login, JWT)
 - ✅ User profile management
 - ✅ NFT generation and management
@@ -213,7 +213,7 @@ Your application is working correctly if:
 - [ ] Can create all 3 auction types
 - [ ] Real-time updates work without refresh
 - [ ] Notifications display correctly
-- [ ] 104/104 automated tests pass
+- [ ] 121/121 automated tests pass
 - [ ] No console errors in browser
 - [ ] No server errors in terminal
 

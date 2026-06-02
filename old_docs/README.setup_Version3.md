@@ -67,7 +67,7 @@ npm start
 - **TypeScript**: Full type checking for both frontend and backend
 - **Tailwind CSS**: Utility-first styling with custom component classes
 - **Real-time Updates**: Socket.IO for live marketplace and auction updates
-- **Comprehensive Testing**: 104/104 tests passing
+- **Comprehensive Testing**: 121/121 tests passing
 
 ## Available Collections
 The game includes 15 NFT collections:

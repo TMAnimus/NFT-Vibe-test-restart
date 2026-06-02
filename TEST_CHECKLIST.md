@@ -229,7 +229,7 @@ Use this checklist to verify all features are working correctly.
 
 ### Backend Tests
 - [ ] All tests pass (`cd server && npm test`)
-- [ ] 104/104 tests passing
+- [ ] 121/121 tests passing
 - [ ] No test failures
 - [ ] Coverage reports generated
 

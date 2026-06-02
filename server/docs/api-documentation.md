@@ -433,7 +433,15 @@ Place a bid on an active auction.
 **POST** `/auctions/{auctionId}/cancel`  
 **Auth Required**: Yes
 
-Cancel an auction (seller only, no bids).
+Cancel an auction. Only the seller can cancel an active auction, and only before any bids have been placed.
+
+Cancelling deducts the configured cancellation fee from the seller balance:
+
+```json
+{
+  "cancelFee": 0.01
+}
+```
 
 **Response (200):**
 ```json
@@ -443,7 +451,7 @@ Cancel an auction (seller only, no bids).
 ```
 
 **Errors:**
-- `400`: Cannot cancel (has bids or auction ended)
+- `400`: Cannot cancel (has bids, auction ended, or seller lacks funds for the cancellation fee)
 - `403`: Not the auction owner
 - `404`: Auction not found
 
@@ -713,7 +721,7 @@ const socket = io({
 Interactive API documentation available at: `http://localhost:3000/api-docs`
 
 ### Test Coverage
-- **104/104 tests passing** ✅
+- **121/121 tests passing** ✅
 - Unit tests for all services
 - Integration tests for API endpoints
 - Socket.IO event testing
@@ -756,7 +764,7 @@ See `server/docs/environment-variables.md` for configuration options.
 - **NEW**: Auction-specific notification types
 - **ENHANCED**: Marketplace now supports both fixed-price and auction listings
 - **ENHANCED**: Tick system processes auction expiration and Dutch price updates
-- **ENHANCED**: 104/104 tests passing with full auction coverage
+- **ENHANCED**: 121/121 tests passing with full auction coverage
 
 ### Version 2.0 - Notifications & Real-time
 - Notification preference management

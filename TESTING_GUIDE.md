@@ -504,7 +504,7 @@ db.dropDatabase()
 - [ ] Transactions are safe (no double-spending)
 - [ ] Error messages are clear and helpful
 - [ ] UI is responsive and intuitive
-- [ ] 104/104 automated tests pass
+- [ ] 121/121 automated tests pass
 - [ ] No console errors in browser
 - [ ] No server errors in terminal
 

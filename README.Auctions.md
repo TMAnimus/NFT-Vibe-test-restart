@@ -25,6 +25,7 @@ This document outlines an auction system to replace the current first-come-first
 - Buyers place incremental bids
 - Highest bidder wins when auction expires
 - Autobid feature available for players
+- Seller can cancel before any bids are placed; cancellation deducts a $0.01 fee
 
 **Example:**
 ```
@@ -213,6 +214,7 @@ Recent Bids:
     "defaultDurationHours": 24,
     "minBidIncrement": 25,
     "autobidMaxIncrement": 100,
+    "cancelFee": 0.01,
     "dutchAuctionStartMultiplier": 1.5,
     "dutchAuctionDecrementPercent": 0.1,
     "dutchAuctionInterval": 2,

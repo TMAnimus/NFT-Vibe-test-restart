@@ -137,7 +137,7 @@ Your testing is complete when:
 - [ ] Can create marketplace listings
 - [ ] Can create all 3 auction types
 - [ ] Real-time updates work
-- [ ] Automated tests pass (104/104)
+- [ ] Automated tests pass (121/121)
 - [ ] No console errors
 - [ ] No server errors
 

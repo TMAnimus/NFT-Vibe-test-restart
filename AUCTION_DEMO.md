@@ -81,7 +81,7 @@ The auction system has been **successfully implemented and fully tested** as a p
 - **Choice of listing type** - Fixed price or auction via unified interface
 - **Flexible auction configuration** - Duration, starting bid, auction type
 - **Real-time monitoring** - Live updates on bids and auction status
-- **Cancellation options** - Cancel auctions without bids (with fee)
+- **Cancellation options** - Cancel auctions without bids with a $0.01 fee
 
 ### Buyer Experience
 - **Live bidding** - Real-time bid updates and competition
@@ -131,7 +131,7 @@ The auction system is highly configurable via `server/src/config/marketplaceConf
 - **Error Scenarios**: Database failures, validation errors, edge cases - ✅ **All covered**
 - **Mock Support**: Full Jest mocking for isolated testing - ✅ **Complete**
 - **Test Infrastructure**: Fixed JWT_SECRET loading and test cleanup issues - ✅ **Resolved**
-- **Total Test Count**: **104/104 tests passing** - ✅ **100% success rate**
+- **Total Test Count**: **121/121 tests passing** - ✅ **100% success rate**
 
 ## Usage Examples
 
@@ -195,17 +195,17 @@ The auction system maintains the game's satirical tone:
 
 ## Test Infrastructure Improvements ✅
 
-### Issues Resolved
+### Current Status
 - **JWT_SECRET Environment Variable**: Fixed test environment variable loading
 - **Test Cleanup**: Improved Socket.IO and tick system cleanup in integration tests
 - **Timer Management**: Added `.unref()` to prevent timers from keeping test process alive
 - **Jest Configuration**: Added `forceExit: true` and increased timeout for integration tests
-- **Open Handles**: Resolved lingering connection issues that prevented clean test exit
+- **Open Handles**: Jest still reports a forced-exit/open-handle warning after the passing run; use `--detectOpenHandles` when investigating teardown cleanup
 
 ### Test Results
 ```
 Test Suites: 11 total, 11 passed ✅
-Tests:       104 total, 104 passed ✅
+Tests:       121 total, 121 passed ✅
 Snapshots:   0 total
 Time:        ~30s (improved performance)
 ```
@@ -217,8 +217,8 @@ The auction system implementation is **complete, tested, and production-ready**.
 - ✅ **Full feature parity** with the design specification
 - ✅ **Seamless integration** with existing marketplace
 - ✅ **Real-time user experience** via Socket.IO
-- ✅ **Comprehensive testing** with 104/104 tests passing
-- ✅ **Robust test infrastructure** with proper cleanup and error handling
+- ✅ **Comprehensive testing** with 121/121 tests passing
+- ✅ **Robust test coverage** with a known Jest teardown warning still to investigate
 - ✅ **Scalable architecture** for future enhancements
 
 Sellers now have the choice between fixed-price sales and competitive auctions, adding strategic depth to the NFT trading experience while maintaining the game's satirical and entertaining nature.
@@ -230,4 +230,4 @@ The auction system is fully functional and ready for deployment with:
 - Interactive frontend components
 - Real-time bidding capabilities
 - Comprehensive test coverage
-- Clean test execution
+- Passing test execution with a known Jest open-handle warning

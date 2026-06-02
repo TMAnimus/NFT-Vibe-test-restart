@@ -465,6 +465,10 @@ router.post(
  * /api/auctions/{auctionId}/cancel:
  *   post:
  *     summary: Cancel an auction (seller only)
+ *     description: |
+ *       Cancels an active auction owned by the authenticated seller.
+ *       Auctions can only be cancelled before any bids are placed.
+ *       A configured cancellation fee of 0.01 is deducted from the seller balance.
  *     tags: [Auctions]
  *     security:
  *       - bearerAuth: []
@@ -477,9 +481,9 @@ router.post(
  *         description: Auction ID
  *     responses:
  *       200:
- *         description: Auction cancelled successfully
+ *         description: Auction cancelled successfully; seller paid the configured 0.01 cancellation fee.
  *       400:
- *         description: Cannot cancel auction (has bids, not owner, etc.)
+ *         description: Cannot cancel auction (has bids, ended auction, insufficient funds for cancellation fee, etc.)
  *       401:
  *         description: Unauthorized
  *       403:
