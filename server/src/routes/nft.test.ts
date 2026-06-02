@@ -5,6 +5,14 @@ import * as nftGenerationService from '../services/nftGenerationService';
 
 jest.mock('../services/nftGenerationService');
 
+// Mock auth middleware so tests can run without a real JWT
+jest.mock('../middleware/auth', () => ({
+  authMiddleware: (req: any, _res: any, next: any) => {
+    req.user = { userId: 'testuser123', username: 'testuser' };
+    next();
+  }
+}));
+
 const app = express();
 app.use(express.json());
 app.use('/api/nft', nftRoutes);
@@ -23,7 +31,7 @@ describe('NFT Routes', () => {
         .send({ collectionName: 'Crypto Toasters' });
       expect(response.status).toBe(201);
       expect(response.body).toEqual(mockNft);
-      expect(nftGenerationService.generateNft).toHaveBeenCalledWith('Crypto Toasters');
+      expect(nftGenerationService.generateNft).toHaveBeenCalledWith('Crypto Toasters', 'testuser123');
     });
 
     it('should return 400 if collectionName is missing', async () => {

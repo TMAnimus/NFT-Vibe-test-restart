@@ -16,8 +16,26 @@ jest.mock('../models/NFT');
 jest.mock('../models/User');
 jest.mock('../models/Transaction');
 jest.mock('./socketService');
-jest.mock('fs');
-jest.mock('path');
+
+// Mock fs so the module-level config load in auctionService succeeds
+jest.mock('fs', () => ({
+  ...jest.requireActual('fs'),
+  readFileSync: jest.fn((filePath: string) => {
+    if (String(filePath).includes('marketplaceConfig')) {
+      return JSON.stringify({
+        auctions: {
+          limits: { maxActiveAuctionsPerUser: 5 },
+          pricing: { minStartingBid: 1, maxStartingBid: 100000, bidIncrement: 1, reservePriceMin: 1, reservePriceMax: 100000 },
+          timing: { defaultDuration: 300, minDuration: 60, maxDuration: 3600 },
+          fees: { transactionFee: 0.05, cancelFee: 5 },
+          dutchAuctions: { defaultStartPriceMultiplier: 2, defaultDecrementPercent: 30, priceFloorMultiplier: 0.1 },
+          autobid: { maxAutobidsPerUser: 10, defaultIncrement: 1 }
+        }
+      });
+    }
+    return jest.requireActual('fs').readFileSync(filePath);
+  })
+}));
 
 describe('Auction Service', () => {
   let mockAuctionModel: any;
