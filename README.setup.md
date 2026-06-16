@@ -1,63 +1,83 @@
 # Installation and Setup
 
-## Overview
-This guide provides step-by-step instructions to set up the *NFT Trading Game* locally for development or testing. It assumes you have completed Milestones 1–3 (Project Setup, User Authentication, NFT Creation System). See [README.md](README.md) for project details.
-
 ## Prerequisites
-- **Node.js**: v18 or higher
-- **MongoDB**: v6 or higher (running locally or via a cloud provider)
-- **Git**: For cloning the repository
-- **NPM**: Comes with Node.js
+- **Node.js v18+** (with npm 11.6.2+)
+- **MongoDB v6+** (local or cloud instance)
+- **Git** for version control
+- **Modern web browser** (Chrome, Firefox, Safari, Edge)
 
-## Installation Steps
-1. **Clone the Repository**  
-   ```bash
-   git clone <repo-url>
-   cd nft-trading-game
-   ```
+## Quick Start
 
-2. **Install Dependencies**  
-   Install Node.js packages:
-   ```bash
-   npm install
-   ```
-
-3. **Set Up MongoDB**  
-   - Ensure MongoDB is running locally (`mongod`) or provide a connection string for a remote instance.
-   - Create a database named `nft-game` (or update the connection string accordingly).
-
-4. **Configure Environment Variables**  
-   Create a `.env` file in the project root:
-   ```env
-   MONGO_URI=mongodb://localhost:27017/nft-game
-   JWT_SECRET=your-super-secret-key
-   PORT=3000
-   ```
-   - Replace `your-super-secret-key` with a random string for JWT signing.
-   - Adjust `MONGO_URI` if using a remote MongoDB instance.
-
-5. **Run the Server**  
-   Start the Node.js server:
-   ```bash
-   npm start
-   ```
-
-6. **Access the Application**  
-   Open a browser and navigate to `http://localhost:3000`. You should see the front-end page with options to register, log in, and create NFTs.
-
-## Troubleshooting
-- **MongoDB Connection Error**: Ensure MongoDB is running and `MONGO_URI` is correct. Check `mongod` logs for issues.
-- **Port Conflict**: If port 3000 is in use, update `PORT` in `.env` or kill the conflicting process.
-- **Missing Dependencies**: Run `npm install` again or check `package.json` for missing packages.
-- **JWT Errors**: Verify `JWT_SECRET` is set and matches across server restarts.
-
-## Testing
-To run Jest unit tests (e.g., for NFT Creation System):
+### 1. Clone and Install
 ```bash
-npm test
+# Clone the repository
+git clone <repository-url>
+cd NFT_test_3
+
+# Install backend dependencies
+cd server
+npm install
+
+# Install frontend dependencies
+cd ../client
+npm install
 ```
-Tests are located in the `tests/` directory.
+
+### 2. Environment Setup
+```bash
+# Backend environment (server/.env)
+cd server
+cp .env.example .env
+# Edit .env with your MongoDB connection string and JWT secret
+
+# Frontend automatically connects to localhost:3000
+```
+
+### 3. Start the Application
+```bash
+# Terminal 1: Start backend server
+cd server
+npm run build  # Build TypeScript
+npm start      # Start server on http://localhost:3000
+
+# Terminal 2: Start frontend development server
+cd client
+npm run dev    # Start Vite dev server on http://localhost:5173
+```
+
+### 4. Access the Application
+- **Frontend**: http://localhost:5173 (React + Tailwind CSS interface)
+- **Backend API**: http://localhost:3000/api
+- **API Documentation**: http://localhost:3000/api-docs (Swagger UI)
+
+## Production Build
+```bash
+# Build frontend for production
+cd client
+npm run build
+
+# Build backend for production
+cd server
+npm run build
+npm start
+```
+
+## Development Features
+- **Hot Reload**: Frontend updates automatically during development
+- **TypeScript**: Full type checking for both frontend and backend
+- **Tailwind CSS**: Utility-first styling with custom component classes
+- **Real-time Updates**: Socket.IO for live marketplace and auction updates
+- **Comprehensive Testing**: 121/121 tests passing
+
+## Available Collections
+The game includes 15 NFT collections:
+- Apathetic Axolotls, Crypto Bananas, Cynical Capybaras
+- Distracted Degenerates, Disinterested Ducks, Crypto Lamps
+- Crypto Mugs, Crypto Clips, Crypto Pencils, Crypto Plants
+- Crypto Potatoes, Sleepy Sloths, Crypto Socks, Crypto Toast, Crypto Toasters
 
 ## Notes
-- The 4-digit PIN authentication is intentionally simplistic for satirical purposes. Do not use this setup for production systems requiring real security.
-- Ensure your MongoDB instance is secure (e.g., no public access) during development.
+- **4-digit PIN**: For satirical purposes, not real security!
+- **TypeScript**: Used throughout for type safety and maintainability
+- **Testing**: Run `npm test` in server directory for full test suite
+- **Documentation**: See README.Milestones.md for development progress

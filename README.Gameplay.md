@@ -152,7 +152,7 @@ See [README.Future.md](README.Future.md) for planned features (GUI, player-trigg
 ## Related Docs
 
 - [README.md](README.md) – Project overview
-- [README.Database.v2.md](README.Database.v2.md) – Database schema
+- [README.Database.v2.md](old_docs/README.Database.v2.md) – Database schema
 - [README.Events.md](README.Events.md) – Event system
 - [README.NPCs.md](README.NPCs.md) – NPC logic
 - [README.Players.md](README.Players.md) – Player logic

@@ -1,7 +1,7 @@
 /**
  * Shared test fixtures for client component tests.
  */
-import type { NFT, Auction } from '../types';
+import type { NFT, Auction } from './types';
 
 export const mockNFTOwned: NFT = {
   _id: 'nft1',

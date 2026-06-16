@@ -174,7 +174,7 @@ The NFT Trading Game has completed all core functionality and is ready for deplo
 
 ## Getting Started
 
-1. **Setup**: Follow [README.setup_Version3.md](README.setup_Version3.md) for installation
+1. **Setup**: Follow [README.setup.md](README.setup.md) for installation
 2. **API Reference**: See [server/docs/api-documentation.md](server/docs/api-documentation.md)
 3. **Socket Events**: Check [server/docs/socket-events.md](server/docs/socket-events.md)
 4. **Auction Demo**: Review [AUCTION_DEMO.md](AUCTION_DEMO.md) for auction system details

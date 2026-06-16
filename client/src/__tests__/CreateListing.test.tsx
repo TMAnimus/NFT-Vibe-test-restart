@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import CreateListing from '../components/CreateListing';
 import { mockNFTOwned, mockNFTWithProps, mockNFTListed, mockNFTAuction } from '../testFixtures';

@@ -8,7 +8,7 @@ This project is developed using TypeScript for type safety and maintainability.
 **Note:** References to "vibe coding" or "NFT VibeCode" in documentation are about the process of building the game, _not_ the game’s name.
 
 ## Gameplay
-See [README.Gameplay.v2.md](README.Gameplay.v2.md) for detailed, up-to-date gameplay mechanics.
+See [README.Gameplay.md](README.Gameplay.md) for detailed, up-to-date gameplay mechanics.
 
 ## Key Concepts
 
@@ -68,7 +68,7 @@ Players register with a username and a 4-digit PIN (satirical, minimal security)
 - **Real-time Notifications**: Toast-style notifications with custom animations
 
 ## Marketplace Events
-See [README.Events.md](README.Events.md) for current events. For proposed future events, see [README.Future.v2.md](README.Future.v2.md).
+See [README.Events.md](README.Events.md) for current events. For proposed future events, see [README.Future.md](README.Future.md).
 
 ## Auction System ✅ FULLY IMPLEMENTED
 The comprehensive auction system is **production-ready** with complete frontend and backend implementation:
@@ -108,7 +108,7 @@ See [README.NPCs.md](README.NPCs.md) for full design and implementation detail.
 See [README.Milestone6.md](README.Milestone6.md) for the sub-milestone breakdown.
 
 ## Future Features
-Features listed in `README.Future.md` and `README.Future.v2.md` are proposals for future versions and are _not currently implemented_.
+Features listed in `README.Future.md` are proposals for future versions and are _not currently implemented_.
 
 ## Milestones
 See [README.Milestones.md](README.Milestones.md) for complete milestone overview and project status.
@@ -116,7 +116,7 @@ See [README.Milestones.md](README.Milestones.md) for complete milestone overview
 **Current Status**: ✅ **Production Ready** (Milestones 4 & 5 + Post-M5 auction system & frontend) | 🚧 **Milestone 6 (NPCs) in development**
 
 ## Development Setup
-See [README.setup_Version3.md](README.setup_Version3.md) for complete installation and development instructions.
+See [README.setup.md](README.setup.md) for complete installation and development instructions.
 
 ### Quick Start
 ```bash
